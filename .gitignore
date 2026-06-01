@@ -1,0 +1,50 @@
+# System & IDE files
+.vs/
+.idea/
+.vscode/
+*.suo
+*.user
+*.userossc
+*.sln.docstates
+*.log
+*.bak
+*.tmp
+*~
+
+# Compiled binary files (Keep repo clean and avoid GitHub 100MB limit)
+*.pdb
+*.exe
+*.dll
+*.lib
+*.exp
+*.o
+*.a
+*.obj
+*.ilk
+*.pch
+*.iobj
+*.ipdb
+*.gch
+
+# Large compressed archives
+*.zip
+*.7z
+*.rar
+*.tar.gz
+
+# Build outputs and IDE configurations
+build/
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+
+# Specific nested build and compile directories
+**/vc16/
+**/build_win/
+**/vc14/
+**/vc15/
+**/vc17/
+**/vc22/
+**/ipch/

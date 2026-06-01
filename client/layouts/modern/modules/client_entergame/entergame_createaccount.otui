@@ -1,0 +1,161 @@
+CreateAccountWindow
+  id: createAccountWindow
+  @onEscape: AccountRegister.hideCreateAccount()
+
+  LoginLabel
+    !text: tr('Nome da conta')
+    anchors.left: parent.left
+    anchors.top: parent.top
+    text-auto-resize: true
+
+  LoginField
+    id: accountName
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    margin-top: 2
+    max-length: 32
+
+  LoginLabel
+    !text: tr('E-mail')
+    anchors.left: parent.left
+    anchors.top: prev.bottom
+    margin-top: 6
+    text-auto-resize: true
+
+  LoginField
+    id: email
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    margin-top: 2
+
+  LoginLabel
+    !text: tr('Senha')
+    anchors.left: parent.left
+    anchors.top: prev.bottom
+    margin-top: 6
+    text-auto-resize: true
+
+  LoginPasswordField
+    id: password
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    margin-top: 2
+
+  LoginLabel
+    !text: tr('Repetir senha')
+    anchors.left: parent.left
+    anchors.top: prev.bottom
+    margin-top: 6
+    text-auto-resize: true
+
+  LoginPasswordField
+    id: password2
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    margin-top: 2
+
+  LoginSeparator
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    margin-top: 8
+
+  LoginLabel
+    !text: tr('Nome do personagem')
+    anchors.left: parent.left
+    anchors.top: prev.bottom
+    margin-top: 6
+    text-auto-resize: true
+
+  LoginField
+    id: characterName
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    margin-top: 2
+    max-length: 29
+
+  LoginLabel
+    !text: tr('Sexo')
+    anchors.left: parent.left
+    anchors.top: prev.bottom
+    margin-top: 6
+    text-auto-resize: true
+
+  LoginComboBox
+    id: sex
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    margin-top: 2
+
+  LoginLabel
+    !text: tr('Vocacao')
+    anchors.left: parent.left
+    anchors.top: prev.bottom
+    margin-top: 6
+    text-auto-resize: true
+
+  LoginComboBox
+    id: vocation
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    margin-top: 2
+
+  LoginLabel
+    !text: tr('Cidade')
+    anchors.left: parent.left
+    anchors.top: prev.bottom
+    margin-top: 6
+    text-auto-resize: true
+
+  LoginComboBox
+    id: town
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    margin-top: 2
+
+  LoginCheckbox
+    id: acceptRules
+    !text: tr('Aceito as regras do servidor')
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    margin-top: 8
+
+  Label
+    id: statusLabel
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    margin-top: 4
+    height: 28
+    text-wrap: true
+    color: #cc3333
+    text-auto-resize: true
+    font: verdana-11px-antialised
+
+  LoginSeparator
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.bottom: next.top
+    margin-bottom: 8
+
+  LoginSmallButton
+    !text: tr('Cancelar')
+    anchors.left: parent.left
+    anchors.bottom: parent.bottom
+    @onClick: AccountRegister.hideCreateAccount()
+
+  LoginSubmitButton
+    id: submitButton
+    !text: tr('Criar conta')
+    anchors.right: parent.right
+    anchors.bottom: parent.bottom
+    @onClick: AccountRegister.submitCreateAccount()

@@ -1,0 +1,485 @@
+CombatPowerSectionPanel < FlatPanel
+  padding: 6
+
+CombatPowerListBox < TextList
+  background-color: #2a2a2a
+  padding: 4
+  focusable: false
+
+CombatPowerStatRow < Panel
+  height: 18
+
+  Label
+    id: rowLabel
+    anchors.left: parent.left
+    anchors.verticalCenter: parent.verticalCenter
+    font: verdana-11px-antialised
+    color: #cccccc
+    text-auto-resize: true
+
+  Label
+    id: rowValue
+    anchors.right: parent.right
+    anchors.left: rowLabel.right
+    margin-left: 6
+    anchors.verticalCenter: parent.verticalCenter
+    text-align: right
+    font: verdana-11px-antialised
+    color: #ffcc00
+    text-wrap: false
+
+CombatPowerSpellRow < Panel
+  height: 30
+  margin-bottom: 2
+  margin-left: 2
+  margin-right: 2
+
+  UIWidget
+    id: iconImage
+    anchors.left: parent.left
+    anchors.verticalCenter: parent.verticalCenter
+    margin-left: 4
+    size: 28 28
+    phantom: true
+
+  Label
+    id: lineText
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: parent.top
+    anchors.bottom: parent.bottom
+    margin-left: 36
+    margin-right: 6
+    font: verdana-11px-antialised
+    text-wrap: false
+
+CombatPowerRuneRow < Panel
+  height: 34
+  margin-left: 2
+  margin-right: 2
+
+  UIWidget
+    id: iconImage
+    anchors.left: parent.left
+    anchors.verticalCenter: parent.verticalCenter
+    margin-left: 4
+    size: 28 28
+    visible: false
+    phantom: true
+
+  UIItem
+    id: iconItem
+    anchors.left: parent.left
+    anchors.verticalCenter: parent.verticalCenter
+    margin-left: 4
+    size: 28 28
+    virtual: true
+    phantom: true
+
+  Label
+    id: lineText
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: parent.top
+    anchors.bottom: parent.bottom
+    margin-left: 36
+    margin-right: 6
+    font: verdana-11px-antialised
+    text-wrap: true
+
+CombatPowerEquipRow < Panel
+  height: 34
+  margin-left: 2
+  margin-right: 2
+
+  UIItem
+    id: iconItem
+    anchors.left: parent.left
+    anchors.verticalCenter: parent.verticalCenter
+    margin-left: 4
+    size: 28 28
+    virtual: true
+    phantom: true
+
+  Label
+    id: lineText
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: parent.top
+    anchors.bottom: parent.bottom
+    margin-left: 36
+    margin-right: 6
+    font: verdana-11px-antialised
+    text-wrap: true
+
+MainWindow
+  id: combatPowerWindow
+  !text: tr('Combat Power')
+  size: 580 640
+  @onEscape: modules.game_combatpower.hide()
+
+  Label
+    id: headerLabel
+    anchors.top: parent.top
+    anchors.left: parent.left
+    anchors.right: parent.right
+    margin-top: 4
+    margin-left: 12
+    margin-right: 12
+    height: 36
+    text-align: center
+    font: verdana-11px-rounded
+    color: #ffcc00
+    text-wrap: true
+
+  HorizontalSeparator
+    id: headerSeparator
+    anchors.top: prev.bottom
+    margin-top: 6
+    anchors.left: parent.left
+    anchors.right: parent.right
+    margin-left: 12
+    margin-right: 12
+
+  CombatPowerSectionPanel
+    id: statsSectionPanel
+    anchors.top: prev.bottom
+    margin-top: 8
+    anchors.left: parent.left
+    anchors.right: parent.right
+    margin-left: 12
+    margin-right: 12
+    height: 124
+
+    Panel
+      id: statsColumns
+      anchors.fill: parent
+
+      Panel
+        id: attackPanel
+        anchors.left: parent.left
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        anchors.right: statsSeparator.left
+        margin-right: 8
+        layout:
+          type: verticalBox
+          spacing: 3
+
+        Label
+          font: verdana-11px-rounded
+          height: 18
+          color: #ff9999
+          !text: tr('Ataque (servidor)')
+
+        Panel
+          height: 18
+          Label
+            anchors.left: parent.left
+            anchors.verticalCenter: parent.verticalCenter
+            font: verdana-11px-antialised
+            color: #cccccc
+            text-auto-resize: true
+            !text: tr('Arma:')
+          Label
+            id: weaponValue
+            anchors.right: parent.right
+            anchors.left: prev.right
+            margin-left: 6
+            anchors.verticalCenter: parent.verticalCenter
+            text-align: right
+            font: verdana-11px-antialised
+            color: #ffcc00
+            text-wrap: false
+
+        Panel
+          height: 18
+          Label
+            anchors.left: parent.left
+            anchors.verticalCenter: parent.verticalCenter
+            font: verdana-11px-antialised
+            color: #cccccc
+            text-auto-resize: true
+            !text: tr('Skill / Atk:')
+          Label
+            id: skillValue
+            anchors.right: parent.right
+            anchors.left: prev.right
+            margin-left: 6
+            anchors.verticalCenter: parent.verticalCenter
+            text-align: right
+            font: verdana-11px-antialised
+            color: #ffcc00
+            text-wrap: false
+
+        Panel
+          height: 18
+          Label
+            anchors.left: parent.left
+            anchors.verticalCenter: parent.verticalCenter
+            font: verdana-11px-antialised
+            color: #cccccc
+            text-auto-resize: true
+            !text: tr('Dano fisico:')
+          Label
+            id: damageValue
+            anchors.right: parent.right
+            anchors.left: prev.right
+            margin-left: 6
+            anchors.verticalCenter: parent.verticalCenter
+            text-align: right
+            font: verdana-11px-antialised
+            color: #ffcc00
+            text-wrap: false
+
+        Panel
+          id: elementRow
+          height: 18
+          visible: false
+          Label
+            anchors.left: parent.left
+            anchors.verticalCenter: parent.verticalCenter
+            font: verdana-11px-antialised
+            color: #cccccc
+            text-auto-resize: true
+            !text: tr('Elemento:')
+          Label
+            id: elementValue
+            anchors.right: parent.right
+            anchors.left: prev.right
+            margin-left: 6
+            anchors.verticalCenter: parent.verticalCenter
+            text-align: right
+            font: verdana-11px-antialised
+            color: #ffcc00
+            text-wrap: false
+
+        Panel
+          id: distanceRow
+          height: 18
+          visible: false
+          Label
+            anchors.left: parent.left
+            anchors.verticalCenter: parent.verticalCenter
+            font: verdana-11px-antialised
+            color: #cccccc
+            text-auto-resize: true
+            !text: tr('Dist pvp/mob:')
+          Label
+            id: distanceValue
+            anchors.right: parent.right
+            anchors.left: prev.right
+            margin-left: 6
+            anchors.verticalCenter: parent.verticalCenter
+            text-align: right
+            font: verdana-11px-antialised
+            color: #ffcc00
+            text-wrap: false
+
+      VerticalSeparator
+        id: statsSeparator
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        margin-top: 2
+        margin-bottom: 2
+
+      Panel
+        id: defensePanel
+        anchors.left: statsSeparator.right
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        margin-left: 8
+        layout:
+          type: verticalBox
+          spacing: 3
+
+        Label
+          font: verdana-11px-rounded
+          height: 18
+          color: #99ccff
+          !text: tr('Defesa (servidor)')
+
+        Panel
+          height: 18
+          Label
+            anchors.left: parent.left
+            anchors.verticalCenter: parent.verticalCenter
+            font: verdana-11px-antialised
+            color: #cccccc
+            text-auto-resize: true
+            !text: tr('Defesa:')
+          Label
+            id: defenseValue
+            anchors.right: parent.right
+            anchors.left: prev.right
+            margin-left: 6
+            anchors.verticalCenter: parent.verticalCenter
+            text-align: right
+            font: verdana-11px-antialised
+            color: #ffcc00
+            text-wrap: false
+
+        Panel
+          height: 18
+          Label
+            anchors.left: parent.left
+            anchors.verticalCenter: parent.verticalCenter
+            font: verdana-11px-antialised
+            color: #cccccc
+            text-auto-resize: true
+            !text: tr('Armadura:')
+          Label
+            id: armorValue
+            anchors.right: parent.right
+            anchors.left: prev.right
+            margin-left: 6
+            anchors.verticalCenter: parent.verticalCenter
+            text-align: right
+            font: verdana-11px-antialised
+            color: #ffcc00
+            text-wrap: false
+
+        Panel
+          height: 18
+          Label
+            anchors.left: parent.left
+            anchors.verticalCenter: parent.verticalCenter
+            font: verdana-11px-antialised
+            color: #cccccc
+            text-auto-resize: true
+            !text: tr('Escudo:')
+          Label
+            id: shieldValue
+            anchors.right: parent.right
+            anchors.left: prev.right
+            margin-left: 6
+            anchors.verticalCenter: parent.verticalCenter
+            text-align: right
+            font: verdana-11px-antialised
+            color: #ffcc00
+            text-wrap: false
+
+  Label
+    id: equipmentTitle
+    anchors.top: statsSectionPanel.bottom
+    margin-top: 8
+    anchors.left: parent.left
+    margin-left: 12
+    height: 16
+    font: verdana-11px-rounded
+    color: #aaaaaa
+    !text: tr('Equipamento')
+
+  CombatPowerSectionPanel
+    id: equipmentSectionPanel
+    anchors.top: prev.bottom
+    margin-top: 4
+    anchors.left: parent.left
+    anchors.right: parent.right
+    margin-left: 12
+    margin-right: 12
+    height: 72
+
+    CombatPowerListBox
+      id: equipmentList
+      anchors.fill: parent
+      vertical-scrollbar: equipmentScroll
+
+    VerticalScrollBar
+      id: equipmentScroll
+      anchors.top: equipmentList.top
+      anchors.right: equipmentList.right
+      anchors.bottom: equipmentList.bottom
+      step: 14
+      pixels-scroll: true
+
+  Label
+    id: spellsTitle
+    anchors.top: equipmentSectionPanel.bottom
+    margin-top: 8
+    anchors.left: parent.left
+    margin-left: 12
+    height: 16
+    font: verdana-11px-rounded
+    color: #cc88ff
+    !text: tr('Magias (servidor)')
+
+  CombatPowerSectionPanel
+    id: spellsSectionPanel
+    anchors.top: prev.bottom
+    margin-top: 4
+    anchors.left: parent.left
+    anchors.right: parent.right
+    margin-left: 12
+    margin-right: 12
+    height: 128
+
+    CombatPowerListBox
+      id: spellsList
+      anchors.fill: parent
+      vertical-scrollbar: spellsScroll
+
+    VerticalScrollBar
+      id: spellsScroll
+      anchors.top: spellsList.top
+      anchors.right: spellsList.right
+      anchors.bottom: spellsList.bottom
+      step: 14
+      pixels-scroll: true
+
+  Label
+    id: healingTitle
+    anchors.top: spellsSectionPanel.bottom
+    margin-top: 8
+    anchors.left: parent.left
+    margin-left: 12
+    height: 16
+    font: verdana-11px-rounded
+    color: #88dd99
+    !text: tr('Cura / runas')
+
+  CombatPowerSectionPanel
+    id: healingSectionPanel
+    anchors.top: prev.bottom
+    margin-top: 4
+    anchors.left: parent.left
+    anchors.right: parent.right
+    margin-left: 12
+    margin-right: 12
+    anchors.bottom: buttonRefresh.top
+    margin-bottom: 10
+
+    CombatPowerListBox
+      id: healingList
+      anchors.fill: parent
+      vertical-scrollbar: healingScroll
+
+    VerticalScrollBar
+      id: healingScroll
+      anchors.top: healingList.top
+      anchors.right: healingList.right
+      anchors.bottom: healingList.bottom
+      step: 14
+      pixels-scroll: true
+
+  Button
+    id: buttonRefresh
+    anchors.left: parent.left
+    anchors.bottom: parent.bottom
+    margin-left: 12
+    margin-bottom: 12
+    size: 84 24
+    !text: tr('Atualizar')
+    @onClick: modules.game_combatpower.requestCombatPower()
+
+  Button
+    id: buttonClose
+    anchors.right: parent.right
+    anchors.bottom: parent.bottom
+    margin-right: 12
+    margin-bottom: 12
+    size: 84 24
+    !text: tr('Fechar')
+    @onClick: modules.game_combatpower.hide()

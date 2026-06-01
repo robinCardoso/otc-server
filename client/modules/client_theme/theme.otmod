@@ -1,0 +1,8 @@
+Module
+  name: client_theme
+  description: Tema in-game em tempo real (escuro / cinza / claro)
+  author: Fazendo Tibia
+  sandboxed: true
+  scripts: [ theme ]
+  @onLoad: init()
+  @onUnload: terminate()

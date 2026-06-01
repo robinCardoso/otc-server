@@ -1,0 +1,99 @@
+CharacterWidget < LoginCharacterRow
+
+CharacterListWindow
+  id: charactersWindow
+  visible: false
+  $mobile:
+    size: 350 280
+  @onEnter: CharacterList.doLogin()
+  @onEscape: CharacterList.hide(true)
+  @onSetup: |
+    g_keyboard.bindKeyPress('Up', function() self:getChildById('characters'):focusPreviousChild(KeyboardFocusReason) end, self)
+    g_keyboard.bindKeyPress('Down', function() self:getChildById('characters'):focusNextChild(KeyboardFocusReason) end, self)
+
+  LoginListPanel
+    id: characters
+    anchors.top: parent.top
+    anchors.left: parent.left
+    anchors.right: characterListScrollBar.left
+    anchors.bottom: accountStatusCaption.top
+    margin-bottom: 5
+    vertical-scrollbar: characterListScrollBar
+    auto-focus: first
+
+  VerticalScrollBar
+    id: characterListScrollBar
+    anchors.top: parent.top
+    anchors.bottom: accountStatusCaption.top
+    anchors.right: parent.right
+    margin-bottom: 5
+    step: 16
+    pixels-scroll: true
+
+  LoginLabel
+    id: accountStatusCaption
+    !text: tr('Account Status') .. ':'
+    anchors.left: parent.left
+    anchors.bottom: createCharacterButton.top
+    margin-bottom: 5
+
+  Label
+    id: accountStatusLabel
+    !text: tr('Free Account')
+    anchors.right: parent.right
+    anchors.bottom: createCharacterButton.top
+    margin-bottom: 5
+    text-auto-resize: true
+    color: #5c4a32
+    font: verdana-11px-antialised
+
+    $on:
+      color: #cc3333
+
+  LoginSecondaryButton
+    id: createCharacterButton
+    !text: tr('CRIAR PERSONAGEM')
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.bottom: separator.top
+    margin-bottom: 8
+    margin-left: 28
+    margin-right: 28
+    @onClick: AccountRegister.showCreateCharacter()
+
+  LoginSeparator
+    id: separator
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.bottom: autoReconnect.top
+    margin-bottom: 8
+
+  LoginAutoReconnectButton
+    id: autoReconnect
+    anchors.left: parent.left
+    anchors.bottom: parent.bottom
+
+    $!on:
+      !text: tr('Auto reconnect: Off')
+      color: #8a4040
+
+    $on:
+      !text: tr('Auto reconnect: On')
+      color: #4a8048
+
+  LoginPrimaryButton
+    id: buttonOk
+    !text: tr('Ok')
+    width: 72
+    anchors.right: next.left
+    anchors.bottom: parent.bottom
+    margin-right: 10
+    @onClick: CharacterList.doLogin()
+
+  LoginSecondaryButton
+    id: buttonCancel
+    !text: tr('Cancel')
+    width: 72
+    anchors.right: parent.right
+    anchors.bottom: parent.bottom
+    @onClick: CharacterList.hide(true)

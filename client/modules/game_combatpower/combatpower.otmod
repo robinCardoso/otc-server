@@ -1,0 +1,12 @@
+Module
+  name: game_combatpower
+  description: Combat power preview from TFS (opcode 203)
+  author: otserv_860
+  sandboxed: true
+  scripts: [ combatpower ]
+  dependencies:
+    - game_interface
+    - client_topmenu
+    - gamelib
+  @onLoad: init()
+  @onUnload: terminate()

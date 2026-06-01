@@ -1,0 +1,91 @@
+CreateCharacterWindow
+  id: createCharacterWindow
+  @onEscape: AccountRegister.hideCreateCharacter()
+
+  LoginLabel
+    !text: tr('Nome do personagem')
+    anchors.left: parent.left
+    anchors.top: parent.top
+    text-auto-resize: true
+
+  LoginField
+    id: characterName
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    margin-top: 2
+    max-length: 29
+
+  LoginLabel
+    !text: tr('Sexo')
+    anchors.left: parent.left
+    anchors.top: prev.bottom
+    margin-top: 8
+    text-auto-resize: true
+
+  LoginComboBox
+    id: sex
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    margin-top: 2
+
+  LoginLabel
+    !text: tr('Vocacao')
+    anchors.left: parent.left
+    anchors.top: prev.bottom
+    margin-top: 8
+    text-auto-resize: true
+
+  LoginComboBox
+    id: vocation
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    margin-top: 2
+
+  LoginLabel
+    !text: tr('Cidade')
+    anchors.left: parent.left
+    anchors.top: prev.bottom
+    margin-top: 8
+    text-auto-resize: true
+
+  LoginComboBox
+    id: town
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    margin-top: 2
+
+  Label
+    id: statusLabel
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    margin-top: 8
+    height: 32
+    text-wrap: true
+    color: #cc3333
+    text-auto-resize: true
+    font: verdana-11px-antialised
+
+  LoginSeparator
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.bottom: next.top
+    margin-bottom: 8
+
+  LoginSmallButton
+    !text: tr('Cancelar')
+    anchors.left: parent.left
+    anchors.bottom: parent.bottom
+    @onClick: AccountRegister.hideCreateCharacter()
+
+  LoginSubmitButton
+    id: submitButton
+    !text: tr('Criar')
+    width: 90
+    anchors.right: parent.right
+    anchors.bottom: parent.bottom
+    @onClick: AccountRegister.submitCreateCharacter()

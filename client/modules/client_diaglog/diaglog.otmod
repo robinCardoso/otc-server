@@ -1,0 +1,10 @@
+Module
+  name: client_diaglog
+  description: Log diário de erros de rede, login e ERROR/FATAL do cliente
+  author: otserv_860
+  sandboxed: true
+  scripts: [ diaglog ]
+  dependencies:
+    - client_sessionlog
+  @onLoad: init()
+  @onUnload: terminate()

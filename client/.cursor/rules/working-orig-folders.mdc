@@ -1,0 +1,24 @@
+---
+description: Escopo ativo — servidor e cliente nas pastas -orig (baseline)
+alwaysApply: true
+---
+
+# Pastas ativas (-orig)
+
+Trabalho padrão neste workspace:
+
+| Papel | Pasta |
+|-------|--------|
+| **Servidor TFS** | `C:\8.6\otserv_860\otserv_860-orig\` |
+| **Cliente OTCv8** | `C:\8.6\otserv_860\otcv8-dev-orig\` |
+
+## Regras para o agente
+
+1. Alterações de **servidor** → somente em `otserv_860-orig/`.
+2. Alterações de **cliente** → somente em `otcv8-dev-orig/`.
+3. **Não editar** `otserv_860/` nem `otcv8-dev/` sem pedido explícito do usuário (ex.: comparar, portar patch, diff).
+4. **Build servidor:** `otserv_860-orig` — MinGW, `build_win/`, copiar `tfs.exe` para a raiz da pasta `-orig`.
+5. **Build cliente:** `otcv8-dev-orig\scripts\build-client.ps1` → `otclient_gl.exe` na raiz de `otcv8-dev-orig`.
+6. **Docs** em `otserv_860/docs/` ou `otcv8-dev/docs/` podem ser **lidas** como referência; código e configs vão nas pastas `-orig`.
+7. **Site** (`C:\xampp\htdocs\`) só se o usuário pedir.
+8. Responder em **português**.

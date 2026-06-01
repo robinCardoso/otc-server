@@ -1,0 +1,165 @@
+MainWindow
+  id: createAccountWindow
+  !text: tr('Criar conta')
+  size: 300 480
+  @onEscape: AccountRegister.hideCreateAccount()
+
+  MenuLabel
+    !text: tr('Nome da conta')
+    anchors.left: parent.left
+    anchors.top: parent.top
+    text-auto-resize: true
+
+  TextEdit
+    id: accountName
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    margin-top: 2
+    max-length: 32
+
+  MenuLabel
+    !text: tr('E-mail')
+    anchors.left: parent.left
+    anchors.top: prev.bottom
+    margin-top: 6
+    text-auto-resize: true
+
+  TextEdit
+    id: email
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    margin-top: 2
+
+  MenuLabel
+    !text: tr('Senha')
+    anchors.left: parent.left
+    anchors.top: prev.bottom
+    margin-top: 6
+    text-auto-resize: true
+
+  PasswordTextEdit
+    id: password
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    margin-top: 2
+
+  MenuLabel
+    !text: tr('Repetir senha')
+    anchors.left: parent.left
+    anchors.top: prev.bottom
+    margin-top: 6
+    text-auto-resize: true
+
+  PasswordTextEdit
+    id: password2
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    margin-top: 2
+
+  HorizontalSeparator
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    margin-top: 8
+
+  MenuLabel
+    !text: tr('Nome do personagem')
+    anchors.left: parent.left
+    anchors.top: prev.bottom
+    margin-top: 6
+    text-auto-resize: true
+
+  TextEdit
+    id: characterName
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    margin-top: 2
+    max-length: 29
+
+  MenuLabel
+    !text: tr('Sexo')
+    anchors.left: parent.left
+    anchors.top: prev.bottom
+    margin-top: 6
+    text-auto-resize: true
+
+  ComboBox
+    id: sex
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    margin-top: 2
+
+  MenuLabel
+    !text: tr('Vocacao')
+    anchors.left: parent.left
+    anchors.top: prev.bottom
+    margin-top: 6
+    text-auto-resize: true
+
+  ComboBox
+    id: vocation
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    margin-top: 2
+
+  MenuLabel
+    !text: tr('Cidade')
+    anchors.left: parent.left
+    anchors.top: prev.bottom
+    margin-top: 6
+    text-auto-resize: true
+
+  ComboBox
+    id: town
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    margin-top: 2
+
+  CheckBox
+    id: acceptRules
+    !text: tr('Aceito as regras do servidor')
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    margin-top: 8
+
+  Label
+    id: statusLabel
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    margin-top: 4
+    height: 28
+    text-wrap: true
+    color: #ff6666
+    text-auto-resize: true
+
+  HorizontalSeparator
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.bottom: next.top
+    margin-bottom: 8
+
+  Button
+    !text: tr('Cancelar')
+    width: 90
+    anchors.left: parent.left
+    anchors.bottom: parent.bottom
+    @onClick: AccountRegister.hideCreateAccount()
+
+  Button
+    id: submitButton
+    !text: tr('Criar conta')
+    width: 110
+    anchors.right: parent.right
+    anchors.bottom: parent.bottom
+    image-color: #66aa66
+    @onClick: AccountRegister.submitCreateAccount()

@@ -1,0 +1,150 @@
+PartyHealthBar < UIProgressBar
+  height: 6
+  background-color: #00cc00
+  border: 1 #b8b8c4
+  margin: 0
+
+PartyManaBar < UIProgressBar
+  height: 5
+  background-color: #5599ff
+  border: 1 #b8b8c4
+  margin: 0
+
+PartyMemberRow < Panel
+  height: 46
+  margin-top: 2
+  padding: 3
+  background-color: #e8e8ec66
+  focusable: false
+
+  Label
+    id: nameLabel
+    anchors.top: parent.top
+    anchors.left: parent.left
+    anchors.right: parent.right
+    font: verdana-11px-antialised
+    color: #e0e0e0
+    text-wrap: true
+    text-auto-resize: true
+    height: 26
+
+  Panel
+    id: barsPanel
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: nameLabel.bottom
+    margin-top: 2
+    height: 12
+    layout: verticalBox
+    padding: 0
+
+    PartyHealthBar
+      id: healthBar
+
+    PartyManaBar
+      id: manaBar
+      margin-top: 1
+
+PartyInviteRow < Panel
+  height: 18
+  margin-top: 2
+  focusable: false
+
+  Label
+    id: inviteLabel
+    anchors.fill: parent
+    font: verdana-11px-antialised
+    color: #aaddaa
+    text-auto-resize: true
+
+MiniWindow
+  id: partyWindow
+  !text: tr('Party')
+  width: 220
+  height: 200
+  icon: /images/topbuttons/party
+  @onClose: modules.game_party.onMiniWindowClose()
+  &save: true
+  &autoOpen: false
+
+  Panel
+    id: partyHeader
+    anchors.top: parent.top
+    anchors.left: parent.left
+    anchors.right: miniwindowScrollBar.left
+    margin-top: 22
+    margin-left: 3
+    margin-right: 1
+    layout: verticalBox
+    padding-left: 6
+    padding-right: 6
+    padding-top: 0
+    padding-bottom: 0
+
+    Label
+      id: sharedExpLabel
+      font: verdana-11px-antialised
+      color: #88cc88
+      text-auto-resize: true
+      text:
+      margin-bottom: 2
+
+    Label
+      id: bonusLabel
+      font: verdana-11px-antialised
+      color: #77aa77
+      text-auto-resize: true
+      text:
+      margin-bottom: 2
+
+    Panel
+      id: actionsPanel
+      layout: verticalBox
+
+      Button
+        id: sharedExpButton
+        !text: tr('Shared Exp')
+        height: 22
+        margin-bottom: 2
+        visible: false
+
+      Button
+        id: leaveButton
+        !text: tr('Leave Party')
+        height: 22
+        visible: false
+
+  MiniWindowContents
+    id: contentsPanel
+    anchors.top: partyHeader.bottom
+    anchors.left: parent.left
+    anchors.right: miniwindowScrollBar.left
+    anchors.bottom: parent.bottom
+    margin-left: 3
+    margin-right: 1
+    margin-bottom: 3
+    margin-top: 0
+    padding-left: 6
+    padding-right: 6
+    padding-top: 0
+    layout: verticalBox
+
+    Panel
+      id: membersPanel
+      layout: verticalBox
+      height: 10
+
+    Label
+      id: invitesHeader
+      !text: tr('Invitations')
+      font: verdana-11px-antialised
+      color: #888888
+      text-auto-resize: true
+      margin-top: 4
+      visible: false
+
+    Panel
+      id: invitesPanel
+      layout: verticalBox
+      height: 10
+      visible: false

@@ -1,0 +1,35 @@
+Window < UIWindow
+  font: verdana-11px-antialised
+  size: 200 200
+  opacity: 1
+  color: #2e2e38
+  text-offset: 0 8
+  text-align: top
+  image-source: /images/ui/window
+  image-border: 6
+  image-border-top: 27
+  padding-top: 38
+  padding-left: 18
+  padding-right: 18
+  padding-bottom: 16
+
+  $disabled:
+    color: #2e2e3888
+
+  $dragging:
+    opacity: 0.92
+
+HeadlessWindow < UIWindow
+  image-source: /images/ui/window_headless
+  image-border: 5
+  padding: 5
+  color: #2e2e38
+
+MainWindow < Window
+  anchors.centerIn: parent
+
+StaticWindow < Window
+  &static: true
+
+StaticMainWindow < StaticWindow
+  anchors.centerIn: parent

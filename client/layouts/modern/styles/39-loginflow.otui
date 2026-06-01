@@ -1,0 +1,247 @@
+// Login flow — painel claro + ouro (pacote /images/ui/login/)
+// Gerado por scripts/generate-login-ui.ps1
+
+LoginWindow < StaticMainWindow
+  image-source: /images/ui/login/login_window
+  image-border: 8
+  image-border-top: 30
+  color: #5a4018
+  text-align: top
+  font: enter-serif-11px
+  shadow: true
+  text-offset: 0 8
+  padding-top: 38
+  padding-left: 22
+  padding-right: 22
+  padding-bottom: 18
+
+LoginLabel < MenuLabel
+  color: #2a2018
+  font: verdana-11px-antialised
+
+LoginTitleDivider < UIWidget
+  height: 11
+  phantom: true
+  focusable: false
+
+  UIWidget
+    anchors.left: parent.left
+    anchors.right: parent.horizontalCenter
+    anchors.verticalCenter: parent.verticalCenter
+    margin-right: 10
+    height: 1
+    background-color: #c9a85066
+
+  UIWidget
+    size: 9 9
+    anchors.horizontalCenter: parent.horizontalCenter
+    anchors.verticalCenter: parent.verticalCenter
+    image-source: /images/ui/login/login_title_diamond
+    image-color: #ffffff
+
+  UIWidget
+    anchors.left: parent.horizontalCenter
+    anchors.right: parent.right
+    anchors.verticalCenter: parent.verticalCenter
+    margin-left: 10
+    height: 1
+    background-color: #c9a85066
+
+LoginField < TextEdit
+  height: 28
+  color: #2a2218
+  background-color: alpha
+  image-source: /images/ui/login/login_field
+  image-border: 6
+  image-color: #ffffff
+  text-offset: 0 4
+  padding: 4 8 4 8
+  opacity: 1
+  selection-color: #2a2218
+  selection-background-color: #c9a85066
+
+LoginPasswordField < LoginField
+  text-hidden: true
+
+LoginComboBoxPopupMenuButton < UIButton
+  height: 26
+  font: verdana-11px-antialised
+  text-align: left
+  text-offset: 6 0
+  color: #2a2218
+  background-color: alpha
+  margin: 1
+
+  $hover !disabled:
+    color: #2a2218
+    background-color: #c9a85044
+
+  $disabled:
+    color: #2a221888
+
+LoginComboBoxPopupScrollMenuButton < LoginComboBoxPopupMenuButton
+
+LoginComboBoxPopupMenu < UIPopupMenu
+  image-source: /images/ui/login/login_combobox
+  image-clip: 0 84 96 28
+  image-border: 1
+
+LoginComboBoxPopupScrollMenu < UIPopupScrollMenu
+  image-source: /images/ui/login/login_combobox
+  image-clip: 0 84 96 28
+  image-border: 1
+
+LoginComboBox < UIComboBox
+  font: verdana-11px-antialised
+  height: 28
+  color: #2a2218
+  background-color: alpha
+  text-offset: 6 3
+  text-align: left
+  image-source: /images/ui/login/login_combobox
+  image-border: 6
+  image-border-right: 22
+  image-clip: 0 0 96 28
+  image-color: #ffffff
+
+  $hover !disabled:
+    image-clip: 0 28 96 28
+
+  $on:
+    image-clip: 0 56 96 28
+
+LoginPrimaryButton < UIButton
+  height: 28
+  font: verdana-11px-antialised
+  color: #f5f0e8
+  text-align: center
+  text-offset: 0 1
+  image-source: /images/ui/login/login_button_primary
+  image-color: #ffffff
+  image-clip: 0 0 24 28
+  image-border: 6
+  opacity: 1
+  change-cursor-image: true
+  cursor: pointer
+
+  $hover !disabled:
+    image-clip: 0 28 24 28
+
+  $pressed:
+    image-clip: 0 56 24 28
+    text-offset: 1 2
+
+  $disabled:
+    color: #f5f0e888
+    opacity: 0.7
+    change-cursor-image: false
+
+LoginSecondaryButton < UIButton
+  height: 28
+  font: verdana-11px-antialised
+  color: #f5f0e8
+  text-align: center
+  text-offset: 0 1
+  image-source: /images/ui/login/login_button_secondary
+  image-color: #ffffff
+  image-clip: 0 0 24 28
+  image-border: 6
+  opacity: 1
+  change-cursor-image: true
+  cursor: pointer
+
+  $hover !disabled:
+    image-clip: 0 28 24 28
+    color: #ffffff
+
+  $pressed:
+    image-clip: 0 56 24 28
+    text-offset: 1 2
+
+  $disabled:
+    color: #f5f0e888
+    opacity: 0.7
+    change-cursor-image: false
+
+LoginCheckbox < CheckBox
+  font: verdana-11px-antialised
+  color: #2a2018
+  text-offset: 18 0
+  image-source: /images/ui/login/login_checkbox
+  image-clip: 0 0 16 16
+  image-color: #ffffff
+
+  $hover !disabled:
+    image-clip: 0 16 16 16
+
+  $checked:
+    image-clip: 0 32 16 16
+
+  $checked hover:
+    image-clip: 0 48 16 16
+
+LoginListPanel < TextList
+  background-color: alpha
+  image-source: /images/ui/login/login_list_panel
+  image-border: 4
+  image-color: #ffffff
+  padding: 4
+  focusable: false
+
+LoginSeparator < UIWidget
+  height: 1
+  image-source: /images/ui/login/login_separator
+  image-border: 1
+  image-color: #ffffff
+
+LoginCharacterRow < UIWidget
+  height: 16
+  background-color: alpha
+  &updateOnStates: |
+    function(self)
+      local children = self:getChildren()
+      for i=1,#children do
+        children[i]:setOn(self:isFocused())
+      end
+    end
+  @onFocusChange: self:updateOnStates()
+  @onSetup: self:updateOnStates()
+
+  $focus:
+    background-color: #c9a85033
+
+  Label
+    id: name
+    color: #2a2018
+    anchors.top: parent.top
+    anchors.left: parent.left
+    font: verdana-11px-antialised
+    text-auto-resize: true
+    background-color: alpha
+    text-offset: 2 0
+
+    $on:
+      color: #2a2218
+
+  Label
+    id: worldName
+    color: #4a4038
+    anchors.top: parent.top
+    anchors.right: parent.right
+    margin-right: 5
+    font: verdana-11px-antialised
+    text-auto-resize: true
+    background-color: alpha
+    &baseText: '(%s)'
+
+    $on:
+      color: #2a2218
+
+LoginAutoReconnectButton < LoginSecondaryButton
+  width: 140
+
+LoginSmallButton < LoginSecondaryButton
+  width: 90
+
+LoginSubmitButton < LoginPrimaryButton
+  width: 110

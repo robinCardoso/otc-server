@@ -1,0 +1,57 @@
+MinimapFullMapOverlay < UIWidget
+  anchors.fill: parent
+  focusable: true
+  phantom: false
+  visible: false
+
+  UIWidget
+    id: backdrop
+    anchors.fill: parent
+    background-color: #e8e8ec99
+    focusable: true
+
+  UIWidget
+    id: frame
+    anchors.horizontalCenter: parent.horizontalCenter
+    anchors.verticalCenter: parent.verticalCenter
+    size: 520 400
+    focusable: false
+
+    UIWidget
+      id: titleBar
+      anchors.top: parent.top
+      anchors.left: parent.left
+      anchors.right: parent.right
+      height: 26
+      background-color: #f2f2f5cc
+      border-width: 1
+      border-color: #6a6a6a
+      focusable: false
+
+      Label
+        !text: tr('World Map')
+        anchors.left: parent.left
+        anchors.verticalCenter: parent.verticalCenter
+        margin-left: 8
+        text-auto-resize: true
+        color: #cccccc
+
+      Button
+        id: closeButton
+        !text: tr('Close')
+        size: 54 20
+        anchors.right: parent.right
+        anchors.verticalCenter: parent.verticalCenter
+        margin-right: 4
+
+    UIWidget
+      id: minimapHolder
+      anchors.top: titleBar.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      anchors.bottom: parent.bottom
+      margin: 2
+      background-color: #e8e8ecee
+      border-width: 2
+      border-color: #6a6a6a
+      focusable: false

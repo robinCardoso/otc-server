@@ -1,0 +1,8 @@
+Module
+  name: game_viewport
+  description: Fixed 18x14 map protocol (TFS 8.60); classic view is client UI only
+  author: localStorage
+  sandboxed: true
+  scripts: [ viewport ]
+  @onLoad: init()
+  @onUnload: terminate()

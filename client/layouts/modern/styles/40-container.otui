@@ -1,0 +1,15 @@
+ContainerWindow < MiniWindow
+  UIButton
+    id: upButton
+    anchors.top: lockButton.top
+    anchors.right: lockButton.left
+    margin-right: 2
+    size: 22 22
+    image-source: /images/ui/miniwindow_buttons
+    image-clip: 420 0 140 140
+
+    $hover:
+      image-clip: 420 140 140 140
+
+    $pressed:
+      image-clip: 420 280 140 140

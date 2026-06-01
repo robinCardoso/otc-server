@@ -1,0 +1,382 @@
+StockCategoryButton < UIButton
+  height: 26
+  margin-bottom: 2
+  text-align: left
+  text-offset: 0 1
+  padding-left: 14
+  font: verdana-11px-antialised
+  color: #2e2e38
+  background-color: #f2f2f5
+  border-width: 1
+  border-color: #b8b8c4
+  opacity: 1
+  change-cursor-image: true
+  cursor: pointer
+
+  $on:
+    color: #e8d878ff
+    background-color: #e8e8ec
+    border-color: #c9a850
+
+  $hover !on:
+    background-color: #242424
+    color: #d8d8d8ff
+    border-color: #5a5a5a
+
+  $hover on:
+    background-color: #322e20
+    border-color: #d4b860
+
+  $pressed:
+    padding-left: 15
+    text-offset: 0 2
+
+StockItemCell < Panel
+  size: 40 40
+  margin: 2
+  focusable: true
+  background-color: #f2f2f588
+  border-width: 1
+  border-color: #555555
+
+  UIItem
+    id: itemWidget
+    anchors.centerIn: parent
+    size: 32 32
+    virtual: true
+    phantom: true
+
+  Label
+    id: countLabel
+    anchors.bottom: parent.bottom
+    anchors.right: parent.right
+    margin-right: 2
+    margin-bottom: 1
+    font: verdana-11px-antialised
+    color: #ffffff
+    text-auto-resize: true
+    phantom: true
+
+StockPlayerCell < StockItemCell
+
+MainWindow
+  id: stockWindow
+  !text: tr('Estoque')
+  size: 720 520
+  @onEscape: modules.game_stock.hide()
+
+  Panel
+    id: headerPanel
+    anchors.top: parent.top
+    anchors.left: parent.left
+    anchors.right: parent.right
+    height: 28
+    margin: 8 8 0 8
+    background-color: #f2f2f5cc
+
+    Label
+      id: summaryLabel
+      anchors.left: parent.left
+      anchors.verticalCenter: parent.verticalCenter
+      margin-left: 8
+      font: verdana-11px-antialised
+      color: #cccccc
+      text-auto-resize: true
+      text: Items: 0
+
+    Button
+      id: refreshButton
+      !text: tr('Refresh')
+      anchors.right: parent.right
+      anchors.verticalCenter: parent.verticalCenter
+      margin-right: 4
+      width: 64
+      height: 22
+      @onClick: modules.game_stock.onRefreshClick()
+
+  Panel
+    id: toolbarPanel
+    anchors.top: headerPanel.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    height: 26
+    margin: 4 8 0 8
+
+    TextEdit
+      id: searchEdit
+      anchors.left: parent.left
+      anchors.verticalCenter: parent.verticalCenter
+      width: 220
+      height: 22
+      placeholder: Buscar item...
+      @onTextChange: modules.game_stock.onSearchChange()
+
+    ComboBox
+      id: sortCombo
+      anchors.left: searchEdit.right
+      anchors.verticalCenter: parent.verticalCenter
+      margin-left: 8
+      width: 110
+      height: 22
+      @onOptionChange: modules.game_stock.onSortChange()
+
+  Panel
+    id: pkBlockPanel
+    anchors.top: toolbarPanel.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    height: 0
+    visible: false
+    margin: 2 8 0 8
+    background-color: #d8d8decc
+
+    Label
+      id: pkBlockLabel
+      anchors.fill: parent
+      margin: 2 6
+      font: verdana-11px-antialised
+      color: #e8a050ff
+      text-align: center
+      text-wrap: true
+
+  Panel
+    id: bodyPanel
+    anchors.top: pkBlockPanel.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.bottom: playerStrip.top
+    margin: 6 8 4 8
+
+    Panel
+      id: categoryPanel
+      anchors.top: parent.top
+      anchors.left: parent.left
+      anchors.bottom: parent.bottom
+      width: 110
+      background-color: #e8e8ecaa
+      padding: 4
+
+      StockCategoryButton
+        id: catAll
+        !text: tr('Todos')
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+        @onClick: modules.game_stock.onCategoryClick('all')
+
+      StockCategoryButton
+        id: catEquipment
+        !text: tr('Equip')
+        anchors.top: prev.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        @onClick: modules.game_stock.onCategoryClick('equipment')
+
+      StockCategoryButton
+        id: catContainers
+        !text: tr('Bags')
+        anchors.top: prev.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        @onClick: modules.game_stock.onCategoryClick('containers')
+
+      StockCategoryButton
+        id: catRunes
+        !text: tr('Runas')
+        anchors.top: prev.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        @onClick: modules.game_stock.onCategoryClick('runes')
+
+      StockCategoryButton
+        id: catFood
+        !text: tr('Food')
+        anchors.top: prev.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        @onClick: modules.game_stock.onCategoryClick('food')
+
+      StockCategoryButton
+        id: catValuables
+        !text: tr('Valor')
+        anchors.top: prev.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        @onClick: modules.game_stock.onCategoryClick('valuables')
+
+      StockCategoryButton
+        id: catOther
+        !text: tr('Outros')
+        anchors.top: prev.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        @onClick: modules.game_stock.onCategoryClick('other')
+
+    Panel
+      id: gridPanel
+      anchors.top: parent.top
+      anchors.left: categoryPanel.right
+      anchors.right: detailPanel.left
+      anchors.bottom: parent.bottom
+      margin-left: 6
+      margin-right: 6
+      background-color: #181818aa
+      padding: 4
+
+      ScrollablePanel
+        id: itemsScroll
+        anchors.fill: parent
+        vertical-scrollbar: itemsScrollBar
+        layout:
+          type: grid
+          cell-size: 44 44
+          flow: true
+
+      VerticalScrollBar
+        id: itemsScrollBar
+        anchors.top: itemsScroll.top
+        anchors.bottom: itemsScroll.bottom
+        anchors.right: itemsScroll.right
+        step: 44
+        pixels-scroll: true
+
+    Panel
+      id: detailPanel
+      anchors.top: parent.top
+      anchors.right: parent.right
+      anchors.bottom: parent.bottom
+      width: 168
+      background-color: #e8e8ecaa
+      padding: 6
+
+      Label
+        id: detailName
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+        font: verdana-11px-antialised
+        color: #ffcc00
+        text-wrap: true
+        text: Selecione um item
+
+      Label
+        id: detailTotal
+        anchors.top: detailName.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        margin-top: 4
+        font: verdana-11px-antialised
+        color: #cccccc
+        text-auto-resize: true
+
+      Label
+        id: detailBox
+        anchors.top: detailTotal.bottom
+        anchors.left: parent.left
+        margin-top: 2
+        font: verdana-11px-antialised
+        color: #999999
+        text-auto-resize: true
+
+      Panel
+        id: qtyPanel
+        anchors.top: detailBox.bottom
+        anchors.horizontalCenter: parent.horizontalCenter
+        margin-top: 10
+        height: 24
+        width: 120
+
+        Button
+          id: qtyMinus
+          text: "-"
+          anchors.left: parent.left
+          anchors.verticalCenter: parent.verticalCenter
+          size: 24 24
+          @onClick: modules.game_stock.onQtyChange(-1)
+
+        Label
+          id: qtyLabel
+          anchors.horizontalCenter: parent.horizontalCenter
+          anchors.verticalCenter: parent.verticalCenter
+          font: verdana-11px-antialised
+          color: #ffffff
+          text-align: center
+          text-auto-resize: true
+          minimum: 40 0
+          text: 1
+
+        Button
+          id: qtyPlus
+          text: "+"
+          anchors.right: parent.right
+          anchors.verticalCenter: parent.verticalCenter
+          size: 24 24
+          @onClick: modules.game_stock.onQtyChange(1)
+
+      Button
+        id: withdrawButton
+        !text: tr('Retirar')
+        anchors.top: qtyPanel.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        margin-top: 8
+        height: 22
+        @onClick: modules.game_stock.onWithdrawClick()
+
+      Button
+        id: depositButton
+        !text: tr('Depositar')
+        anchors.top: withdrawButton.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        margin-top: 4
+        height: 22
+        @onClick: modules.game_stock.onDepositClick()
+
+      Button
+        id: depositAllButton
+        !text: tr('Depositar tudo')
+        anchors.top: depositButton.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        margin-top: 4
+        height: 22
+        @onClick: modules.game_stock.onDepositAllClick()
+
+  Panel
+    id: playerStrip
+    anchors.bottom: parent.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    height: 72
+    margin: 0 8 8 8
+    background-color: #f2f2f5cc
+
+    Label
+      id: playerStripLabel
+      anchors.top: parent.top
+      anchors.left: parent.left
+      margin-top: 4
+      margin-left: 6
+      font: verdana-11px-antialised
+      color: #aaaaaa
+      text: Inventario (clique para depositar)
+
+    ScrollablePanel
+      id: playerScroll
+      anchors.top: playerStripLabel.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      anchors.bottom: parent.bottom
+      margin: 2 4 4 4
+      vertical-scrollbar: playerScrollBar
+      layout:
+        type: horizontalBox
+
+    VerticalScrollBar
+      id: playerScrollBar
+      anchors.top: playerScroll.top
+      anchors.bottom: playerScroll.bottom
+      anchors.right: playerScroll.right
+      step: 44
+      pixels-scroll: true

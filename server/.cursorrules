@@ -1,0 +1,171 @@
+# Fazendo Tibia 860 — baseline (-orig)
+
+**Escopo ativo:** servidor aqui; cliente em `C:\8.6\otserv_860\otcv8-dev-orig\`.
+
+| Papel | Pasta | Editar? |
+|-------|--------|---------|
+| **Servidor (este repo)** | `C:\8.6\otserv_860\otserv_860-orig\` | Sim |
+| **Cliente OTCv8** | `C:\8.6\otserv_860\otcv8-dev-orig\` | Sim (features OTC) |
+| **Referência estável (sem combat power)** | `C:\8.6\otserv_860_sem_erro\` | Não — só diff/compare |
+| **Pastas dev (sem -orig)** | `otserv_860/`, `otcv8-dev/` | **Não** sem pedido explícito |
+| **Site MyAAC** | `C:\xampp\htdocs\` | Só se o usuário pedir |
+
+Regra Cursor: `.cursor/rules/working-orig-folders.mdc` (`alwaysApply: true`).
+
+Documentação **deste servidor:** `docs/AGENT-GUIDE.md` (ler primeiro em features novas).
+
+Referência cruzada (sem `-orig`): `otserv_860/docs/`, `otcv8-dev/docs/` — **ler**; código vai nas pastas `-orig`.
+
+---
+
+## Documentação — ler primeiro
+
+| Tarefa | Documento |
+|--------|-----------|
+| **Guia do agente / anti-regressão** | `docs/AGENT-GUIDE.md` |
+| Compilar / rodar **servidor** | `docs/BUILD.md` |
+| **Logs** TFS (console + diagnóstico) | `docs/LOGS.md` |
+| **Combat Power** opcode 203 | `docs/COMBAT-POWER.md` |
+| **Assign Spell** opcode 202 | `docs/SPELL-LIST-MODULE.md` — `spells.xml`, `!spelllist`, action bar |
+| **Depot TFS (persistência)** | `docs/DEPOT-SYSTEM.md` — **ler antes** de tocar `iologindata.cpp`, save/load, Estoque |
+| **Estoque depot** opcode 205 | `docs/STOCK-MODULE.md` — `game_stock`, Ctrl+Shift+E, `!estoque` |
+| Compilar **cliente** | `otcv8-dev-orig/docs/BUILD.md` |
+| **Login / DAT / SPR / opcode 0x64** | `otcv8-dev/docs/LOGIN-ASSETS-860.md` (referência; viewport **18×14**) |
+| Combat Power UI (cliente) | `otcv8-dev-orig/modules/game_combatpower/` + `otcv8-dev/docs/COMBAT-POWER-MODULE.md` |
+| Shop in-game opcode 201 | `data/creaturescripts/scripts/otcv8_shop.lua` → `initShop()` |
+| Dano / fórmulas TFS | `otserv_860/docs/DAMAGE.md` (referência) |
+
+---
+
+## Stack local
+
+| Item | Valor |
+|------|--------|
+| Executável servidor | `tfs.exe` (MinGW) na raiz desta pasta |
+| Antes de rodar | `.\deploy-runtime-dlls.ps1` ou `rodar-tfs-novo.bat` |
+| Portas | Login **7171**, jogo **7172** (`config.lua`) |
+| Cliente alvo | **8.60** (`clientVersionMin/Max` 860–862) |
+| OTC login | `127.0.0.1:7171:860` + **Account name** preenchido |
+| Banco | MariaDB `global` (`global.sql`) |
+| Conta teste | `robinadmin` / `GodPcs759153` → chars **ADM**, **Testerman** |
+| `enableLiveCasting` | `true` em `-orig` — conta vazia no OTC pode abrir modo cast; para teste de senha use conta real |
+
+---
+
+## Regras anti-regressão
+
+### Mapa / viewport **18×14** (não 29×20)
+
+- TFS: `GetMapDescription(pos.x-8, pos.y-6, 18, 14)` em `src/protocolgame.cpp` — igual em `otserv_860_sem_erro` e `-orig`.
+- OTC: `Map::resetAwareRange()` → left=8, top=6, right=9, bottom=7.
+- **Não** usar `changeMapAwareRange(31,21)` nem `game_viewport` com range 29×20 sem alinhar TFS + rebuild C++.
+- Erro `unable to create item with invalid id 61823/62078` no opcode **0x64** = **dessync de parse** (byte de coordenada lido como itemId), não item inválido no servidor.
+
+### Extended opcodes OTC
+
+| Opcode | Handler creaturescript | Uso |
+|--------|------------------------|-----|
+| **201** | `ExtendedOpcodeShop` → `otcv8_shop.lua` | Loja premium |
+| **202** | `ExtendedOpcodeSpellList` → `otcv8_spelllist.lua` | Assign Spell (`spells.xml`) |
+| **203** | `ExtendedOpcodeCombatPower` → `otcv8_combatpower.lua` | Modal poder do char |
+| **205** | `ExtendedOpcodeStock` → `otcv8_stock.lua` | Estoque depot (Ctrl+Shift+E) |
+
+- **Um handler por opcode** — nunca um script único para 201, 202, 203 e 205.
+- Registrar no **login:** `ExtendedOpcodeShop`, `ExtendedOpcodeSpellList`, `ExtendedOpcodeCombatPower`, `ExtendedOpcodeStock` (ver `data/creaturescripts/scripts/others/login.lua`).
+- Declarar em `data/creaturescripts/creaturescripts.xml` (`type="extendedopcode"`).
+
+### Rebuild: C++ vs só Lua
+
+| Mudou | Ação |
+|-------|------|
+| `src/*.cpp`, `config` de log diagnóstico | Recompilar `tfs.exe` (`build_win/`, copiar para raiz, `deploy-runtime-dlls.ps1`) |
+| `data/**/*.lua`, XML creaturescripts | Reiniciar `tfs.exe` ou `/reload creaturescripts` |
+| `otcv8-dev-orig/modules/**` | Reiniciar `otclient_gl.exe` |
+| `otcv8-dev-orig/src/**` | `.\scripts\build-client.ps1` |
+
+### Login / estabilidade (validado nesta baseline)
+
+- **OTC primeiro login:** não chamar `sendOutfitWindow` se `client.os >= 10` (`login.lua`) — evita crash `0xC0000005`.
+- **`players_online`:** não duplicar INSERT em Lua — C++ já atualiza (`Player::onCreatureAppear`).
+- **Yasir:** manter desligado se mapa corrompido (`yasirEnabled = false` ou equivalente no globalevent).
+- **Spawn personagem (site):** temple via `getTemplePositionForTown()` no MyAAC — não `(0,0,0)`.
+
+### Combat Power (opcode 203)
+
+- Crash histórico: `0xC0000005` em `getCombatPreview()` / `pushSpellPreviews` — corrigido em `src/combatpreview.cpp` (filtro vocação, null checks, só attack/healing).
+- **Teste A:** comentar `ExtendedOpcodeCombatPower` no login → login sem crash confirma culpado 203.
+- **Performance:** não iterar todas instant spells; só vocação do player; Lua chama `getCombatPreview()` **uma vez** (`Otcv8CombatPower.buildPlayerCombatPower`).
+- Cliente pede 203 ~**900 ms** após login + debounce **450 ms** em mudanças (`game_combatpower/combatpower.lua`).
+- Diagnóstico in-game: `!power` (`data/talkactions/scripts/power_debug.lua`).
+
+### Assign Spell (opcode 202)
+
+- **Fonte de verdade:** `data/spells/spells.xml` → `player:getInstantSpells()` → JSON opcode 202.
+- **Cliente:** `otcv8-dev-orig/modules/game_actionbar/actionbar.lua` — **não** usar `SpellInfo['Default']` como lista (só ícones via `spells.lua`).
+- **Diagnóstico:** `!spelllist`. Doc: `docs/SPELL-LIST-MODULE.md`.
+
+### Depot / Estoque (opcode 205) — persistência
+
+- **Fonte de verdade:** MariaDB `player_depotitems` — **não** existe tabela `stock`.
+- **RAM:** `Player::depotChests` via `getDepotChest(id, true)`; Estoque OTC preenche sem abrir locker no mapa.
+- **`lastDepotId`:** só setado em `src/actions.cpp` ao abrir depot locker no mapa — **não** há `player:setLastDepotId()` em Lua.
+- **Save (fix maio/2026):** `src/iologindata.cpp` — gravar depot se `lastDepotId != -1 || !depotChests.empty()`. **Nunca reverter** para só `lastDepotId`.
+- **Armadilha:** catálogo Estoque lê RAM — UI OK na sessão **não prova** persistência; validar SQL após logout.
+- **`depositAll`:** só mochila (não equip no corpo).
+- **PK (skull branco+):** `canModify()` bloqueia withdraw/deposit; catálogo envia `readOnly=true`. Ver `docs/STOCK-MODULE.md` secção PK.
+- Doc completa: `docs/DEPOT-SYSTEM.md`. Checklist QA: `docs/STOCK-MODULE.md`.
+- Diagnóstico: `!estoque`; SQL: `SELECT COUNT(*) FROM player_depotitems WHERE player_id = <guid>;`
+
+---
+
+## Checklist — nova feature OTC (extended opcode)
+
+1. Escolher opcode **único** (201 shop, 202 spell list, 203 combat power, 205 estoque — não reutilizar).
+2. Criar `data/creaturescripts/scripts/otcv8_<nome>.lua` + entrada em `creaturescripts.xml`.
+3. Registrar evento **separado** no `login.lua` (não misturar com outro opcode).
+4. Lib em `data/lib/otcv8_<nome>.lua` se JSON/helpers forem grandes.
+5. Cliente: módulo em `otcv8-dev-orig/modules/` + `GameExtendedOpcode` em `features.lua` (860).
+6. Teste **A/B:** desregistrar handler no login → confirmar que crash some.
+7. Comparar com `otserv_860_sem_erro` se mudança tocar login/mapa/protocolo.
+8. Documentar em `docs/AGENT-GUIDE.md` ou doc dedicada (`docs/<FEATURE>.md`).
+9. Após C++: rebuild `tfs.exe`; após Lua servidor: restart TFS; após Lua cliente: restart exe.
+
+---
+
+## Logs (`config.lua`)
+
+| Chave | Efeito | Recompilar? |
+|-------|--------|-------------|
+| `enableTfsConsoleLog` | `rodar-tfs-novo.bat` → `data/logs/tfs/tfs-console_*.log` | Não |
+| `enableTfsDiagnosticLog` | `[login]` / `[extopcode]` no stdout | **Sim** |
+
+Detalhes: `docs/LOGS.md`.
+
+---
+
+## Build MinGW (tfs.exe)
+
+```powershell
+$env:PATH = "C:\msys64\mingw64\bin;C:\msys64\usr\bin;" + $env:PATH
+cd C:\8.6\otserv_860\otserv_860-orig
+mkdir build_win -Force
+cd build_win
+cmake .. -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release
+cmake --build . -j 4
+Copy-Item tfs.exe ..\tfs.exe -Force
+cd ..
+.\deploy-runtime-dlls.ps1
+```
+
+Atalho: `rodar-tfs-novo.bat`.
+
+---
+
+## Regras para o agente
+
+1. Alterações de **servidor** → apenas `otserv_860-orig/`.
+2. Alterações de **cliente** → apenas `otcv8-dev-orig/`.
+3. Não editar `otserv_860/` nem `otcv8-dev/` sem pedido explícito.
+4. Responder em **português**.
+5. Mudanças mínimas; seguir estilo existente.
+6. Não commitar sem pedido explícito.

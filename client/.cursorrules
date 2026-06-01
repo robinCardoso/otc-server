@@ -1,0 +1,86 @@
+# Fazendo Tibia 860 — otcv8-dev-orig (OTClientV8 baseline)
+
+## Escopo ativo (-orig)
+
+Servidor TFS 8.60 em `C:\8.6\otserv_860\otserv_860-orig\`.
+Cliente **compilado localmente** nesta pasta (`otcv8-dev-orig`). Executáveis finais:
+
+- `C:\8.6\otserv_860\otcv8-dev-orig\otclient_gl.exe`
+- `C:\8.6\otserv_860\otcv8-dev-orig\otclient_dx.exe`
+
+Não alterar `otserv_860/` nem `otcv8-dev/` sem pedido explícito. Regra: `.cursor/rules/working-orig-folders.mdc`.
+
+Rodar o jogo a partir desta pasta (`data/`, `modules/`, `init.lua`).
+
+Login: `127.0.0.1:7171:860` + conta/senha. Assets obrigatórios: `data/things/860/Tibia.dat` e `Tibia.spr` (8.60).
+
+Documentação completa: `docs/README.md`, `docs/BUILD.md`, `docs/TROUBLESHOOTING.md`, `docs/CLIENT-CHANGES.md`, `docs/ASSIGN-SPELL.md`, `docs/SPELL-LIST-MODULE.md` (ponte → `otserv_860/docs/SPELL-LIST-MODULE.md`).
+
+## Estrutura em C:\8.6\otserv_860\
+
+```
+otserv_860-orig\   # TFS 8.60 (baseline — editar)
+otcv8-dev-orig\    # fontes + modules + exe (este repo — editar)
+vcpkg\             # commit fixo 3b3bd42482 (2022-03)
+tools\nasm\        # opcional
+```
+
+## Como compilar (resumo)
+
+1. Pré-requisitos: VS 2022 Build Tools (C++, Win32, SDK), Git, 7-Zip, NASM, MSYS2 (pkg-config).
+2. `.\scripts\setup-vcpkg.ps1` — instala deps x86-windows-static (30–90 min, primeira vez).
+3. `.\scripts\build-client.ps1` — gera `otclient_gl.exe` / `otclient_dx.exe`.
+
+Detalhes, erros conhecidos e patches: `docs/BUILD.md`.
+
+## Patches obrigatórios no vcpkg (commit antigo)
+
+Não fazer `git pull` no vcpkg sem necessidade. Scripts aplicam/checam:
+
+| Patch | Arquivo | Motivo |
+|-------|---------|--------|
+| Git HINTS | `vcpkg/scripts/cmake/z_vcpkg_apply_patches.cmake`, `vcpkg_from_git.cmake` | CMake não acha git no PATH |
+| pkg-config MSYS2 | `vcpkg/scripts/cmake/vcpkg_find_acquire_program.cmake` | Evita download MSYS2 i686 obsoleto (404 libwinpthread) |
+| VS 2022 generator | `vcpkg/scripts/cmake/vcpkg_configure_cmake.cmake` | v142 usa gerador VS 17 2022 (só Build Tools 2022 instalado) |
+| powershell.exe | `vcpkg/scripts/cmake/vcpkg_copy_tool_dependencies.cmake` | openssl build sem pwsh |
+| 7z2107-extra.7z | `vcpkg/downloads/` via Wayback | URL oficial 404 |
+
+`setup-vcpkg.ps1` chama `patch-vcpkg-git.ps1`; demais patches estão no tree do vcpkg após setup bem-sucedido.
+
+## Ajustes no cliente (já feitos)
+
+- `vc16/otclient.vcxproj`: PlatformToolset **v143** (libs vcpkg compiladas com MSVC 14.44).
+- `vc16/settings.props`: `VcpkgRoot` = `C:\8.6\otserv_860\vcpkg`.
+- `scripts/build-client.ps1`: MSBuild em `Program Files (x86)`, `VcpkgRoot` no build.
+- `src/client/game.cpp`:
+  * Sem preWalk no autoWalk sem `GameNewWalking` (evita 2 sqm no clique, 8.60).
+  * Removida a condicional de `GameNewWalking` em `Game::turn`, habilitando predição de direção 100% local no cliente (turn de 0ms instantâneo).
+- `src/client/creature.cpp`:
+  * Fator multiplicador de passo diagonal reduzido de `3` para `2` em `getStepDuration`, sincronizando com a velocidade do servidor.
+  * Desativado `smoothstep` (ease-in-out) em `getWalkOffset`, tornando a progressão do sprite 100% linear para um deslizamento perfeito (estilo Zezenia).
+- `modules/game_walking/walking.lua`:
+  * Execução síncrona imediata em `onWalkFinish` (sem agendar no dispatcher), eliminando a latência de tick de 10-16ms.
+  * Remoção da trava artificial de `30ms` (`walkLock`) em `walk()` para encadeamento instantâneo.
+  * Barreira de modificadores no início da função `walk()` que cancela passos se `Ctrl`/`Shift`/`Alt` estiverem segurados.
+  * Remoção do `lockWalk(200)` rígido no KeyUp de rotação, passando a respeitar dinamicamente `walkTurnDelay` (0ms por padrão).
+  * Atualizada a função `turn(dir)` para definir a direção local do jogador imediatamente no Lua (`player:setDirection(dir)`) para garantir predição dupla.
+- `modules/client_options/options.lua`: Defaults de movimento fluido ajustados com delays de teclado zerados (`walkFirstStepDelay = 0`, `walkTurnDelay = 0`, `walkStairsDelay = 0`, `walkCtrlTurnDelay = 0`).
+- `modules/game_interface/gameinterface.lua`: fade login→jogo; `switchMode` guard; `GameForceFirstAutoWalkStep` off.
+- `modules/corelib/keyboard.lua`: mantida a velocidade de baixo nível original do despachante nativo de teclas (a barreira de modificadores para rotação foi migrada para o walking.lua).
+- `modules/game_console/console.lua`: atalho global `Ctrl+F` mapeado para alternar o Chat Mode (ativar/desativar chat).
+- Servidor: `enableLiveCasting = false`, desativação de Nagle (`tcp::no_delay(true)`) na aceitação de conexão em `server.cpp`, fixes `iologindata`/`protocollogin` (ver `otserv_860`).
+- Otimização local: script `otimizar_latencia_local.ps1` ajusta o Registro do Windows (`TcpAckFrequency` / `TCPNoDelay`) para remover lag de loopback no localhost.
+- **Assign Spell (opcode 202):** `modules/game_actionbar/actionbar.lua` — lista do TFS. Servidor: `otcv8_spelllist.lua`. `!spelllist`.
+- **Combat Power (opcode 203):** `modules/game_combatpower/` — modal ataque/defesa do TFS. Servidor: `getCombatPreview()`. `!power`. Doc: `docs/COMBAT-POWER-MODULE.md`.
+
+Alterações Lua: reiniciar exe. Alterações C++: `.\scripts\build-client.ps1` ou MSBuild.
+
+## Regras para o agente
+
+- Responder em **português**.
+- Não commitar sem pedido explícito.
+- Mudanças mínimas; seguir estilo existente.
+- Ao mexer em movimento/UI: ver `docs/CLIENT-CHANGES.md` e `otclientv8.log`.
+- Não atualizar vcpkg para master; manter commit `3b3bd424827a1f7f4813216f6b32b6c61e386b2e`.
+- Não usar CMake/Ninja do MSYS2 no PATH ao rodar vcpkg (quebra ports antigos).
+- Melhorias só em Lua/modules: editar `modules/`, reiniciar cliente (sem rebuild C++ se não tocar `src/`).

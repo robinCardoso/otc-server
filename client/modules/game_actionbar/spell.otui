@@ -1,0 +1,223 @@
+SpellPreview < UICheckBox
+  height: 36
+  text-wrap: false
+  multi-line: false
+  focusable: true
+  text-offset: 38 2
+  image-source:
+  change-cursor-image: false
+
+  $hover !disabled:
+    color: #ffffff
+
+  $!checked:
+    background-color: alpha
+
+  $checked:
+    background-color: #ffffff22
+
+  $disabled:
+    image-color: #dfdfdf88
+    color: #dfdfdf88
+    opacity: 0.8
+
+  UIWidget
+    id: image
+    anchors.left: parent.left
+    anchors.top: parent.top
+    phantom: true
+    padding: 1
+    size: 34 34
+
+SpellCategoryTab < UIButton
+  height: 26
+  text-align: center
+  text-offset: 0 1
+  font: verdana-11px-antialised
+  color: #b8b8b8ff
+  background-color: #f2f2f5
+  border-width: 1
+  border-color: #3a3a3a
+  opacity: 1
+  change-cursor-image: true
+  cursor: pointer
+
+  $on:
+    color: #e8d878ff
+    background-color: #2a2618
+    border-color: #c9a850
+
+  $hover !on:
+    background-color: #242424
+    color: #d8d8d8ff
+    border-color: #5a5a5a
+
+  $hover on:
+    background-color: #322e20
+    border-color: #d4b860
+
+  $pressed:
+    opacity: 0.9
+
+MainWindow
+  id: assignSpellWindow
+  size: 420 420
+  @onEscape: self:destroy()
+
+  SpellPreview
+    id: preview
+    anchors.top: parent.top
+    anchors.left: parent.left
+    anchors.right: parent.right
+    focusable: false
+
+    $!checked:
+      background-color: alpha
+
+    $checked:
+      background-color: alpha
+
+  HorizontalSeparator
+    anchors.top: prev.bottom
+    margin-top: 10
+    anchors.left: parent.left
+    anchors.right: parent.right
+
+  Panel
+    id: categoryPanel
+    anchors.top: prev.bottom
+    margin-top: 8
+    anchors.left: parent.left
+    anchors.right: parent.right
+    height: 28
+    layout:
+      type: horizontalBox
+      spacing: 2
+
+    SpellCategoryTab
+      id: tabAttack
+      width: 92
+      text: Attack
+      @onClick: modules.game_actionbar.onAssignSpellCategoryClick('attack')
+
+    SpellCategoryTab
+      id: tabSupport
+      width: 92
+      text: Support
+      @onClick: modules.game_actionbar.onAssignSpellCategoryClick('support')
+
+    SpellCategoryTab
+      id: tabHealing
+      width: 92
+      text: Healing
+      @onClick: modules.game_actionbar.onAssignSpellCategoryClick('healing')
+
+    SpellCategoryTab
+      id: tabRunas
+      width: 92
+      text: Runas
+      @onClick: modules.game_actionbar.onAssignSpellCategoryClick('runes')
+
+  TextList
+    id: spellList
+    anchors.top: prev.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    margin-top: 6
+    height: 190
+    padding: 1
+    focusable: false
+    vertical-scrollbar: listScrollBar
+    background-color: #484848
+
+  VerticalScrollBar
+    id: listScrollBar
+    anchors.top: spellList.top
+    anchors.right: spellList.right
+    margin-right: 1
+    anchors.bottom: spellList.bottom
+    step: 36
+    pixels-scroll: true
+
+  FlatPanel
+    id: checkPanel
+    anchors.top: spellList.bottom
+    margin-top: 8
+    anchors.left: parent.left
+    anchors.right: parent.right
+    height: 40
+
+    CheckBox
+      id: tick
+      anchors.left: parent.left
+      anchors.top: parent.top
+      anchors.right: parent.right
+      margin-left: 5
+      margin-top: 2
+      text: Only show vocation spells
+      checked: true
+
+    CheckBox
+      id: tickLevel
+      anchors.left: parent.left
+      anchors.top: prev.bottom
+      anchors.right: parent.right
+      margin-left: 5
+      margin-top: 2
+      text: Only show usable spells (Level)
+      checked: true
+
+  Label
+    id: paramLabel
+    anchors.top: prev.bottom
+    margin-top: 5
+    anchors.left: parent.left
+    text: Parameter:
+    height: 20
+    text-horizontal-auto-resize: true
+    text-offset: 0 3
+    on: false
+
+    $on:
+      color: white
+
+    $!on:
+      color: #c0c0c0
+
+  TextEdit
+    id: paramText
+    anchors.top: prev.top
+    anchors.bottom: prev.bottom
+    anchors.right: parent.right
+    anchors.left: prev.right
+    margin-left: 5
+    enabled: false
+
+  HorizontalSeparator
+    anchors.top: prev.bottom
+    margin-top: 10
+    anchors.left: parent.left
+    anchors.right: parent.right
+
+  Button
+    id: buttonClose
+    anchors.right: parent.right
+    anchors.bottom: parent.bottom
+    size: 45 21
+    text: Close
+
+  Button
+    id: buttonApply
+    anchors.right: prev.left
+    margin-right: 5
+    anchors.bottom: parent.bottom
+    size: 45 21
+    text: Apply
+
+  Button
+    id: buttonOk
+    anchors.right: prev.left
+    margin-right: 5
+    anchors.bottom: parent.bottom
+    size: 45 21
+    text: Ok

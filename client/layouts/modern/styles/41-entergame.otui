@@ -1,0 +1,13 @@
+// Legado — widgets EnterGame* migrados para Login* em 42-loginflow.otui
+
+EnterGameLabel < LoginLabel
+EnterGameTitleDivider < LoginTitleDivider
+EnterGameField < LoginField
+EnterGamePasswordField < LoginPasswordField
+EnterGameComboBox < LoginComboBox
+EnterGameComboBoxPopupMenu < LoginComboBoxPopupMenu
+EnterGameComboBoxPopupMenuButton < LoginComboBoxPopupMenuButton
+EnterGameComboBoxPopupScrollMenu < LoginComboBoxPopupScrollMenu
+EnterGameComboBoxPopupScrollMenuButton < LoginComboBoxPopupScrollMenuButton
+EnterGameLoginButton < LoginPrimaryButton
+EnterGameCreateButton < LoginSecondaryButton

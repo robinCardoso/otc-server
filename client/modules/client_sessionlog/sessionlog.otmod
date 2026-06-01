@@ -1,0 +1,10 @@
+Module
+  name: client_sessionlog
+  description: Salva logs do terminal em arquivo ao entrar/sair do personagem
+  author: otserv_860
+  sandboxed: true
+  scripts: [ sessionlog ]
+  dependencies:
+    - client_terminal
+  @onLoad: init()
+  @onUnload: terminate()

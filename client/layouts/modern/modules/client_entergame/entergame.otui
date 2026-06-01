@@ -1,0 +1,181 @@
+EnterGameWindow
+  id: enterGame
+  @onEnter: EnterGame.doLogin()
+
+  LoginTitleDivider
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: parent.top
+    margin-top: 2
+
+  LoginLabel
+    !text: tr('Account name')
+    anchors.left: parent.left
+    anchors.top: prev.bottom
+    margin-top: 10
+    text-auto-resize: true
+
+  LoginField
+    id: accountNameTextEdit
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    margin-top: 3
+
+  LoginLabel
+    !text: tr('Password')
+    anchors.left: prev.left
+    anchors.top: prev.bottom
+    margin-top: 10
+    text-auto-resize: true
+
+  LoginPasswordField
+    id: accountPasswordTextEdit
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    margin-top: 3
+
+  LoginLabel
+    !text: tr('Token')
+    anchors.left: prev.left
+    anchors.top: prev.bottom
+    margin-top: 10
+    text-auto-resize: true
+
+  LoginField
+    id: accountTokenTextEdit
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    margin-top: 3
+
+  Panel
+    id: serverSelectorPanel
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    height: 52
+    on: true
+    focusable: false
+    background-color: alpha
+
+    $on:
+      visible: true
+      margin-top: 0
+
+    $!on:
+      visible: false
+      margin-top: -52
+
+    LoginLabel
+      id: serverLabel
+      !text: tr('Server')
+      anchors.left: parent.left
+      anchors.top: parent.top
+      margin-top: 10
+      text-auto-resize: true
+
+    LoginComboBox
+      id: serverSelector
+      anchors.left: prev.left
+      anchors.right: parent.right
+      anchors.top: serverLabel.bottom
+      margin-top: 3
+      margin-right: 2
+      menu-scroll: true
+      menu-height: 125
+      menu-scroll-step: 26
+      @onOptionChange: EnterGame.onServerChange()
+
+  Panel
+    id: customServerSelectorPanel
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    height: 52
+    on: true
+    focusable: true
+    background-color: alpha
+
+    $on:
+      visible: true
+      margin-top: 0
+
+    $!on:
+      visible: false
+      margin-top: -52
+
+    LoginLabel
+      id: serverLabel
+      !text: tr('IP:PORT or URL')
+      anchors.left: parent.left
+      anchors.top: parent.top
+      margin-top: 10
+      text-auto-resize: true
+
+    LoginField
+      id: serverHostTextEdit
+      !tooltip: tr('Make sure that your client uses\nthe correct game client version')
+      anchors.left: parent.left
+      anchors.top: serverLabel.bottom
+      margin-top: 3
+      width: 150
+
+    LoginLabel
+      id: clientLabel
+      !text: tr('Version')
+      anchors.left: serverHostTextEdit.right
+      anchors.top: serverLabel.top
+      text-auto-resize: true
+      margin-left: 10
+
+    LoginComboBox
+      id: clientVersionSelector
+      anchors.top: serverHostTextEdit.top
+      anchors.left: prev.left
+      anchors.right: parent.right
+      height: 28
+      menu-scroll: true
+      menu-height: 125
+      menu-scroll-step: 26
+      margin-right: 2
+
+  LoginCheckbox
+    id: rememberPasswordBox
+    !text: tr('Remember password')
+    !tooltip: tr('Remember account and password when starts client')
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    margin-top: 14
+
+  LoginPrimaryButton
+    !text: tr('Login')
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    margin-top: 16
+    margin-left: 40
+    margin-right: 40
+    @onClick: EnterGame.doLogin()
+
+  LoginSecondaryButton
+    id: createAccountButton
+    !text: tr('CRIAR CONTA')
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    margin-top: 10
+    margin-left: 28
+    margin-right: 28
+    @onClick: AccountRegister.showCreateAccount()
+
+  Label
+    id: serverInfoLabel
+    font: verdana-11px-rounded
+    anchors.top: prev.top
+    anchors.left: parent.left
+    margin-top: 5
+    color: #4a8048
+    text-auto-resize: true

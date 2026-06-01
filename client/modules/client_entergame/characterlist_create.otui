@@ -1,0 +1,94 @@
+MainWindow
+  id: createCharacterWindow
+  !text: tr('Criar personagem')
+  size: 280 320
+  @onEscape: AccountRegister.hideCreateCharacter()
+
+  MenuLabel
+    !text: tr('Nome do personagem')
+    anchors.left: parent.left
+    anchors.top: parent.top
+    text-auto-resize: true
+
+  TextEdit
+    id: characterName
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    margin-top: 2
+    max-length: 29
+
+  MenuLabel
+    !text: tr('Sexo')
+    anchors.left: parent.left
+    anchors.top: prev.bottom
+    margin-top: 8
+    text-auto-resize: true
+
+  ComboBox
+    id: sex
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    margin-top: 2
+
+  MenuLabel
+    !text: tr('Vocacao')
+    anchors.left: parent.left
+    anchors.top: prev.bottom
+    margin-top: 8
+    text-auto-resize: true
+
+  ComboBox
+    id: vocation
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    margin-top: 2
+
+  MenuLabel
+    !text: tr('Cidade')
+    anchors.left: parent.left
+    anchors.top: prev.bottom
+    margin-top: 8
+    text-auto-resize: true
+
+  ComboBox
+    id: town
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    margin-top: 2
+
+  Label
+    id: statusLabel
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    margin-top: 8
+    height: 32
+    text-wrap: true
+    color: #ff6666
+    text-auto-resize: true
+
+  HorizontalSeparator
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.bottom: next.top
+    margin-bottom: 8
+
+  Button
+    !text: tr('Cancelar')
+    width: 90
+    anchors.left: parent.left
+    anchors.bottom: parent.bottom
+    @onClick: AccountRegister.hideCreateCharacter()
+
+  Button
+    id: submitButton
+    !text: tr('Criar')
+    width: 90
+    anchors.right: parent.right
+    anchors.bottom: parent.bottom
+    image-color: #66aa66
+    @onClick: AccountRegister.submitCreateCharacter()

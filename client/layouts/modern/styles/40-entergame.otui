@@ -1,0 +1,15 @@
+EnterGameWindow < LoginWindow
+  !text: tr('Enter Game')
+  size: 300 440
+
+CharacterListWindow < LoginWindow
+  !text: tr('Character List')
+  size: 380 460
+
+CreateAccountWindow < LoginWindow
+  !text: tr('Criar conta')
+  size: 300 480
+
+CreateCharacterWindow < LoginWindow
+  !text: tr('Criar personagem')
+  size: 280 320

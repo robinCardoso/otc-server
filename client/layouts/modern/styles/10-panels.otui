@@ -1,0 +1,22 @@
+Panel < UIWidget
+  phantom: true
+  auto-focus: first
+
+ScrollablePanel < UIScrollArea
+  phantom: true
+  auto-focus: first
+
+FlatPanel < Panel
+  image-source: /images/ui/panel_flat
+  image-border: 1
+  background-color: #7B6A72cc
+
+ScrollableFlatPanel < ScrollablePanel
+  image-source: /images/ui/panel_flat
+  image-border: 1
+  background-color: #7B6A72cc
+
+LightFlatPanel < Panel
+  image-source: /images/ui/panel_lightflat
+  image-border: 1
+  background-color: #B5A6B2cc

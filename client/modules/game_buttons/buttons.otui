@@ -1,0 +1,7 @@
+GameButtonsWindow
+  id: buttons
+  &save: true
+  !text: tr("Buttons")
+  icon: /images/topbuttons/buttons
+  @onClose: modules.game_buttons.onMiniWindowClose()
+

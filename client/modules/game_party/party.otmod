@@ -1,0 +1,12 @@
+Module
+  name: game_party
+  description: Party panel — opcode 204 (partyStatus)
+  author: otserv_860
+  sandboxed: true
+  scripts: [ party ]
+  dependencies:
+    - game_interface
+    - client_topmenu
+    - gamelib
+  @onLoad: init()
+  @onUnload: terminate()

@@ -1,0 +1,12 @@
+Module
+  name: game_stock
+  description: Depot stock inventory (opcode 205)
+  author: otserv_860
+  sandboxed: true
+  scripts: [ stock ]
+  dependencies:
+    - game_interface
+    - client_topmenu
+    - gamelib
+  @onLoad: init()
+  @onUnload: terminate()

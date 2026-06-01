@@ -1,0 +1,11 @@
+HorizontalSeparator < UIWidget
+  height: 0
+  opacity: 0
+  phantom: true
+  focusable: false
+
+VerticalSeparator < UIWidget
+  width: 0
+  opacity: 0
+  phantom: true
+  focusable: false
