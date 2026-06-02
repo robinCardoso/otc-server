@@ -31,6 +31,7 @@
 #include "game.h"
 #include "globalevent.h"
 #include "iologindata.h"
+#include "iomapserialize.h"
 #include "items.h"
 #include "monster.h"
 #include "movement.h"
@@ -165,13 +166,28 @@ void Game::saveGameState()
 	}
 
 	std::cout << "Saving server..." << std::endl;
+	int64_t start = OTSYS_TIME();
 
+	std::vector<std::string> queries;
 	for (const auto& it : players) {
 		it.second->loginPosition = it.second->getPosition();
-		IOLoginData::savePlayer(it.second);
+		IOLoginData::getPlayerSaveQueries(it.second, queries);
 	}
 
-	Map::save();
+	IOMapSerialize::saveHouseInfoToQueries(queries);
+	IOMapSerialize::saveHouseItemsToQueries(queries);
+
+	if (!queries.empty()) {
+		g_databaseTasks.addTasks(std::move(queries), [start](DBResult_ptr, bool success) {
+			if (success) {
+				std::cout << "> Server save completed in: " << (OTSYS_TIME() - start) / 1000.0 << " s" << std::endl;
+			} else {
+				std::cout << "> Server save FAILED!" << std::endl;
+			}
+		});
+	} else {
+		std::cout << "> Server save completed (no data to save) in: " << (OTSYS_TIME() - start) / 1000.0 << " s" << std::endl;
+	}
 
 	if (gameState == GAME_STATE_MAINTAIN) {
 		setGameState(GAME_STATE_NORMAL);

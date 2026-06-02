@@ -126,6 +126,7 @@ LoginPrimaryButton < UIButton
 
   $hover !disabled:
     image-clip: 0 28 24 28
+    color: #2a2018
 
   $pressed:
     image-clip: 0 56 24 28
@@ -152,7 +153,7 @@ LoginSecondaryButton < UIButton
 
   $hover !disabled:
     image-clip: 0 28 24 28
-    color: #ffffff
+    color: #2a2018
 
   $pressed:
     image-clip: 0 56 24 28

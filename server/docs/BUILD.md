@@ -15,8 +15,9 @@ Documentação completa para compilar o **The Forgotten Server (TFS)** neste rep
 | Executável | `tfs.exe` (Windows) / `tfs` (Linux) |
 | Build system | CMake + cotire (PCH) |
 | Padrão C++ | **C++17** (`cmake/FindCXX11.cmake`) |
-| Diretório de build (Windows) | `build_win/` |
-| Raiz do servidor | Onde estão `config.lua`, `data/`, `tfs.exe` |
+| Raiz do servidor | `C:\8.6\otserv_860\otc-server\server\` |
+| Diretório de build (Windows) | `C:\8.6\otserv_860\otc-server\server\build_win\` |
+| Executável em uso | `tfs.exe` na raiz do servidor (cópia de `build_win\tfs.exe`) |
 
 ---
 
@@ -109,43 +110,86 @@ C:\msys64\usr\bin\pacman.exe -S --noconfirm --needed `
 
 ## Compilar — passo a passo (Windows / MinGW)
 
-Na raiz do repositório (`otserv_860`):
+**Raiz do servidor (sempre trabalhe a partir daqui):**
+
+```text
+C:\8.6\otserv_860\otc-server\server\
+```
+
+Antes de compilar, configure o PATH (PowerShell):
+
+```powershell
+$env:PATH = "C:\msys64\mingw64\bin;C:\msys64\usr\bin;" + $env:PATH
+```
+
+### Primeira vez (criar `build_win`)
+
+**PowerShell:**
+
+```powershell
+cd C:\8.6\otserv_860\otc-server\server
+mkdir build_win -Force
+cd build_win
+cmake .. -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release
+mingw32-make -j8
+Copy-Item tfs.exe ..\tfs.exe -Force
+cd ..
+.\deploy-runtime-dlls.ps1
+```
+
+**MSYS2 MinGW 64-bit** (mesmos passos, sintaxe Unix):
 
 ```bash
-cd /c/8.6/otserv_860/otserv_860-orig
+cd /c/8.6/otserv_860/otc-server/server
 
 mkdir -p build_win
 cd build_win
 
 cmake .. -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release
 mingw32-make -j8
+
+cp tfs.exe ../tfs.exe
+cd ..
+./deploy-runtime-dlls.ps1
 ```
+
+### Rebuild após mudar `src\` (já existe `build_win`)
+
+Só recompilar — **não** precisa rodar `cmake` de novo:
+
+```powershell
+$env:PATH = "C:\msys64\mingw64\bin;C:\msys64\usr\bin;" + $env:PATH
+cd C:\8.6\otserv_860\otc-server\server\build_win
+mingw32-make -j8
+Copy-Item tfs.exe ..\tfs.exe -Force
+```
+
+Equivalente: `cmake --build . -j8` dentro de `build_win\`.
+
+| Mudança | Recompilar? |
+|---------|-------------|
+| `src\*.cpp`, `CMakeLists.txt`, flags em `config.lua` que exigem binário | Sim (`mingw32-make`) |
+| `data\`, `*.lua`, mapas | Não — reinicie `tfs.exe` |
 
 ### Saída da build
 
 | Artefato | Caminho |
 |----------|---------|
-| Executável principal | `build_win/tfs.exe` |
-| Cópia recomendada na raiz | `tfs.exe` (mesmo nível que `config.lua`) |
-
-Copiar para a raiz e instalar DLLs:
-
-```powershell
-Copy-Item build_win\tfs.exe .\tfs.exe -Force
-.\deploy-runtime-dlls.ps1
-```
+| Executável compilado | `C:\8.6\otserv_860\otc-server\server\build_win\tfs.exe` |
+| Cópia em uso | `C:\8.6\otserv_860\otc-server\server\tfs.exe` (mesmo nível que `config.lua`) |
 
 Atalho: **`rodar-tfs-novo.bat`** (deploy + inicia). Aguarde **`>> Fazendo Tibia Server Online!`**.
 
 ### Rebuild limpo
 
-```bash
-cd build_win
+```powershell
+cd C:\8.6\otserv_860\otc-server\server\build_win
 mingw32-make clean
 mingw32-make -j8
+Copy-Item tfs.exe ..\tfs.exe -Force
 ```
 
-Ou apagar `build_win` e rodar `cmake` + `make` de novo.
+Ou apagar a pasta `build_win` e rodar **Primeira vez** de novo (`cmake` + `make`).
 
 ---
 
@@ -166,10 +210,12 @@ Ou apagar `build_win` e rodar `cmake` + `make` de novo.
 
 ### Executar
 
-```bash
-cd /c/8.6/otserv_860/otserv_860-orig
-./tfs.exe
+```powershell
+cd C:\8.6\otserv_860\otc-server\server
+.\tfs.exe
 ```
+
+Ou: `.\rodar-tfs-novo.bat` (com log e deploy de DLLs).
 
 ### Logs do console (TFS)
 
@@ -283,7 +329,7 @@ cp tfs ..
 - [ ] Pacotes `mingw-w64-x86_64-*` listados acima instalados
 - [ ] PATH: `mingw64\bin` + `usr\bin`
 - [ ] Build em `build_win/` com `-G "MinGW Makefiles"`
-- [ ] `tfs.exe` copiado para raiz junto de `config.lua` e `data/`
+- [ ] Raiz: `C:\8.6\otserv_860\otc-server\server\` — `tfs.exe` copiado para junto de `config.lua` e `data/`
 - [ ] MariaDB rodando; banco `global` criado a partir de `global.sql`
 - [ ] Não usar WSL obrigatoriamente — build nativa MinGW já funciona neste projeto
 
@@ -294,7 +340,6 @@ cp tfs ..
 - Repositório base: The Forgotten Server (TFS) — fork “Fazendo Tibia 860”
 - `config.lua` — portas 7171/7172, versão cliente 8.60
 - `Restart.sh` — loop Linux: `while true; do ./tfs; done`
-- **Cliente OTClientV8:** [`docs/CLIENT.md`](./CLIENT.md) — pasta `c:\8.6\\otserv_860-orig\\otclientv8\`
-- **Layout servidor + cliente:** [`docs/PROJECT.md`](./PROJECT.md)
-- Documentação do agente: `.cursorrules`
+- **Cliente OTCv8:** `C:\8.6\otserv_860\otc-server\client\` — build em `client\scripts\build-client.ps1`, doc em `client\docs\BUILD.md`
+- Documentação do agente: `server\.cursorrules`, `server\docs\AGENT-GUIDE.md`
 

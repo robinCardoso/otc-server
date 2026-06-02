@@ -154,6 +154,12 @@ class Player final : public Creature, public Cylinder
 		uint32_t getGUID() const {
 			return guid;
 		}
+		bool shouldSave() const {
+			return saveCharacter;
+		}
+		void setShouldSave(bool save) {
+			saveCharacter = save;
+		}
 		bool canSeeInvisibility() const final {
 			return hasFlag(PlayerFlag_CanSenseInvisibility) || group->access;
 		}
@@ -1223,6 +1229,7 @@ class Player final : public Creature, public Cylinder
 		bool chaseMode = false;
 		bool secureMode = false;
 		bool ghostMode = false;
+		bool saveCharacter = true;
 		bool pzLocked = false;
 		bool isConnecting = false;
 		bool addAttackSkillPoint = false;

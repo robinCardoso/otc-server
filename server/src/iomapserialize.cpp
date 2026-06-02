@@ -1,4 +1,4 @@
-﻿/**
+/**
  * The Forgotten Server - a free and open-source MMORPG server emulator
  * Copyright (C) 2017  Mark Samman <mark.samman@gmail.com>
  *
@@ -64,28 +64,17 @@ void IOMapSerialize::loadHouseItems(Map* map)
 	std::cout << "> Loaded house items in: " << (OTSYS_TIME() - start) / (1000.) << " s" << std::endl;
 }
 
-bool IOMapSerialize::saveHouseItems()
+bool IOMapSerialize::saveHouseItemsToQueries(std::vector<std::string>& queries)
 {
-	int64_t start = OTSYS_TIME();
 	Database& db = Database::getInstance();
 	std::ostringstream query;
 
-	//Start the transaction
-	DBTransaction transaction;
-	if (!transaction.begin()) {
-		return false;
-	}
+	queries.push_back("DELETE FROM `tile_store`");
 
-	//clear old tile data
-	if (!db.executeQuery("DELETE FROM `tile_store`")) {
-		return false;
-	}
-
-	DBInsert stmt("INSERT INTO `tile_store` (`house_id`, `data`) VALUES ");
+	DBInsertQueries stmt("INSERT INTO `tile_store` (`house_id`, `data`) VALUES ", queries);
 
 	PropWriteStream stream;
 	for (const auto& it : g_game.map.houses.getHouses()) {
-		//save house items
 		House* house = it.second;
 		for (HouseTile* tile : house->getTiles()) {
 			saveTile(stream, tile);
@@ -102,11 +91,34 @@ bool IOMapSerialize::saveHouseItems()
 		}
 	}
 
-	if (!stmt.execute()) {
+	stmt.execute();
+	return true;
+}
+
+bool IOMapSerialize::saveHouseItems()
+{
+	int64_t start = OTSYS_TIME();
+	std::vector<std::string> queries;
+	if (!saveHouseItemsToQueries(queries)) {
 		return false;
 	}
 
-	//End the transaction
+	if (queries.empty()) {
+		return true;
+	}
+
+	Database& db = Database::getInstance();
+	DBTransaction transaction;
+	if (!transaction.begin()) {
+		return false;
+	}
+
+	for (const auto& query : queries) {
+		if (!db.executeQuery(query)) {
+			return false;
+		}
+	}
+
 	bool success = transaction.commit();
 	std::cout << "> Saved house items in: " <<
 	          (OTSYS_TIME() - start) / (1000.) << " s" << std::endl;
@@ -298,37 +310,27 @@ bool IOMapSerialize::loadHouseInfo()
 	return true;
 }
 
-bool IOMapSerialize::saveHouseInfo()
+bool IOMapSerialize::saveHouseInfoToQueries(std::vector<std::string>& queries)
 {
 	Database& db = Database::getInstance();
-
-	DBTransaction transaction;
-	if (!transaction.begin()) {
-		return false;
-	}
-
-	if (!db.executeQuery("DELETE FROM `house_lists`")) {
-		return false;
-	}
+	queries.push_back("DELETE FROM `house_lists`");
 
 	std::ostringstream query;
 	for (const auto& it : g_game.map.houses.getHouses()) {
 		House* house = it.second;
-		query << "SELECT `id` FROM `houses` WHERE `id` = " << house->getId();
-		DBResult_ptr result = db.storeQuery(query.str());
-		if (result) {
-			query.str(std::string());
-			query << "UPDATE `houses` SET `owner` = " << house->getOwner() << ", `paid` = " << house->getPaidUntil() << ", `warnings` = " << house->getPayRentWarnings() << ", `name` = " << db.escapeString(house->getName()) << ", `town_id` = " << house->getTownId() << ", `rent` = " << house->getRent() << ", `size` = " << house->getTiles().size() << ", `beds` = " << house->getBedCount() << " WHERE `id` = " << house->getId();
-		} else {
-			query.str(std::string());
-			query << "INSERT INTO `houses` (`id`, `owner`, `paid`, `warnings`, `name`, `town_id`, `rent`, `size`, `beds`) VALUES (" << house->getId() << ',' << house->getOwner() << ',' << house->getPaidUntil() << ',' << house->getPayRentWarnings() << ',' << db.escapeString(house->getName()) << ',' << house->getTownId() << ',' << house->getRent() << ',' << house->getTiles().size() << ',' << house->getBedCount() << ')';
-		}
-
-		db.executeQuery(query.str());
+		query << "INSERT INTO `houses` (`id`, `owner`, `paid`, `warnings`, `name`, `town_id`, `rent`, `size`, `beds`) VALUES ("
+		      << house->getId() << ',' << house->getOwner() << ',' << house->getPaidUntil() << ',' << house->getPayRentWarnings() << ','
+		      << db.escapeString(house->getName()) << ',' << house->getTownId() << ',' << house->getRent() << ','
+		      << house->getTiles().size() << ',' << house->getBedCount()
+		      << ") ON DUPLICATE KEY UPDATE `owner` = " << house->getOwner() << ", `paid` = " << house->getPaidUntil()
+		      << ", `warnings` = " << house->getPayRentWarnings() << ", `name` = " << db.escapeString(house->getName())
+		      << ", `town_id` = " << house->getTownId() << ", `rent` = " << house->getRent()
+		      << ", `size` = " << house->getTiles().size() << ", `beds` = " << house->getBedCount();
+		queries.push_back(query.str());
 		query.str(std::string());
 	}
 
-	DBInsert stmt("INSERT INTO `house_lists` (`house_id` , `listid` , `list`) VALUES ");
+	DBInsertQueries stmt("INSERT INTO `house_lists` (`house_id` , `listid` , `list`) VALUES ", queries);
 
 	for (const auto& it : g_game.map.houses.getHouses()) {
 		House* house = it.second;
@@ -339,7 +341,6 @@ bool IOMapSerialize::saveHouseInfo()
 			if (!stmt.addRow(query)) {
 				return false;
 			}
-
 			listText.clear();
 		}
 
@@ -348,7 +349,6 @@ bool IOMapSerialize::saveHouseInfo()
 			if (!stmt.addRow(query)) {
 				return false;
 			}
-
 			listText.clear();
 		}
 
@@ -358,14 +358,36 @@ bool IOMapSerialize::saveHouseInfo()
 				if (!stmt.addRow(query)) {
 					return false;
 				}
-
 				listText.clear();
 			}
 		}
 	}
 
-	if (!stmt.execute()) {
+	stmt.execute();
+	return true;
+}
+
+bool IOMapSerialize::saveHouseInfo()
+{
+	std::vector<std::string> queries;
+	if (!saveHouseInfoToQueries(queries)) {
 		return false;
+	}
+
+	if (queries.empty()) {
+		return true;
+	}
+
+	Database& db = Database::getInstance();
+	DBTransaction transaction;
+	if (!transaction.begin()) {
+		return false;
+	}
+
+	for (const auto& query : queries) {
+		if (!db.executeQuery(query)) {
+			return false;
+		}
 	}
 
 	return transaction.commit();

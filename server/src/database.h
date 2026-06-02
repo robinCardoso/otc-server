@@ -21,6 +21,7 @@
 #define FS_DATABASE_H_A484B0CDFDE542838F506DCE3D40C693
 
 #include <boost/lexical_cast.hpp>
+#include <vector>
 
 #include <mysql.h>
 
@@ -213,6 +214,54 @@ class DBInsert
 		std::string query;
 		std::string values;
 		size_t length;
+};
+
+class DBInsertQueries
+{
+	public:
+		DBInsertQueries(std::string query, std::vector<std::string>& queries) : query(std::move(query)), queries(queries) {
+			this->length = this->query.length();
+		}
+		bool addRow(const std::string& row) {
+			const size_t rowLength = row.length();
+			length += rowLength;
+			if (length > Database::getInstance().getMaxPacketSize()) {
+				execute();
+			}
+
+			if (values.empty()) {
+				values.reserve(rowLength + 2);
+				values.push_back('(');
+				values.append(row);
+				values.push_back(')');
+			} else {
+				values.reserve(values.length() + rowLength + 3);
+				values.push_back(',');
+				values.push_back('(');
+				values.append(row);
+				values.push_back(')');
+			}
+			return true;
+		}
+		bool addRow(std::ostringstream& row) {
+			bool ret = addRow(row.str());
+			row.str(std::string());
+			return ret;
+		}
+		bool execute() {
+			if (values.empty()) {
+				return true;
+			}
+			queries.push_back(query + values);
+			values.clear();
+			length = query.length();
+			return true;
+		}
+	protected:
+		std::string query;
+		std::string values;
+		size_t length;
+		std::vector<std::string>& queries;
 };
 
 class DBTransaction

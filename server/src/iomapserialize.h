@@ -28,8 +28,10 @@ class IOMapSerialize
 	public:
 		static void loadHouseItems(Map* map);
 		static bool saveHouseItems();
+		static bool saveHouseItemsToQueries(std::vector<std::string>& queries);
 		static bool loadHouseInfo();
 		static bool saveHouseInfo();
+		static bool saveHouseInfoToQueries(std::vector<std::string>& queries);
 
 	protected:
 		static void saveItem(PropWriteStream& stream, const Item* item);

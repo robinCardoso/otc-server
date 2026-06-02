@@ -27,9 +27,11 @@
 
 struct DatabaseTask {
 	DatabaseTask(std::string&& query, std::function<void(DBResult_ptr, bool)>&& callback, bool store) :
-		query(std::move(query)), callback(std::move(callback)), store(store) {}
+		queries({std::move(query)}), callback(std::move(callback)), store(store) {}
+	DatabaseTask(std::vector<std::string>&& queries, std::function<void(DBResult_ptr, bool)>&& callback) :
+		queries(std::move(queries)), callback(std::move(callback)), store(false) {}
 
-	std::string query;
+	std::vector<std::string> queries;
 	std::function<void(DBResult_ptr, bool)> callback;
 	bool store;
 };
@@ -43,6 +45,7 @@ class DatabaseTasks : public ThreadHolder<DatabaseTasks>
 		void shutdown();
 
 		void addTask(std::string query, std::function<void(DBResult_ptr, bool)> callback = nullptr, bool store = false);
+		void addTasks(std::vector<std::string> queries, std::function<void(DBResult_ptr, bool)> callback = nullptr);
 
 		void threadMain();
 	private:

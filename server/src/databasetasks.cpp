@@ -66,16 +66,45 @@ void DatabaseTasks::addTask(std::string query, std::function<void(DBResult_ptr, 
 	}
 }
 
+void DatabaseTasks::addTasks(std::vector<std::string> queries, std::function<void(DBResult_ptr, bool)> callback/* = nullptr*/)
+{
+	bool signal = false;
+	taskLock.lock();
+	if (getState() == THREAD_STATE_RUNNING) {
+		signal = tasks.empty();
+		tasks.emplace_back(std::move(queries), std::move(callback));
+	}
+	taskLock.unlock();
+
+	if (signal) {
+		taskSignal.notify_one();
+	}
+}
+
 void DatabaseTasks::runTask(const DatabaseTask& task)
 {
-	bool success;
-	DBResult_ptr result;
-	if (task.store) {
-		result = db.storeQuery(task.query);
-		success = true;
-	} else {
-		result = nullptr;
-		success = db.executeQuery(task.query);
+	bool success = true;
+	DBResult_ptr result = nullptr;
+	if (task.queries.size() == 1) {
+		if (task.store) {
+			result = db.storeQuery(task.queries[0]);
+			success = (result != nullptr);
+		} else {
+			success = db.executeQuery(task.queries[0]);
+		}
+	} else if (!task.queries.empty()) {
+		db.beginTransaction();
+		for (const auto& query : task.queries) {
+			if (!db.executeQuery(query)) {
+				success = false;
+				break;
+			}
+		}
+		if (success) {
+			db.commit();
+		} else {
+			db.rollback();
+		}
 	}
 
 	if (task.callback) {

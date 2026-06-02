@@ -192,7 +192,7 @@ bool IOLoginData::preloadPlayer(Player* player, const std::string& name)
 bool IOLoginData::loadPlayerById(Player* player, uint32_t id)
 {
 	std::ostringstream query;
-	query << "SELECT `id`, `name`, `account_id`, `group_id`, `sex`, `vocation`, `experience`, `level`, `maglevel`, `health`, `healthmax`, `blessings`, `mana`, `manamax`, `manaspent`, `soul`, `lookbody`, `lookfeet`, `lookhead`, `looklegs`, `looktype`, `lookaddons`, `posx`, `posy`, `posz`, `cap`, `lastlogin`, `lastlogout`, `lastip`, `conditions`, `skulltime`, `skull`, `town_id`, `balance`, `offlinetraining_time`, `offlinetraining_skill`, `stamina`, `skill_fist`, `skill_fist_tries`, `skill_club`, `skill_club_tries`, `skill_sword`, `skill_sword_tries`, `skill_axe`, `skill_axe_tries`, `skill_dist`, `skill_dist_tries`, `skill_shielding`, `skill_shielding_tries`, `skill_fishing`, `skill_fishing_tries` FROM `players` WHERE `id` = " << id;
+	query << "SELECT `id`, `name`, `save`, `account_id`, `group_id`, `sex`, `vocation`, `experience`, `level`, `maglevel`, `health`, `healthmax`, `blessings`, `mana`, `manamax`, `manaspent`, `soul`, `lookbody`, `lookfeet`, `lookhead`, `looklegs`, `looktype`, `lookaddons`, `posx`, `posy`, `posz`, `cap`, `lastlogin`, `lastlogout`, `lastip`, `conditions`, `skulltime`, `skull`, `town_id`, `balance`, `offlinetraining_time`, `offlinetraining_skill`, `stamina`, `skill_fist`, `skill_fist_tries`, `skill_club`, `skill_club_tries`, `skill_sword`, `skill_sword_tries`, `skill_axe`, `skill_axe_tries`, `skill_dist`, `skill_dist_tries`, `skill_shielding`, `skill_shielding_tries`, `skill_fishing`, `skill_fishing_tries` FROM `players` WHERE `id` = " << id;
 	return loadPlayer(player, Database::getInstance().storeQuery(query.str()));
 }
 
@@ -200,7 +200,7 @@ bool IOLoginData::loadPlayerByName(Player* player, const std::string& name)
 {
 	Database& db = Database::getInstance();
 	std::ostringstream query;
-	query << "SELECT `id`, `name`, `account_id`, `group_id`, `sex`, `vocation`, `experience`, `level`, `maglevel`, `health`, `healthmax`, `blessings`, `mana`, `manamax`, `manaspent`, `soul`, `lookbody`, `lookfeet`, `lookhead`, `looklegs`, `looktype`, `lookaddons`, `posx`, `posy`, `posz`, `cap`, `lastlogin`, `lastlogout`, `lastip`, `conditions`, `skulltime`, `skull`, `town_id`, `balance`, `offlinetraining_time`, `offlinetraining_skill`, `stamina`, `skill_fist`, `skill_fist_tries`, `skill_club`, `skill_club_tries`, `skill_sword`, `skill_sword_tries`, `skill_axe`, `skill_axe_tries`, `skill_dist`, `skill_dist_tries`, `skill_shielding`, `skill_shielding_tries`, `skill_fishing`, `skill_fishing_tries` FROM `players` WHERE `name` = " << db.escapeString(name);
+	query << "SELECT `id`, `name`, `save`, `account_id`, `group_id`, `sex`, `vocation`, `experience`, `level`, `maglevel`, `health`, `healthmax`, `blessings`, `mana`, `manamax`, `manaspent`, `soul`, `lookbody`, `lookfeet`, `lookhead`, `looklegs`, `looktype`, `lookaddons`, `posx`, `posy`, `posz`, `cap`, `lastlogin`, `lastlogout`, `lastip`, `conditions`, `skulltime`, `skull`, `town_id`, `balance`, `offlinetraining_time`, `offlinetraining_skill`, `stamina`, `skill_fist`, `skill_fist_tries`, `skill_club`, `skill_club_tries`, `skill_sword`, `skill_sword_tries`, `skill_axe`, `skill_axe_tries`, `skill_dist`, `skill_dist_tries`, `skill_shielding`, `skill_shielding_tries`, `skill_fishing`, `skill_fishing_tries` FROM `players` WHERE `name` = " << db.escapeString(name);
 	return loadPlayer(player, db.storeQuery(query.str()));
 }
 
@@ -217,6 +217,7 @@ bool IOLoginData::loadPlayer(Player* player, DBResult_ptr result)
 
 	player->setGUID(result->getNumber<uint32_t>("id"));
 	player->name = result->getString("name");
+	player->saveCharacter = result->getNumber<uint16_t>("save") != 0;
 	player->accountNumber = accno;
 
 	player->accountType = acc.accountType;
@@ -584,7 +585,9 @@ bool IOLoginData::loadPlayer(Player* player, DBResult_ptr result)
 	return true;
 }
 
-bool IOLoginData::saveItems(const Player* player, const ItemBlockList& itemList, DBInsert& query_insert, PropWriteStream& propWriteStream)
+
+template <typename T>
+static bool saveItemsTemplate(const Player* player, const ItemBlockList& itemList, T& query_insert, PropWriteStream& propWriteStream)
 {
 	std::ostringstream ss;
 
@@ -644,7 +647,17 @@ bool IOLoginData::saveItems(const Player* player, const ItemBlockList& itemList,
 	return query_insert.execute();
 }
 
-bool IOLoginData::savePlayer(Player* player)
+bool IOLoginData::saveItems(const Player* player, const ItemBlockList& itemList, DBInsert& query_insert, PropWriteStream& propWriteStream)
+{
+	return saveItemsTemplate(player, itemList, query_insert, propWriteStream);
+}
+
+static bool saveItemsQueries(const Player* player, const ItemBlockList& itemList, DBInsertQueries& query_insert, PropWriteStream& propWriteStream)
+{
+	return saveItemsTemplate(player, itemList, query_insert, propWriteStream);
+}
+
+bool IOLoginData::getPlayerSaveQueries(Player* player, std::vector<std::string>& queries)
 {
 	if (player->getHealth() <= 0) {
 		player->changeHealth(1);
@@ -653,16 +666,10 @@ bool IOLoginData::savePlayer(Player* player)
 	Database& db = Database::getInstance();
 
 	std::ostringstream query;
-	query << "SELECT `save` FROM `players` WHERE `id` = " << player->getGUID();
-	DBResult_ptr result = db.storeQuery(query.str());
-	if (!result) {
-		return false;
-	}
-
-	if (result->getNumber<uint16_t>("save") == 0) {
-		query.str(std::string());
+	if (!player->shouldSave()) {
 		query << "UPDATE `players` SET `lastlogin` = " << player->lastLoginSaved << ", `lastip` = " << player->lastIP << " WHERE `id` = " << player->getGUID();
-		return db.executeQuery(query.str());
+		queries.push_back(query.str());
+		return true;
 	}
 
 	//serialize conditions
@@ -678,7 +685,6 @@ bool IOLoginData::savePlayer(Player* player)
 	const char* conditions = propWriteStream.getStream(conditionsSize);
 
 	//First, an UPDATE query to write the player itself
-	query.str(std::string());
 	query << "UPDATE `players` SET ";
 	query << "`level` = " << player->level << ',';
 	query << "`group_id` = " << player->group->id << ',';
@@ -761,44 +767,29 @@ bool IOLoginData::savePlayer(Player* player)
 	}
 	query << "`blessings` = " << static_cast<uint32_t>(player->blessings);
 	query << " WHERE `id` = " << player->getGUID();
-
-	DBTransaction transaction;
-	if (!transaction.begin()) {
-		return false;
-	}
-
-	if (!db.executeQuery(query.str())) {
-		return false;
-	}
+	queries.push_back(query.str());
 
 	// learned spells
 	query.str(std::string());
 	query << "DELETE FROM `player_spells` WHERE `player_id` = " << player->getGUID();
-	if (!db.executeQuery(query.str())) {
-		return false;
-	}
+	queries.push_back(query.str());
 
 	query.str(std::string());
-
-	DBInsert spellsQuery("INSERT INTO `player_spells` (`player_id`, `name` ) VALUES ");
+	DBInsertQueries spellsQuery("INSERT INTO `player_spells` (`player_id`, `name` ) VALUES ", queries);
 	for (const std::string& spellName : player->learnedInstantSpellList) {
 		query << player->getGUID() << ',' << db.escapeString(spellName);
 		if (!spellsQuery.addRow(query)) {
 			return false;
 		}
 	}
-
-	if (!spellsQuery.execute()) {
-		return false;
-	}
+	spellsQuery.execute();
 
 	//item saving
+	query.str(std::string());
 	query << "DELETE FROM `player_items` WHERE `player_id` = " << player->getGUID();
-	if (!db.executeQuery(query.str())) {
-		return false;
-	}
+	queries.push_back(query.str());
 
-	DBInsert itemsQuery("INSERT INTO `player_items` (`player_id`, `pid`, `sid`, `itemtype`, `count`, `attributes`) VALUES ");
+	DBInsertQueries itemsQuery("INSERT INTO `player_items` (`player_id`, `pid`, `sid`, `itemtype`, `count`, `attributes`) VALUES ", queries);
 
 	ItemBlockList itemList;
 	for (int32_t slotId = 1; slotId <= 10; ++slotId) {
@@ -808,20 +799,17 @@ bool IOLoginData::savePlayer(Player* player)
 		}
 	}
 
-	if (!saveItems(player, itemList, itemsQuery, propWriteStream)) {
+	if (!saveItemsQueries(player, itemList, itemsQuery, propWriteStream)) {
 		return false;
 	}
 
 	if (player->lastDepotId != -1 || !player->depotChests.empty()) {
-		//save depot items (also when Estoque OTC filled depotChests without opening map locker)
+		//save depot items
 		query.str(std::string());
 		query << "DELETE FROM `player_depotitems` WHERE `player_id` = " << player->getGUID();
+		queries.push_back(query.str());
 
-		if (!db.executeQuery(query.str())) {
-			return false;
-		}
-
-		DBInsert depotQuery("INSERT INTO `player_depotitems` (`player_id`, `pid`, `sid`, `itemtype`, `count`, `attributes`) VALUES ");
+		DBInsertQueries depotQuery("INSERT INTO `player_depotitems` (`player_id`, `pid`, `sid`, `itemtype`, `count`, `attributes`) VALUES ", queries);
 		itemList.clear();
 
 		for (const auto& it : player->depotChests) {
@@ -831,7 +819,7 @@ bool IOLoginData::savePlayer(Player* player)
 			}
 		}
 
-		if (!saveItems(player, itemList, depotQuery, propWriteStream)) {
+		if (!saveItemsQueries(player, itemList, depotQuery, propWriteStream)) {
 			return false;
 		}
 	}
@@ -839,28 +827,24 @@ bool IOLoginData::savePlayer(Player* player)
 	//save reward items
 	query.str(std::string());
 	query << "DELETE FROM `player_rewards` WHERE `player_id` = " << player->getGUID();
-
-	if (!db.executeQuery(query.str())) {
-		return false;
-	}
+	queries.push_back(query.str());
 
 	std::vector<uint32_t> rewardList;
 	player->getRewardList(rewardList);
 
 	if (!rewardList.empty()) {
-		DBInsert rewardQuery("INSERT INTO `player_rewards` (`player_id`, `pid`, `sid`, `itemtype`, `count`, `attributes`) VALUES ");
+		DBInsertQueries rewardQuery("INSERT INTO `player_rewards` (`player_id`, `pid`, `sid`, `itemtype`, `count`, `attributes`) VALUES ", queries);
 		itemList.clear();
 	
 		int running = 0;
 		for (const auto& rewardId : rewardList) {
 			Reward* reward = player->getReward(rewardId, false);
-			// rewards that are empty or older than 7 days aren't stored
 			if (!reward->empty() && (time(nullptr) - rewardId <= 60 * 60 * 24 * 7)) {
 				itemList.emplace_back(++running, reward);
 			}
 		}
 
-		if (!saveItems(player, itemList, rewardQuery, propWriteStream)) {
+		if (!saveItemsQueries(player, itemList, rewardQuery, propWriteStream)) {
 			return false;
 		}
 	}
@@ -868,30 +852,25 @@ bool IOLoginData::savePlayer(Player* player)
 	//save inbox items
 	query.str(std::string());
 	query << "DELETE FROM `player_inboxitems` WHERE `player_id` = " << player->getGUID();
-	if (!db.executeQuery(query.str())) {
-		return false;
-	}
+	queries.push_back(query.str());
 
-	DBInsert inboxQuery("INSERT INTO `player_inboxitems` (`player_id`, `pid`, `sid`, `itemtype`, `count`, `attributes`) VALUES ");
+	DBInsertQueries inboxQuery("INSERT INTO `player_inboxitems` (`player_id`, `pid`, `sid`, `itemtype`, `count`, `attributes`) VALUES ", queries);
 	itemList.clear();
 
 	for (Item* item : player->getInbox()->getItemList()) {
 		itemList.emplace_back(0, item);
 	}
 
-	if (!saveItems(player, itemList, inboxQuery, propWriteStream)) {
+	if (!saveItemsQueries(player, itemList, inboxQuery, propWriteStream)) {
 		return false;
 	}
 
 	query.str(std::string());
 	query << "DELETE FROM `player_storage` WHERE `player_id` = " << player->getGUID();
-	if (!db.executeQuery(query.str())) {
-		return false;
-	}
+	queries.push_back(query.str());
 
 	query.str(std::string());
-
-	DBInsert storageQuery("INSERT INTO `player_storage` (`player_id`, `key`, `value`) VALUES ");
+	DBInsertQueries storageQuery("INSERT INTO `player_storage` (`player_id`, `key`, `value`) VALUES ", queries);
 	player->genReservedStorageRange();
 
 	for (const auto& it : player->storageMap) {
@@ -900,12 +879,34 @@ bool IOLoginData::savePlayer(Player* player)
 			return false;
 		}
 	}
+	storageQuery.execute();
 
-	if (!storageQuery.execute()) {
+	return true;
+}
+
+bool IOLoginData::savePlayer(Player* player)
+{
+	std::vector<std::string> queries;
+	if (!getPlayerSaveQueries(player, queries)) {
 		return false;
 	}
 
-	//End the transaction
+	if (queries.empty()) {
+		return true;
+	}
+
+	Database& db = Database::getInstance();
+	DBTransaction transaction;
+	if (!transaction.begin()) {
+		return false;
+	}
+
+	for (const auto& query : queries) {
+		if (!db.executeQuery(query)) {
+			return false;
+		}
+	}
+
 	return transaction.commit();
 }
 
