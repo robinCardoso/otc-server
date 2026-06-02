@@ -18,7 +18,7 @@ Cliente OTClientV8 compilado localmente para o servidor TFS 8.60.
 
 ```powershell
 # 1) Dependências (uma vez; demora)
-cd C:\8.6\otserv_860\otcv8-dev
+cd C:\8.6\otserv_860\otc-server\client
 .\scripts\setup-vcpkg.ps1
 
 # 2) Compilar cliente
@@ -26,15 +26,15 @@ cd C:\8.6\otserv_860\otcv8-dev
 
 # 3) Jogar
 # Copiar Tibia 8.60 para data\things\860\ (Tibia.dat + Tibia.spr)
-# Executar otclient_gl.exe na pasta otcv8-dev
+# Executar otclient_gl.exe na pasta client\
 # Servidor: 127.0.0.1:7171:860
 ```
 
 ## Pastas importantes
 
-- **Executáveis:** `otcv8-dev\otclient_gl.exe`, `otclient_dx.exe`
+- **Executáveis:** `otc-server\client\otclient_gl.exe`, `otclient_dx.exe`
 - **Código C++:** `src\`, solução `vc16\otclient.sln`
 - **Lua/UI:** `modules\`, `data\`, `init.lua`
-- **Log do cliente:** `otcv8-dev\otclientv8.log`
+- **Log do cliente:** `otc-server\client\otclientv8.log`
 - **vcpkg:** `C:\8.6\otserv_860\vcpkg`
 - **Servidor:** `C:\8.6\otserv_860\otserv_860\`

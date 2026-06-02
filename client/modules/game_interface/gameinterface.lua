@@ -729,7 +729,7 @@ function processMouseAction(menuPosition, mouseButton, autoWalkPos, lookThing, u
       elseif creatureThing and creatureThing ~= player and creatureThing:getPosition().z == autoWalkPos.z then
         g_game.attack(creatureThing)
         return true
-      elseif useThing and not useThing:isGround() then
+      elseif useThing and (useThing:isForceUse() or useThing:isContainer() or useThing:isMultiUse() or (not useThing:isGround() and not useThing:isGroundBorder() and not useThing:isOnBottom() and not useThing:isOnTop())) then
         if useThing:isContainer() then
           openContainerItem(useThing)
           return true

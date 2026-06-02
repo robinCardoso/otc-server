@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../../../xampp/htdocs"
+		}
+	],
+	"settings": {
+		"powershell.cwd": "otcv8-dev-orig"
+	}
+}

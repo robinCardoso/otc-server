@@ -5,22 +5,22 @@ StockCategoryButton < UIButton
   text-offset: 0 1
   padding-left: 14
   font: verdana-11px-antialised
-  color: #2e2e38
-  background-color: #f2f2f5
+  color: #dfdfdf
+  background-color: #242428
   border-width: 1
-  border-color: #b8b8c4
+  border-color: #3b3b42
   opacity: 1
   change-cursor-image: true
   cursor: pointer
 
   $on:
     color: #e8d878ff
-    background-color: #e8e8ec
+    background-color: #3b3b42
     border-color: #c9a850
 
   $hover !on:
-    background-color: #242424
-    color: #d8d8d8ff
+    background-color: #2e2e34
+    color: #ffffff
     border-color: #5a5a5a
 
   $hover on:
@@ -35,9 +35,9 @@ StockItemCell < Panel
   size: 40 40
   margin: 2
   focusable: true
-  background-color: #f2f2f588
+  background-color: #24242888
   border-width: 1
-  border-color: #555555
+  border-color: #3b3b42
 
   UIItem
     id: itemWidget
@@ -72,7 +72,7 @@ MainWindow
     anchors.right: parent.right
     height: 28
     margin: 8 8 0 8
-    background-color: #f2f2f5cc
+    background-color: #1c1c1fcc
 
     Label
       id: summaryLabel
@@ -128,7 +128,7 @@ MainWindow
     height: 0
     visible: false
     margin: 2 8 0 8
-    background-color: #d8d8decc
+    background-color: #331111aa
 
     Label
       id: pkBlockLabel
@@ -153,7 +153,7 @@ MainWindow
       anchors.left: parent.left
       anchors.bottom: parent.bottom
       width: 110
-      background-color: #e8e8ecaa
+      background-color: #181818aa
       padding: 4
 
       StockCategoryButton
@@ -246,7 +246,7 @@ MainWindow
       anchors.right: parent.right
       anchors.bottom: parent.bottom
       width: 168
-      background-color: #e8e8ecaa
+      background-color: #181818aa
       padding: 6
 
       Label
@@ -350,7 +350,7 @@ MainWindow
     anchors.right: parent.right
     height: 72
     margin: 0 8 8 8
-    background-color: #f2f2f5cc
+    background-color: #181818aa
 
     Label
       id: playerStripLabel

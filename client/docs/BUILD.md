@@ -22,16 +22,16 @@ winget install Microsoft.VisualStudio.2022.BuildTools --override "--wait --add M
 
 ```
 C:\8.6\otserv_860\
-├── otserv_860\          # TFS 8.60
-├── otcv8-dev\           # este projeto
-├── vcpkg\               # commit 3b3bd424827a1f7f4813216f6b32b6c61e386b2e
-└── tools\nasm\          # opcional
+├── otserv_860\              # TFS 8.60
+├── otc-server\client\       # este projeto (OTCv8)
+├── vcpkg\                   # commit 3b3bd424827a1f7f4813216f6b32b6c61e386b2e
+└── tools\nasm\              # opcional
 ```
 
 ## Passo 1 — vcpkg e dependências
 
 ```powershell
-cd C:\8.6\otserv_860\otcv8-dev
+cd C:\8.6\otserv_860\otc-server\client
 .\scripts\setup-vcpkg.ps1
 ```
 
@@ -85,8 +85,8 @@ Após `git checkout` limpo, reaplicar ou rodar `setup-vcpkg.ps1` (que chama o pa
 
 Saída:
 
-- `otcv8-dev\otclient_gl.exe`
-- `otcv8-dev\otclient_dx.exe`
+- `otc-server\client\otclient_gl.exe`
+- `otc-server\client\otclient_dx.exe`
 
 O script:
 

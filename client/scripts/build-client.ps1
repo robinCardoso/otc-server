@@ -88,8 +88,15 @@ foreach ($name in $built) {
     if (Test-Path $e) {
         Write-Host "OK: $e" -ForegroundColor Green
         if (Test-Path $ClientRelease) {
-            Copy-Item $e $ClientRelease -Force
-            Write-Host "Copiado para $ClientRelease"
+            $dest = Join-Path $ClientRelease $name
+            $srcFull = (Resolve-Path $e).Path
+            $destFull = [System.IO.Path]::GetFullPath($dest)
+            if ($srcFull -ieq $destFull) {
+                Write-Host "Executavel ja em $ClientRelease" -ForegroundColor DarkGray
+            } else {
+                Copy-Item $e $ClientRelease -Force
+                Write-Host "Copiado para $ClientRelease"
+            }
         }
     } else {
         Write-Warning "Nao encontrado: $e"
