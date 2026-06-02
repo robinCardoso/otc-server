@@ -1,13 +1,3 @@
-local function classicControlBlocksMinimapAutoWalk()
-  if g_app.isMobile() then
-    return false
-  end
-  if not modules.client_options then
-    return false
-  end
-  return modules.client_options.getOption('classicControl')
-end
-
 function UIMinimap:onCreate()
   self.autowalk = true
 end
@@ -241,7 +231,7 @@ function UIMinimap:onMouseRelease(pos, button)
 
   if button == MouseLeftButton then
     local player = g_game.getLocalPlayer()
-    if self.autowalk and not classicControlBlocksMinimapAutoWalk() then
+    if self.autowalk then
       player:autoWalk(mapPos)
     end
     return true

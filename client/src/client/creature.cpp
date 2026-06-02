@@ -1065,7 +1065,7 @@ uint16 Creature::getStepDuration(bool ignoreDiagonal, Otc::Direction dir) {
     interval = std::ceil((float)interval / (float)g_game.getServerBeat()) *
                g_game.getServerBeat();
 
-  float factor = 2; // Fator diagonal otimizado (sincronizado com o servidor)
+  float factor = 1.5; // Fator diagonal otimizado (sincronizado com o servidor)
 
   interval = std::max<int>(interval, g_game.getServerBeat());
 

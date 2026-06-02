@@ -21,15 +21,15 @@ ContainerWindow < MiniWindow
     anchors.top: lockButton.top
     anchors.right: lockButton.left
     margin-right: 2
-    size: 22 22
+    size: 14 14
     image-source: /images/ui/miniwindow_buttons
-    image-clip: 420 0 140 140
+    image-clip: 42 0 14 14
 
     $hover:
-      image-clip: 420 140 140 140
+      image-clip: 42 14 14 14
 
     $pressed:
-      image-clip: 420 280 140 140
+      image-clip: 42 28 14 14
 
   Panel
     id: pagePanel

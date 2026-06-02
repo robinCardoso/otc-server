@@ -136,6 +136,7 @@ class Database
 		uint64_t maxPacketSize = 1048576;
 
 	friend class DBTransaction;
+	friend class DatabaseTasks;
 };
 
 class DBResult

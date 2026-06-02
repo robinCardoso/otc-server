@@ -107,7 +107,11 @@ int32_t Creature::getWalkDelay(Direction dir) const
 
 	int64_t ct = OTSYS_TIME();
 	int64_t stepDuration = getStepDuration(dir);
-	return stepDuration - (ct - lastStep);
+	int32_t delay = stepDuration - (ct - lastStep);
+	if (delay <= 50) { // 50ms tolerance to prevent stuttering due to scheduler jitter or network ping variations
+		return 0;
+	}
+	return delay;
 }
 
 int32_t Creature::getWalkDelay() const
@@ -119,7 +123,11 @@ int32_t Creature::getWalkDelay() const
 
 	int64_t ct = OTSYS_TIME();
 	int64_t stepDuration = getStepDuration() * lastStepCost;
-	return stepDuration - (ct - lastStep);
+	int32_t delay = stepDuration - (ct - lastStep);
+	if (delay <= 50) { // 50ms tolerance to prevent stuttering due to scheduler jitter or network ping variations
+		return 0;
+	}
+	return delay;
 }
 
 void Creature::onThink(uint32_t interval)
@@ -1352,7 +1360,7 @@ int64_t Creature::getStepDuration(Direction dir) const
 {
 	int64_t stepDuration = getStepDuration();
 	if ((dir & DIRECTION_DIAGONAL_MASK) != 0) {
-		stepDuration *= 3;
+		stepDuration = stepDuration * 1.5;
 	}
 	return stepDuration;
 }

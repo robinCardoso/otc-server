@@ -7,7 +7,7 @@ local defaultOptions = {
   fullscreen = false,
   classicView = not g_app.isMobile(),
   cacheMap = g_app.isMobile(),
-  classicControl = not g_app.isMobile(),
+  classicControl = true,
   autoChaseOverride = true,
   showStatusMessagesInConsole = true,
   showEventMessagesInConsole = true,
@@ -44,10 +44,10 @@ local defaultOptions = {
   hotkeyDelay = 30,
 
   -- Movimento fluido (Fazendo Tibia 860): DASH + smart walk + delays baixos
-  dash = true,
-  smartWalk = true,
+  dash = false,
+  smartWalk = false,
   wsadWalking = false,
-  walkFirstStepDelay = 0,
+  walkFirstStepDelay = 200,
   walkTurnDelay = 0,
   walkStairsDelay = 0,
   walkTeleportDelay = 150,
@@ -108,7 +108,7 @@ local extrasPanel
 local audioButton
 
 -- Incrementar ao mudar defaults de movimento; reaplica uma vez no perfil salvo
-local WALK_SETTINGS_VERSION = 2
+local WALK_SETTINGS_VERSION = 3
 local walkDefaultKeys = {
   'dash', 'smartWalk', 'hotkeyDelay',
   'walkFirstStepDelay', 'walkTurnDelay', 'walkStairsDelay',
