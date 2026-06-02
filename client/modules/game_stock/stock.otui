@@ -1,9 +1,9 @@
 StockCategoryButton < UIButton
   height: 26
-  margin-bottom: 2
+  margin-top: 4
   text-align: left
-  text-offset: 0 1
-  padding-left: 14
+  text-offset: 24 1
+  padding-left: 10
   font: verdana-11px-antialised
   color: #dfdfdf
   background-color: #242428
@@ -28,8 +28,8 @@ StockCategoryButton < UIButton
     border-color: #d4b860
 
   $pressed:
-    padding-left: 15
-    text-offset: 0 2
+    padding-left: 11
+    text-offset: 24 2
 
 StockItemCell < Panel
   size: 40 40
