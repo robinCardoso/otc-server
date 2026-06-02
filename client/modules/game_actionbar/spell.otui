@@ -34,22 +34,22 @@ SpellCategoryTab < UIButton
   text-align: center
   text-offset: 0 1
   font: verdana-11px-antialised
-  color: #b8b8b8ff
-  background-color: #f2f2f5
+  color: #dfdfdf
+  background-color: #242428
   border-width: 1
-  border-color: #3a3a3a
+  border-color: #3b3b42
   opacity: 1
   change-cursor-image: true
   cursor: pointer
 
   $on:
     color: #e8d878ff
-    background-color: #2a2618
+    background-color: #3b3b42
     border-color: #c9a850
 
   $hover !on:
-    background-color: #242424
-    color: #d8d8d8ff
+    background-color: #2e2e34
+    color: #ffffff
     border-color: #5a5a5a
 
   $hover on:
