@@ -97,7 +97,10 @@ function onStartup()
 	CASTLE:load()
 	Game.setStorageValue(GlobalStorage.XpDisplayMode, 0)
 
-	if Otcv8Bestiary and Otcv8Bestiary.scheduleStartupLooksCache then
+  if Otcv8Bestiary and Otcv8Bestiary.scheduleStartupLooksCache then
 		Otcv8Bestiary.scheduleStartupLooksCache()
+	end
+	if Otcv8Bestiary and Otcv8Bestiary.scheduleStartupItemLookup then
+		Otcv8Bestiary.scheduleStartupItemLookup()
 	end
 end

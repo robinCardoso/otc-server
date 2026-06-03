@@ -37,10 +37,16 @@ BestiaryElementStyle = {
 
 local ELEMENT_ICON_SIZE = 20
 
+local LOOT_GRID_COLS = 3
+local LOOT_GRID_CELL_H = 84
+local LOOT_GRID_SPACING = 6
+
 local DETAIL_SUBTITLE_SEP = " - "
 
 MonsterBestiaryDatabase = {}
+BestiaryItemLookup = {}
 local looksSynced = false
+local itemsSynced = false
 
 -- Performance: evita criar milhares de UICreature de uma vez
 local BESTIARY_GRID_LIMIT = 96
@@ -159,13 +165,13 @@ end
 function onGameStart()
   killToastReady = false
   ensureKillToastsPanel()
-  scheduleServerSync(500)
-  scheduleServerSync(2500)
-  scheduleServerSync(6000)
+  scheduleServerSync(800)
 end
 
 function onGameEnd()
   looksSynced = false
+  itemsSynced = false
+  BestiaryItemLookup = {}
   killToastReady = false
   cancelGridRefresh()
   clearAllKillToasts()
@@ -280,6 +286,40 @@ function onExtendedJSONOpcode(protocol, code, jsonData)
 
   elseif action == "looks" then
     mergeLooksFromServer(data)
+  elseif action == "items" then
+    mergeItemsFromServer(data)
+  elseif action == "itemsDone" then
+    finalizeItemsFromServer(data)
+  end
+end
+
+function mergeItemsFromServer(data)
+  if type(data) ~= "table" then
+    g_logger.warning("[Bestiary] Pacote 'items' invalido do servidor")
+    return
+  end
+
+  for serverId, entry in pairs(data) do
+    BestiaryItemLookup[serverId] = entry
+  end
+end
+
+function finalizeItemsFromServer(data)
+  itemsSynced = true
+  local count = 0
+  for _ in pairs(BestiaryItemLookup) do
+    count = count + 1
+  end
+  local expected = data and tonumber(data.total) or nil
+  g_logger.info(string.format(
+    "[Bestiary] Mapa de itens sincronizado: %d entradas%s",
+    count,
+    expected and string.format(" (esperado: %d)", expected) or ""
+  ))
+
+  refreshMonsterGridIfVisible(getCurrentSearchText())
+  if selectedCreature and isBestiaryVisible() then
+    showCreatureDetails(selectedCreature)
   end
 end
 
@@ -383,23 +423,97 @@ function getDifficultyColors(difficultyId)
   return color, bgColor, borderColor, cardBgColor
 end
 
-function resolveDropItemId(drop)
+function resolveDropItem(drop, creatureName)
   if not drop then
-    return 3392
+    return nil
   end
 
-  if drop.id and drop.id > 0 then
-    return drop.id
+  local label = drop.name or "?"
+  local serverId = drop.id and drop.id > 0 and drop.id or nil
+
+  if drop.clientId and drop.clientId > 0 then
+    return { clientId = drop.clientId, name = drop.name or label }
   end
 
-  if drop.name then
-    local itemType = g_things.findItemTypeByName(drop.name)
-    if itemType and itemType:getClientId() > 0 then
-      return itemType:getClientId()
+  if serverId then
+    local entry = BestiaryItemLookup[tostring(serverId)]
+    if entry and entry.c and entry.c > 0 then
+      return { clientId = entry.c, name = entry.n or drop.name or label }
     end
   end
 
-  return 3392
+  if drop.name then
+    local lowerName = drop.name:lower()
+    for _, entry in pairs(BestiaryItemLookup) do
+      if entry.n and entry.n:lower() == lowerName and entry.c and entry.c > 0 then
+        return { clientId = entry.c, name = entry.n }
+      end
+    end
+  end
+
+  g_logger.warning(string.format(
+    "[Bestiary] loot item nao resolvido: %s (serverId=%s, %s) — aguardando sync 'items'",
+    label,
+    serverId or "-",
+    creatureName or "?"
+  ))
+  return nil
+end
+
+function resizeLootGrid(grid, itemCount)
+  if not grid then
+    return
+  end
+
+  local rows = math.max(1, math.ceil(itemCount / LOOT_GRID_COLS))
+  grid:setHeight(rows * LOOT_GRID_CELL_H + math.max(0, rows - 1) * LOOT_GRID_SPACING)
+end
+
+function applyLootSlot(slot, drop, locked, creatureName)
+  local itemWidget = slot:getChildById('lootItem')
+  local lockIcon = slot:getChildById('lockIcon')
+  local lockHint = slot:getChildById('lockHint')
+  local nameLabel = slot:getChildById('lootItemName')
+
+  if drop then
+    local resolved = resolveDropItem(drop, creatureName)
+    if resolved and resolved.clientId then
+      if not Spells.applyItemIcon(itemWidget, resolved.clientId, 1) then
+        itemWidget:setItem(nil)
+      end
+    else
+      itemWidget:setItem(nil)
+    end
+    itemWidget:setOpacity(locked and 0.35 or 1)
+
+    if locked then
+      lockIcon:setVisible(true)
+      lockHint:setVisible(true)
+      if nameLabel then
+        nameLabel:setVisible(false)
+      end
+      slot:setTooltip(tr("Mate 1 criatura para desbloquear o saque."))
+    else
+      lockIcon:setVisible(false)
+      lockHint:setVisible(false)
+      local displayName = resolved and resolved.name or drop.name or "Item"
+      if nameLabel then
+        nameLabel:setVisible(true)
+        nameLabel:setText(displayName)
+      end
+      local chancePercent = drop.chance / 1000
+      slot:setTooltip(string.format("%s (Chance: %.2f%%)", displayName, chancePercent))
+    end
+  else
+    itemWidget:setItem(nil)
+    itemWidget:setOpacity(0.35)
+    lockIcon:setVisible(true)
+    lockHint:setVisible(true)
+    if nameLabel then
+      nameLabel:setVisible(false)
+    end
+    slot:setTooltip(tr("Mate 1 criatura para desbloquear o saque."))
+  end
 end
 
 function applyElementIcon(widget, elementId)
@@ -448,28 +562,43 @@ function renderElementGrid(panel, creature)
   end
 end
 
-function updateDetailScrollHeight(panel, creature)
+function updateDetailScrollHeight(panel)
   local content = panel:recursiveGetChildById('detailScrollContent')
-  local lootLockedGrid = panel:recursiveGetChildById('lootLockedGrid')
-  local dropsGrid = panel:recursiveGetChildById('dropsGrid')
+  local lootGrid = panel:recursiveGetChildById('lootGrid')
   local dropsLabel = panel:recursiveGetChildById('dropsLabel')
+  local scrollArea = panel:recursiveGetChildById('detailScrollArea')
 
   if not content then
     return
   end
 
-  local height = 200
-
-  if lootLockedGrid and lootLockedGrid:isVisible() then
-    height = 380
-  elseif dropsGrid and dropsGrid:getChildCount() > 0 then
-    local rows = math.max(1, math.ceil(dropsGrid:getChildCount() / 3))
-    height = 170 + rows * 78
-  elseif dropsLabel and dropsLabel:isVisible() then
-    height = 230
+  local bottom = 200
+  if dropsLabel and dropsLabel:isVisible() then
+    bottom = dropsLabel:getY() + dropsLabel:getHeight()
+  elseif lootGrid and lootGrid:isVisible() then
+    bottom = lootGrid:getY() + lootGrid:getHeight()
+  else
+    local dropsTitle = panel:recursiveGetChildById('dropsTitle')
+    if dropsTitle then
+      bottom = dropsTitle:getY() + dropsTitle:getHeight() + 8
+    end
   end
 
-  content:setHeight(height)
+  content:setHeight(math.max(bottom + 12, 200))
+
+  if scrollArea and scrollArea.updateScrollBars then
+    scrollArea:updateScrollBars()
+  end
+end
+
+function scheduleDetailScrollRefresh(panel)
+  scheduleEvent(function()
+    if not panel or panel:isDestroyed() then
+      return
+    end
+    updateDetailScrollHeight(panel)
+    resetDetailScroll(panel)
+  end, 50)
 end
 
 function resetDetailScroll(panel)
@@ -485,81 +614,58 @@ function resetDetailScroll(panel)
   scrollArea:setVirtualOffset({ x = 0, y = 0 })
 end
 
-function populateLockedLootSlots(panel, creature)
-  local lootLockedGrid = panel:recursiveGetChildById('lootLockedGrid')
-  local loot = creature.loot or {}
-  local slots = lootLockedGrid:getChildren()
-  local visibleSlots = math.max(#loot, 3)
-
-  for i, slot in ipairs(slots) do
-    slot:setVisible(false)
-  end
-
-  for i, slot in ipairs(slots) do
-    local drop = loot[i]
-    local itemWidget = slot:getChildById('lootItem')
-    local lockIcon = slot:getChildById('lockIcon')
-    local lockHint = slot:getChildById('lockHint')
-
-    if drop and i <= visibleSlots then
-      itemWidget:setItemId(resolveDropItemId(drop))
-      itemWidget:setOpacity(0.35)
-      lockIcon:setVisible(true)
-      lockHint:setVisible(true)
-      slot:setVisible(true)
-      slot:setTooltip(tr("Mate 1 criatura para desbloquear o saque."))
-    elseif i <= visibleSlots then
-      itemWidget:setItem(nil)
-      lockIcon:setVisible(true)
-      lockHint:setVisible(true)
-      slot:setVisible(true)
-      slot:setTooltip(tr("Mate 1 criatura para desbloquear o saque."))
-    else
-      slot:setVisible(false)
-    end
-  end
-end
-
 function renderLootSection(panel, creature, diff)
-  local dropsGrid = panel:recursiveGetChildById('dropsGrid')
+  local lootGrid = panel:recursiveGetChildById('lootGrid')
   local dropsLabel = panel:recursiveGetChildById('dropsLabel')
-  local lootLockedGrid = panel:recursiveGetChildById('lootLockedGrid')
+  local loot = creature.loot or {}
+  local lootCount = #loot
+  local branch = "empty"
+  local slotCount = 0
 
-  dropsGrid:destroyChildren()
+  lootGrid:destroyChildren()
+  lootGrid:setVisible(false)
+  dropsLabel:setVisible(false)
 
-  if creature.kills > 0 and creature.loot and #creature.loot > 0 then
-    dropsLabel:setVisible(false)
-    lootLockedGrid:setVisible(false)
-    dropsGrid:setVisible(true)
+  if creature.kills > 0 and lootCount > 0 then
+    branch = "unlocked"
+    lootGrid:setVisible(true)
 
-    for _, drop in ipairs(creature.loot) do
-      local slot = g_ui.createWidget('BestiaryLootSlot', dropsGrid)
-      slot:getChildById('lockIcon'):setVisible(false)
-      slot:getChildById('lockHint'):setVisible(false)
-
-      local itemBox = slot:getChildById('lootItem')
-      itemBox:setOpacity(1)
-      itemBox:setItemId(resolveDropItemId(drop))
-
-      local chancePercent = drop.chance / 1000
-      slot:setTooltip(string.format("%s (Chance: %.2f%%)", drop.name or "Item", chancePercent))
+    for _, drop in ipairs(loot) do
+      local slot = g_ui.createWidget('BestiaryLootSlot', lootGrid)
+      applyLootSlot(slot, drop, false, creature.name)
+      slotCount = slotCount + 1
     end
+
+    resizeLootGrid(lootGrid, slotCount)
   elseif creature.kills > 0 then
+    branch = "no_loot"
     dropsLabel:setVisible(true)
-    lootLockedGrid:setVisible(false)
-    dropsGrid:setVisible(false)
     dropsLabel:setText(tr("Sem loot registrado para esta criatura."))
-  elseif creature.loot and #creature.loot > 0 then
-    dropsGrid:setVisible(false)
-    lootLockedGrid:setVisible(true)
-    dropsLabel:setVisible(false)
-    populateLockedLootSlots(panel, creature)
+  elseif lootCount > 0 then
+    branch = "locked"
+    lootGrid:setVisible(true)
+    slotCount = math.max(lootCount, 3)
+
+    for i = 1, slotCount do
+      local slot = g_ui.createWidget('BestiaryLootSlot', lootGrid)
+      applyLootSlot(slot, loot[i], true, creature.name)
+    end
+
+    resizeLootGrid(lootGrid, slotCount)
   else
-    dropsGrid:setVisible(false)
-    lootLockedGrid:setVisible(false)
+    branch = "no_loot"
     dropsLabel:setVisible(true)
     dropsLabel:setText(tr("Sem loot registrado para esta criatura."))
   end
+
+  g_logger.info(string.format(
+    "[Bestiary] loot: %s branch=%s slots=%d kills=%d lootEntries=%d",
+    creature.name,
+    branch,
+    slotCount,
+    creature.kills or 0,
+    lootCount
+  ))
 end
 
 function updateDetailProgress(panel, creature, diff)
@@ -815,7 +921,8 @@ function showCreatureDetails(creature)
   renderElementGrid(panel, creature)
   renderLootSection(panel, creature, diff)
   updateDetailProgress(panel, creature, diff)
-  updateDetailScrollHeight(panel, creature)
+  updateDetailScrollHeight(panel)
+  scheduleDetailScrollRefresh(panel)
   resetDetailScroll(panel)
 
   local closeBtn = panel:recursiveGetChildById('closeDetailsBtn')

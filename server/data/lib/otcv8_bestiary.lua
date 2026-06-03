@@ -6,10 +6,16 @@ Otcv8Bestiary = {
   STORAGE_BASE = 150000,
   MAX_PACKET_SIZE = 6000,
   LOOKS_VERSION = 1,
+  ITEMS_BATCH_SIZE = 70,
+  ITEMS_BATCH_DELAY_MS = 30,
+  LOOKS_AFTER_ITEMS_DELAY_MS = 200,
   _looksBuilt = false,
   looksPayload = nil,
-  _looksPending = {},
+  _itemsBuilt = false,
+  itemsPayload = nil,
   _looksSent = {},
+  _itemsSent = {},
+  _syncPipelinePending = {},
   _lastSyncRequest = {},
   SYNC_DEBOUNCE_SEC = 1.0,
 }
@@ -136,6 +142,222 @@ function Otcv8Bestiary.sendLooks(player)
   return Otcv8Bestiary.sendJSON(player, "looks", Otcv8Bestiary.looksPayload)
 end
 
+function Otcv8Bestiary.collectLootItemIds(lootList, seen)
+  if type(lootList) ~= "table" then
+    return
+  end
+
+  for _, block in ipairs(lootList) do
+    local itemId = block.itemId
+    if itemId and itemId > 0 then
+      seen[itemId] = true
+    end
+    if block.childLoot then
+      Otcv8Bestiary.collectLootItemIds(block.childLoot, seen)
+    end
+  end
+end
+
+function Otcv8Bestiary.buildItemLookup()
+  if Otcv8Bestiary._itemsBuilt then
+    return true
+  end
+
+  if not BestiaryMonsterNames then
+    print("[Otcv8Bestiary] BestiaryMonsterNames nao carregado — cache de itens adiado")
+    return false
+  end
+
+  local seen = {}
+  local monstersScanned = 0
+
+  for _, name in ipairs(BestiaryMonsterNames) do
+    local mtOk, mt = pcall(MonsterType, name)
+    if mtOk and mt then
+      local lootOk, loot = pcall(function() return mt:getLoot() end)
+      if lootOk and loot then
+        Otcv8Bestiary.collectLootItemIds(loot, seen)
+        monstersScanned = monstersScanned + 1
+      end
+    end
+  end
+
+  local payload = {}
+  local mapped = 0
+
+  for serverId, _ in pairs(seen) do
+    local itOk, itemType = pcall(ItemType, serverId)
+    if itOk and itemType then
+      local clientId = itemType:getClientId() or 0
+      local itemName = itemType:getName() or ""
+      if clientId > 0 then
+        payload[tostring(serverId)] = { c = clientId, n = itemName }
+        mapped = mapped + 1
+      end
+    end
+  end
+
+  Otcv8Bestiary.itemsPayload = payload
+  Otcv8Bestiary._itemsBuilt = true
+
+  print(string.format(
+    "[Otcv8Bestiary] Cache de itens: %d serverIds (%d monstros com loot)",
+    mapped,
+    monstersScanned
+  ))
+  return true
+end
+
+function Otcv8Bestiary.buildItemBatches()
+  if not Otcv8Bestiary.buildItemLookup() then
+    return nil, 0
+  end
+
+  local batches = {}
+  local current = {}
+  local currentSize = 0
+  local totalEntries = 0
+
+  for serverId, entry in pairs(Otcv8Bestiary.itemsPayload) do
+    current[serverId] = entry
+    currentSize = currentSize + 1
+    totalEntries = totalEntries + 1
+    if currentSize >= Otcv8Bestiary.ITEMS_BATCH_SIZE then
+      batches[#batches + 1] = current
+      current = {}
+      currentSize = 0
+    end
+  end
+
+  if currentSize > 0 or #batches == 0 then
+    batches[#batches + 1] = current
+  end
+
+  return batches, totalEntries
+end
+
+function Otcv8Bestiary.sendItemsBatched(player, onComplete)
+  local batches, totalEntries = Otcv8Bestiary.buildItemBatches()
+  if not batches then
+    if onComplete then
+      onComplete(false)
+    end
+    return false
+  end
+
+  local pid = player:getId()
+  local batchIndex = 1
+
+  print(string.format(
+    "[Otcv8Bestiary] sendItems %s: %d lotes, %d entradas",
+    player:getName(),
+    #batches,
+    totalEntries
+  ))
+
+  local function sendNextBatch()
+    local p = Player(pid)
+    if not p then
+      if onComplete then
+        onComplete(false)
+      end
+      return
+    end
+
+    if batchIndex <= #batches then
+      if not Otcv8Bestiary.sendJSON(p, "items", batches[batchIndex]) then
+        if onComplete then
+          onComplete(false)
+        end
+        return
+      end
+      batchIndex = batchIndex + 1
+      addEvent(sendNextBatch, Otcv8Bestiary.ITEMS_BATCH_DELAY_MS)
+      return
+    end
+
+    if Otcv8Bestiary.sendJSON(p, "itemsDone", { total = totalEntries }) then
+      Otcv8Bestiary._itemsSent[pid] = true
+      if onComplete then
+        onComplete(true)
+      end
+    elseif onComplete then
+      onComplete(false)
+    end
+  end
+
+  sendNextBatch()
+  return true
+end
+
+function Otcv8Bestiary.sendLooksIfNeeded(player)
+  if not player then
+    return false
+  end
+
+  local pid = player:getId()
+  if Otcv8Bestiary._looksSent[pid] then
+    return true
+  end
+
+  if Otcv8Bestiary.sendLooks(player) then
+    Otcv8Bestiary._looksSent[pid] = true
+    return true
+  end
+  return false
+end
+
+function Otcv8Bestiary.finishSyncPipeline(pid)
+  Otcv8Bestiary._syncPipelinePending[pid] = nil
+end
+
+function Otcv8Bestiary.scheduleLooksAfterItems(pid)
+  addEvent(function()
+    local p = Player(pid)
+    if p then
+      Otcv8Bestiary.sendLooksIfNeeded(p)
+    end
+    Otcv8Bestiary.finishSyncPipeline(pid)
+  end, Otcv8Bestiary.LOOKS_AFTER_ITEMS_DELAY_MS)
+end
+
+function Otcv8Bestiary.startSyncPipeline(player)
+  if not player then
+    return false
+  end
+
+  local pid = player:getId()
+  if Otcv8Bestiary._syncPipelinePending[pid] then
+    return false
+  end
+
+  Otcv8Bestiary._syncPipelinePending[pid] = true
+  Otcv8Bestiary.sendKills(player)
+
+  if not Otcv8Bestiary._itemsSent[pid] then
+    Otcv8Bestiary.sendItemsBatched(player, function(ok)
+      if not ok then
+        Otcv8Bestiary.finishSyncPipeline(pid)
+        return
+      end
+      Otcv8Bestiary.scheduleLooksAfterItems(pid)
+    end)
+    return true
+  end
+
+  if Otcv8Bestiary._looksSent[pid] then
+    Otcv8Bestiary.finishSyncPipeline(pid)
+    return true
+  end
+
+  if Otcv8Bestiary.sendLooksIfNeeded(player) then
+    Otcv8Bestiary.finishSyncPipeline(pid)
+  else
+    Otcv8Bestiary.finishSyncPipeline(pid)
+  end
+  return true
+end
+
 function Otcv8Bestiary.sendKills(player)
   local killsTable = {}
   if not BestiaryMonsterNames then
@@ -173,31 +395,12 @@ function Otcv8Bestiary.sendSingleKillUpdate(player, name, kills)
   return ok
 end
 
--- Kills primeiro (pacote pequeno). Looks uma vez por sessao (chunked grande).
+-- Pipeline serial: kills -> items (lotes sem chunk) -> looks (chunked).
 function Otcv8Bestiary.sendFullSync(player)
   if not player then
     return false
   end
-
-  Otcv8Bestiary.sendKills(player)
-
-  local pid = player:getId()
-  if Otcv8Bestiary._looksSent[pid] or Otcv8Bestiary._looksPending[pid] then
-    return true
-  end
-
-  Otcv8Bestiary._looksPending[pid] = true
-  addEvent(function()
-    Otcv8Bestiary._looksPending[pid] = nil
-    local p = Player(pid)
-    if p and not Otcv8Bestiary._looksSent[pid] then
-      if Otcv8Bestiary.sendLooks(p) then
-        Otcv8Bestiary._looksSent[pid] = true
-      end
-    end
-  end, 1500)
-
-  return true
+  return Otcv8Bestiary.startSyncPipeline(player)
 end
 
 -- Login: storages ja carregadas; reforca sync apos entrar no mundo
@@ -224,6 +427,9 @@ function Otcv8Bestiary.canRequestSync(player)
   if now - last < Otcv8Bestiary.SYNC_DEBOUNCE_SEC then
     return false
   end
+  if Otcv8Bestiary._syncPipelinePending[pid] then
+    return false
+  end
   Otcv8Bestiary._lastSyncRequest[pid] = now
   return true
 end
@@ -235,5 +441,15 @@ function Otcv8Bestiary.scheduleStartupLooksCache()
   addEvent(function()
     print("[Otcv8Bestiary] Pre-build cache de looks no startup...")
     Otcv8Bestiary.buildLooksCache()
+  end, 5000)
+end
+
+function Otcv8Bestiary.scheduleStartupItemLookup()
+  if Otcv8Bestiary._itemsBuilt then
+    return
+  end
+  addEvent(function()
+    print("[Otcv8Bestiary] Pre-build cache de itens no startup...")
+    Otcv8Bestiary.buildItemLookup()
   end, 5000)
 end

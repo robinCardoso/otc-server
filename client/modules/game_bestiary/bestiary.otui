@@ -171,7 +171,7 @@ BestiaryElementChip < FlatPanel
     margin-bottom: 2
 
 BestiaryLootSlot < FlatPanel
-  size: 98 72
+  size: 98 84
   background-color: #101010ff
   border: 1 #333333ff
   padding: 4
@@ -179,11 +179,11 @@ BestiaryLootSlot < FlatPanel
   UIItem
     id: lootItem
     size: 32 32
+    virtual: true
     anchors.horizontalCenter: parent.horizontalCenter
     anchors.top: parent.top
     margin-top: 2
-    phantom: true
-    opacity: 0.35
+    image-source: /images/ui/item
 
   UIWidget
     id: lockIcon
@@ -193,6 +193,18 @@ BestiaryLootSlot < FlatPanel
     anchors.right: parent.right
     margin-top: 2
     margin-right: 2
+
+  Label
+    id: lootItemName
+    text-align: center
+    font: verdana-11px-rounded
+    color: #ccccccff
+    text-wrap: true
+    visible: false
+    anchors.top: lootItem.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    margin-top: 2
 
   Label
     id: lockHint
@@ -543,32 +555,13 @@ MainWindow
           text-wrap: true
 
         Panel
-          id: lootLockedGrid
-          height: 156
+          id: lootGrid
+          height: 78
           anchors.top: dropsTitle.bottom
           anchors.horizontalCenter: parent.horizontalCenter
           width: 312
           margin-top: 8
           visible: false
-          layout:
-            type: grid
-            cell-size: 98 72
-            cell-spacing: 6
-            flow: true
-
-          BestiaryLootSlot
-          BestiaryLootSlot
-          BestiaryLootSlot
-          BestiaryLootSlot
-          BestiaryLootSlot
-          BestiaryLootSlot
-
-        Panel
-          id: dropsGrid
-          anchors.top: dropsTitle.bottom
-          anchors.horizontalCenter: parent.horizontalCenter
-          width: 312
-          margin-top: 8
           layout:
             type: grid
             cell-size: 98 72

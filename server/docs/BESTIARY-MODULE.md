@@ -79,7 +79,9 @@ Handler (`otcv8_bestiary.lua`): se `canRequestSync(player)`, chama `Otcv8Bestiar
 |--------|------|--------|
 | `sync` | `{ "Rotworm": 5, "Rat": 3 }` | Login sync, `requestSync`, `sendKills` |
 | `update` | `{ "name": "Rotworm", "kills": 6 }` | Cada kill em tempo real |
-| `looks` | `{ "v": 1, "names": [...], "types": [...], "aux": [...] }` | Após cache built; pacote grande (chunked) |
+| `items` | `{ "2148": { "c": 3031, "n": "gold coin" }, ... }` | Lotes (~70 entradas/lote), sem chunk S/P/E; 1× por sessão |
+| `itemsDone` | `{ "total": 1234 }` | Após último lote `items`; cliente marca sync completo |
+| `looks` | `{ "v": 1, "names": [...], "types": [...], "aux": [...] }` | Após todos os lotes `items`; pacote grande (chunked) |
 
 O pacote **`update`** também alimenta os **kill toasts** no mapa (cliente) — ver [`../../client/docs/BESTIARY-MODULE.md`](../../client/docs/BESTIARY-MODULE.md#kill-toasts-no-mapa). Nenhuma alteração extra no servidor é necessária.
 
@@ -96,21 +98,46 @@ P + json_part2
 E + json_last
 ```
 
-Cliente remonta em `modules/gamelib/protocolgame.lua` — montagem `(buffer or "") .. data` (evita concat com `nil`).
+Cliente remonta em `modules/gamelib/protocolgame.lua` — **um buffer por opcode**. Não enviar outro pacote 207 (ex. `sync`) enquanto um stream S/P/E está aberto — corrompe JSON (`Invalid data in extended JSON opcode (207)`).
 
-### Ordem em `sendFullSync`
+**Regra:** mapa `items` usa **lotes pequenos** (< 6000 bytes cada, sem S/P/E). Só `looks` usa chunking, **depois** que todos os lotes `items` + `itemsDone` terminarem.
 
-1. **`sendKills`** imediato (pacote pequeno).
-2. **`sendLooks`** após **1500 ms** (`addEvent`) — evita corrida S/P/E no cliente; **uma vez por sessão** por jogador (`_looksSent` / `_looksPending`).
+### Ordem em `sendFullSync` (pipeline serial)
 
-`scheduleLoginSync` envia **apenas kills** em 1,5 s após login (sem looks).
+1. **`sendKills`** — pacote pequeno, imediato.
+2. **`sendItemsBatched`** — lotes de ~70 entradas, 30 ms entre lotes; termina com **`itemsDone`**; `_itemsSent` só após sucesso.
+3. **`sendLooks`** — 200 ms após `itemsDone`; chunked S/P/E; uma vez por sessão (`_looksSent`).
+
+Enquanto o pipeline roda (`_syncPipelinePending`), novos `requestSync` são ignorados (`canRequestSync` retorna false).
+
+`scheduleLoginSync` envia **apenas kills** em 1,5 s após login (sem looks nem items).
+
+### Action `items` — mapa de loot (lotes)
+
+Montado em `buildItemLookup()`:
+
+- Itera `BestiaryMonsterNames` → `MonsterType(name):getLoot()` (inclui `childLoot`)
+- Coleta `itemId` (serverId) únicos
+- Para cada id: `ItemType(id):getClientId()` + `getName()`
+
+Payload compacto (chaves string = serverId):
+
+```json
+{
+  "2148": { "c": 3031, "n": "gold coin" },
+  "2696": { "c": 3607, "n": "cheese" }
+}
+```
+
+O cliente usa esse mapa em `resolveDropItem()` — **não** tenta `findItemTypeByName` localmente (OTC carrega só DAT/SPR, sem OTB/items.xml). Ver [`../../client/docs/BESTIARY-MODULE.md`](../../client/docs/BESTIARY-MODULE.md#loot-ícones-e-nomes).
 
 ### Pré-build do cache (startup)
 
 Em `data/globalevents/scripts/startup.lua` (final do `onStartup`):
 
 ```lua
-Otcv8Bestiary.scheduleStartupLooksCache()  -- addEvent +5 s → buildLooksCache()
+Otcv8Bestiary.scheduleStartupLooksCache()   -- addEvent +5 s → buildLooksCache()
+Otcv8Bestiary.scheduleStartupItemLookup() -- addEvent +5 s → buildItemLookup()
 ```
 
 Evita bloquear o 1º `requestSync` com 1337× `MonsterType`. Log esperado ~5 s após boot:
@@ -118,6 +145,8 @@ Evita bloquear o 1º `requestSync` com 1337× `MonsterType`. Log esperado ~5 s a
 ```
 [Otcv8Bestiary] Pre-build cache de looks no startup...
 [Otcv8Bestiary] Cache de looks: 1337 entradas (N MonsterType ausente)
+[Otcv8Bestiary] Pre-build cache de itens no startup...
+[Otcv8Bestiary] Cache de itens: N serverIds (M monstros com loot)
 ```
 
 ---
@@ -134,7 +163,11 @@ Evita bloquear o 1º `requestSync` com 1337× `MonsterType`. Log esperado ~5 s a
 | `sendKills(player)` | Monta tabela só com kills &gt; 0 |
 | `sendSingleKillUpdate` | Pacote `update` para um monstro |
 | `buildLooksCache()` | 1337× `MonsterType(name):getOutfit()` — **uma vez** por uptime; `pcall` em cada monstro |
+| `buildItemLookup()` | Loot de todos os monstros → `ItemType(id):getClientId()` + `getName()` |
+| `sendItemsBatched(player)` | Action `items` em lotes + `itemsDone` |
+| `startSyncPipeline(player)` | kills → items (lotes) → looks (serial) |
 | `scheduleStartupLooksCache()` | Agenda pré-build **5 s** após boot (`startup.lua`) |
+| `scheduleStartupItemLookup()` | Agenda pré-build de itens **5 s** após boot |
 | `canRequestSync(player)` | Debounce 1 s entre `requestSync` por jogador |
 | `sendLooks(player)` | JSON arrays paralelos; 1× por sessão via `sendFullSync` |
 | `sendJSON(player, action, data)` | `pcall(json.encode)`; revalida `Player(id)` a cada chunk |

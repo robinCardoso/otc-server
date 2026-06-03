@@ -37,6 +37,11 @@ sequenceDiagram
   TFS->>Store: getStorageValue por monstro
   TFS->>OTC: action sync (killsTable)
   OTC->>UI: applyKillsFromServer + refreshOverview
+  TFS->>TFS: buildItemLookup (1ª vez, loot dos monstros)
+  TFS->>OTC: action items (lote 1..N, serverId → clientId)
+  OTC->>UI: mergeItemsFromServer (merge incremental)
+  TFS->>OTC: action itemsDone
+  OTC->>UI: finalizeItemsFromServer + re-render loot
   TFS->>TFS: buildLooksCache (1ª vez, ~1337 MonsterType)
   TFS->>OTC: action looks (chunked S/P/E)
   OTC->>UI: mergeLooksFromServer
@@ -56,13 +61,15 @@ sequenceDiagram
 | **207** | Cliente → servidor | `{ "action": "requestSync" }` |
 | **207** | Servidor → cliente | `{ "action": "sync", "data": { "Rotworm": 5, ... } }` |
 | **207** | Servidor → cliente | `{ "action": "update", "data": { "name": "Rotworm", "kills": 6 } }` |
+| **207** | Servidor → cliente | `{ "action": "items", "data": { "2148": { "c": 3031, "n": "gold coin" }, ... } }` (lotes) |
+| **207** | Servidor → cliente | `{ "action": "itemsDone", "data": { "total": 1234 } }` |
 | **207** | Servidor → cliente | `{ "action": "looks", "data": { "v": 1, "names": [], "types": [], "aux": [] } }` |
 
 **Requisitos:**
 
 - `GameExtendedOpcode` ligado para versão **≥ 860** em `modules/game_features/features.lua`
 - Servidor envia extended opcode **0** no login OTClient (`protocolgame.cpp`) para habilitar envio no cliente
-- Chunking JSON grande: prefixos **`S` / `P` / `E`** — montagem em `modules/gamelib/protocolgame.lua`
+- Chunking JSON grande: prefixos **`S` / `P` / `E`** — montagem em `modules/gamelib/protocolgame.lua` (**um buffer por opcode** — não intercalar `sync` com stream S/P/E aberto)
 
 **Nota:** `protocolcodes.h` define `GameServerLootTracker = 207` como opcode **nativo** do protocolo Tibia. Isso **não conflita** com o sub-opcode **207** dentro do pacote **`0x32` (extended opcode)** — caminhos de parse diferentes em `protocolgameparse.cpp`.
 
@@ -80,11 +87,11 @@ sequenceDiagram
 
 | Momento | Comportamento |
 |---------|----------------|
-| `onGameStart` | `requestSync` em **500 ms**, **2,5 s** e **6 s** (reforço se login atrasar) |
+| `onGameStart` | `requestSync` em **800 ms** (único reforço no login) |
 | Abrir modal (`toggle`) | `requestServerSync()` imediato |
 | Matar monstro | Servidor envia `update` em tempo real |
 | Login servidor | `scheduleLoginSync` — kills em **1,5 s** (sem looks, só abates) |
-| `requestSync` completo | Servidor: kills → looks **1,5 s depois** (`sendFullSync`) |
+| `requestSync` completo | Servidor: pipeline serial kills → items (lotes) → looks (`startSyncPipeline`) |
 | Kill toast (incompleto) | Pacote **`update`** ou delta no **`sync`** periódico — ver [Kill toasts](#kill-toasts-no-mapa) |
 
 ---
@@ -239,7 +246,7 @@ Log saudável após kill: `[Bestiary] toast: Rotworm 5/25` + sprite visível no 
 | Palco | `detailStage`, `detailSprite` | Sprite 96 px, scale **1.5**, rotação auto |
 | Stats | `detailHp`, `detailExp` | Chips HP / EXP do JSON |
 | Elementos | `resistGrid` | 7 chips (`BestiaryElementChip`) — verde &lt; 100%, vermelho &gt; 100% |
-| Saque | `dropsGrid`, `lootLockedGrid` | Bloqueado até **1 kill**; slots `UIItem` com tooltip de chance |
+| Saque | `lootGrid` | Bloqueado até **1 kill**; slots `UIItem` + label `lootItemName`; ícone via mapa `items` do servidor |
 | Progresso | `detailProgressPanel` | Label + `ProgressBar` 10 px |
 
 ### Dificuldades (cliente — `BestiaryDifficulty`)
@@ -274,7 +281,7 @@ Array de objetos. Exemplo mínimo:
   ],
   "loot": [
     { "chance": 40000, "countmax": 20, "name": "gold coin" },
-    { "chance": 5000, "countmax": 1, "id": 2666 }
+    { "chance": 5000, "countmax": 1, "name": "meat", "id": 2666 }
   ]
 }
 ```
@@ -287,12 +294,26 @@ Array de objetos. Exemplo mínimo:
 | `hp`, `exp` | number | Painel detalhes |
 | `lookId` | number | Fallback local; **sobrescrito** por `looks` do servidor |
 | `weakness` | array | `element` + `val` (% dano; 100 = neutro) |
-| `loot` | array | `id` (clientId) ou `name`; `chance` = ‰ (÷ 1000 → %) |
+| `loot` | array | **`name`** (preferido) e/ou **`id`** (serverId TFS); `chance` = ‰ (÷ 1000 → %) |
 | `kills` | number | Sempre zerado no load; preenchido pelo servidor |
 
 **Elementos válidos:** `physical`, `earth`, `fire`, `ice`, `energy`, `holy`, `death`.
 
-**Loot no cliente:** `drop.chance / 1000` → percentual no tooltip. Ícone via `drop.id` (clientId) ou `g_things.findItemTypeByName`.
+### Loot — ícones e nomes
+
+O JSON guarda **serverId** (`id`) e/ou **nome** (`name`) do loot. O OTC **não** carrega `items.otb` / `items.xml` (só `Tibia.dat` + `.spr` em `game_things/things.lua`), portanto **`g_things.findItemTypeByName` e scan local não funcionam** para resolver sprites.
+
+**Padrão Stock / Combat Power:** o servidor envia action **`items`** em **lotes** (opcode 207) com mapa `serverId → { c: clientId, n: name }`. O cliente mescla em `BestiaryItemLookup` e renderiza com `Spells.applyItemIcon()` — ver [`game_combatpower/combatpower.lua`](../modules/game_combatpower/combatpower.lua).
+
+| Campo JSON loot | Origem | Resolução no cliente |
+|-----------------|--------|----------------------|
+| `name` | loot XML / `items.xml` | Match em `BestiaryItemLookup` por nome (após sync `items`) |
+| `id` | serverId TFS | `BestiaryItemLookup[tostring(id)]` |
+| `clientId` | (futuro export) | Usado direto, sem lookup |
+
+**Regra:** nunca passar serverId em `UIItem:setItemId()` — só **clientId** do `.dat`. Ver também [`COMBAT-POWER-MODULE.md`](COMBAT-POWER-MODULE.md).
+
+Log esperado após login: `[Bestiary] Mapa de itens sincronizado: N entradas` (após `itemsDone`). Se loot abrir antes, slot vazio até `itemsDone` (re-render automático).
 
 ---
 
@@ -302,7 +323,10 @@ Array de objetos. Exemplo mínimo:
 |--------|-------|
 | `loadDatabase()` | `json.decode` do arquivo local; zera kills |
 | `buildDatabaseIndexes()` | `creatureByNameLower`, `creaturesByGroup` (lazy, uma vez) |
-| `onExtendedJSONOpcode` | Dispatch `sync` / `update` / `looks` |
+| `onExtendedJSONOpcode` | Dispatch `sync` / `update` / `looks` / `items` / `itemsDone` |
+| `mergeItemsFromServer` | Mescla lote em `BestiaryItemLookup` |
+| `finalizeItemsFromServer` | Após `itemsDone`; log + re-render loot |
+| `resolveDropItem` | serverId/nome → `{ clientId, name }` via mapa do servidor |
 | `applyKillsFromServer` | Match por `name:lower()` |
 | `mergeLooksFromServer` | Preenche `lookId` / `lookTypeEx` por índice paralelo |
 | `applyCreatureOutfit` | `{ type }` ou `{ auxType }` no `UICreature` |
@@ -372,7 +396,7 @@ Invalid data in extended JSON opcode (207): ...
 | Servidor loga `sendKills` mas cliente silencioso | Mesmo bug ou JSON decode falhou | Ver `Invalid data in extended JSON opcode` |
 | Kills no servidor, 0 no card | Nome do monstro ≠ entrada no JSON | Conferir `target:getName()` vs `bestiary_database.json` |
 | Sprite errado / genérico | Looks ainda não chegaram | Aguardar pacote `looks` (1ª sync demora no servidor) |
-| Loot com ícone errado | `drop.id` é serverId, não clientId | Usar `name` ou corrigir id no JSON |
+| Loot com ícone errado ou slot vazio | Sync `items`/`itemsDone` incompleto ou colisão opcode 207 | Aguardar log `Mapa de itens sincronizado`; reiniciar servidor; ver erros `Invalid data in extended JSON opcode (207)` |
 | Grid vazio em "All Classes" | Comportamento intencional | Buscar ≥ 2 letras ou escolher classe |
 | `Unable to send extended opcode` | `GameExtendedOpcode` off | `features.lua` versão ≥ 860 |
 | Kills antigas perdidas após fix storage | Hash case-sensitive antigo | Rematar ou migrar storages (ver doc servidor) |
