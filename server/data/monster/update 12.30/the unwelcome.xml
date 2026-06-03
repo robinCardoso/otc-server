@@ -53,7 +53,8 @@
 		<item id="37496" countmax="2" chance="220"/> <!--diamond-->
 		<item name="white gem" countmax="6" chance="29980"/>
 		<item id="37497" countmax="2" chance="220"/> <!--moonstone-->
-		<item name="Giant Amethyst" chance="29980"/>
+		<!-- LOOT_860: Giant Amethyst -->
+		<!-- <item name="Giant Amethyst" chance="29980"/> -->
 		<item name="Ivory Comb" chance="29980"/>
 		<item name="Soulforged Lantern" chance="29980"/>
 		<item name="Ghost Claw" chance="29980"/>

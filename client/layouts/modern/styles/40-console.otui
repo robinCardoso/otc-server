@@ -39,7 +39,7 @@ ConsoleTabBarPanel < MoveableTabBarPanel
       align-bottom: true
     border-width: 1
     border-color: #b8b8c4
-    background: #848482ee
+    background: #000000cc
     inverted-scroll: true
     padding: 1
 

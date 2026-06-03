@@ -637,7 +637,7 @@ local function getColor(v)
     elseif v >= 50 then
         return "#FFFFFF" -- 50gp, white
     else
-      return "#aaaaaa" -- less than 100gp, grey
+      return "#333333" -- less than 50gp, dark grey (legivel no fundo cinza)
     end
 end
 

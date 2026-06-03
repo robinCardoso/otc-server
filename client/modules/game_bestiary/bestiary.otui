@@ -1,0 +1,656 @@
+BestiaryCategoryButton < UIButton
+  height: 38
+  background-color: #1a1a1acc
+  border: 1 #2c2c2cff
+  margin-top: 4
+  padding: 6
+  text-offset: 10 0
+  text-align: left
+  font: verdana-11px-rounded
+  color: #dfdfdfff
+
+  $hover:
+    background-color: #2c2c2cff
+    color: #ffffffff
+    border-color: #4a4a4aff
+
+  $on:
+    background-color: #2c2c2cee
+    color: #ffd700ff
+    border-color: #ffd700ff
+
+BestiaryMonsterCard < UIWidget
+  size: 140 180
+  background-color: #111111ee
+  border: 1 #444444ff
+  padding: 8
+
+  $hover:
+    background-color: #1a1a1aee
+    border-color: #666666ff
+
+  Panel
+    id: spriteBase
+    size: 90 90
+    anchors.top: parent.top
+    anchors.horizontalCenter: parent.horizontalCenter
+    margin-top: 5
+    image-source: /images/ui/bestiary_base
+
+  UICreature
+    id: sprite
+    size: 64 64
+    anchors.centerIn: spriteBase
+    phantom: true
+    focusable: false
+    old-scaling: true
+
+  Label
+    id: name
+    text-align: center
+    font: verdana-11px-rounded
+    color: #dfdfdfff
+    text-auto-resize: true
+    anchors.top: spriteBase.bottom
+    anchors.horizontalCenter: parent.horizontalCenter
+    margin-top: 6
+
+  Label
+    id: difficulty
+    text-align: center
+    font: verdana-11px-rounded
+    text-auto-resize: true
+    anchors.top: name.bottom
+    anchors.horizontalCenter: parent.horizontalCenter
+    margin-top: 4
+    padding-left: 6
+    padding-right: 6
+    padding-top: 2
+    padding-bottom: 2
+    border: 1 #00ffccff
+    color: #00ffccff
+    background-color: #00ffcc22
+
+  ProgressBar
+    id: progress
+    height: 4
+    background-color: #00ffccff
+    anchors.top: difficulty.bottom
+    anchors.bottom: kills.top
+    anchors.horizontalCenter: parent.horizontalCenter
+    anchors.left: parent.left
+    anchors.right: parent.right
+    margin-top: 10
+    margin-left: 6
+    margin-right: 6
+    margin-bottom: 6
+
+  Label
+    id: kills
+    text-align: center
+    font: verdana-11px-rounded
+    color: #00ffccff
+    text-auto-resize: true
+    anchors.bottom: parent.bottom
+    anchors.horizontalCenter: parent.horizontalCenter
+    margin-bottom: 6
+
+BestiaryStatChip < FlatPanel
+  height: 42
+  background-color: #141414ff
+  border: 1 #2a2a2aff
+  padding: 6
+
+  Label
+    id: statCaption
+    font: verdana-11px-rounded
+    color: #888888ff
+    text-auto-resize: true
+    anchors.top: parent.top
+    anchors.left: parent.left
+
+  Label
+    id: statValue
+    font: verdana-11px-rounded
+    color: #ffffffff
+    text-auto-resize: true
+    anchors.bottom: parent.bottom
+    anchors.left: parent.left
+
+BestiaryDetailDivider < Panel
+  height: 10
+  margin-top: 8
+  margin-bottom: 4
+
+  UIWidget
+    height: 1
+    background-color: #ffd70033
+    anchors.left: parent.left
+    anchors.right: detailDividerDiamond.left
+    anchors.verticalCenter: parent.verticalCenter
+    margin-right: 6
+
+  UIWidget
+    id: detailDividerDiamond
+    size: 7 7
+    image-source: /images/ui/login/login_title_diamond
+    anchors.horizontalCenter: parent.horizontalCenter
+    anchors.verticalCenter: parent.verticalCenter
+
+  UIWidget
+    height: 1
+    background-color: #ffd70033
+    anchors.left: detailDividerDiamond.right
+    anchors.right: parent.right
+    anchors.verticalCenter: parent.verticalCenter
+    margin-left: 6
+
+BestiaryElementChip < FlatPanel
+  size: 40 50
+  background-color: #141414ff
+  border: 1 #333333ff
+  padding: 2
+
+  UIWidget
+    id: elementIcon
+    size: 20 20
+    anchors.top: parent.top
+    anchors.horizontalCenter: parent.horizontalCenter
+    margin-top: 2
+    image-source: /images/ui/bestiary_elements
+    image-smooth: false
+
+  Label
+    id: elementVal
+    text-align: center
+    font: verdana-11px-rounded
+    color: #aaaaaaff
+    text-auto-resize: true
+    anchors.bottom: parent.bottom
+    anchors.horizontalCenter: parent.horizontalCenter
+    margin-bottom: 2
+
+BestiaryLootSlot < FlatPanel
+  size: 98 72
+  background-color: #101010ff
+  border: 1 #333333ff
+  padding: 4
+
+  UIItem
+    id: lootItem
+    size: 32 32
+    anchors.horizontalCenter: parent.horizontalCenter
+    anchors.top: parent.top
+    margin-top: 2
+    phantom: true
+    opacity: 0.35
+
+  UIWidget
+    id: lockIcon
+    size: 12 12
+    image-source: /images/game/actionbar/locked
+    anchors.top: parent.top
+    anchors.right: parent.right
+    margin-top: 2
+    margin-right: 2
+
+  Label
+    id: lockHint
+    !text: tr('Mate 1 para desbloquear')
+    text-align: center
+    font: verdana-11px-rounded
+    color: #cc6666ff
+    text-wrap: true
+    anchors.bottom: parent.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    margin-bottom: 2
+
+MainWindow
+  id: bestiaryWindow
+  !text: tr('Bestiary')
+  size: 780 480
+  anchors.centerIn: parent
+  @onEscape: modules.game_bestiary.hide()
+
+  UIButton
+    id: windowCloseButton
+    anchors.top: parent.top
+    anchors.right: parent.right
+    margin-top: 4
+    margin-right: 8
+    size: 14 14
+    tooltip: tr('Fechar')
+    image-source: /images/ui/miniwindow_buttons
+    image-clip: 28 0 14 14
+
+    $hover:
+      image-clip: 28 14 14 14
+
+    $pressed:
+      image-clip: 28 28 14 14
+
+    @onClick: modules.game_bestiary.hide()
+
+  FlatPanel
+    id: sidebar
+    width: 180
+    background-color: #0a0a0acc
+    border: 1 #1e1e1eff
+    anchors.top: parent.top
+    anchors.bottom: parent.bottom
+    anchors.left: parent.left
+    margin-right: 10
+    padding: 8
+
+    Label
+      id: sidebarTitle
+      !text: tr('CREATURE CLASSES')
+      font: verdana-11px-rounded
+      color: #ffd700ff
+      anchors.top: parent.top
+      anchors.horizontalCenter: parent.horizontalCenter
+
+    TextList
+      id: categoryList
+      anchors.top: sidebarTitle.bottom
+      anchors.bottom: parent.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      margin-top: 8
+      vertical-scrollbar: categoryScrollBar
+      focusable: false
+      border-width: 0
+
+    VerticalScrollBar
+      id: categoryScrollBar
+      anchors.top: categoryList.top
+      anchors.bottom: categoryList.bottom
+      anchors.right: parent.right
+      step: 14
+      pixels-scroll: true
+
+  FlatPanel
+    id: mainContent
+    background-color: #0a0a0acc
+    border: 1 #1e1e1eff
+    anchors.top: parent.top
+    anchors.bottom: parent.bottom
+    anchors.left: sidebar.right
+    anchors.right: parent.right
+    margin-left: 10
+    padding: 10
+
+    // Top search bar
+    TextEdit
+      id: searchEdit
+      width: 250
+      height: 22
+      anchors.top: parent.top
+      anchors.left: parent.left
+      !placeholder: tr('Search creature...')
+      font: verdana-11px-rounded
+
+    Label
+      id: totalProgress
+      !text: tr('Total Kills: 0')
+      font: verdana-11px-rounded
+      color: #00ffccff
+      anchors.top: parent.top
+      anchors.right: parent.right
+      margin-top: 4
+
+    Label
+      id: gridStatus
+      !text: ''
+      font: verdana-11px-rounded
+      color: #ccccccff
+      text-wrap: true
+      anchors.top: searchEdit.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      margin-top: 4
+
+    // Grid of monsters
+    ScrollablePanel
+      id: monsterGrid
+      anchors.top: gridStatus.bottom
+      anchors.bottom: parent.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      margin-top: 10
+      vertical-scrollbar: monsterScrollBar
+      layout:
+        type: grid
+        cell-size: 140 175
+        cell-spacing: 8
+        flow: true
+
+    VerticalScrollBar
+      id: monsterScrollBar
+      anchors.top: monsterGrid.top
+      anchors.bottom: monsterGrid.bottom
+      anchors.right: parent.right
+      step: 30
+      pixels-scroll: true
+
+  // Painel lateral — detalhes do monstro
+  FlatPanel
+    id: detailsPanel
+    width: 360
+    background-color: #0c0c0cfa
+    border: 1 #ffd70055
+    anchors.top: parent.top
+    anchors.bottom: parent.bottom
+    anchors.right: parent.right
+    visible: false
+    padding: 14
+    padding-top: 10
+
+    FlatPanel
+      id: detailStage
+      height: 132
+      background-color: #121212ff
+      border: 1 #2a2a2aff
+      anchors.top: parent.top
+      anchors.left: parent.left
+      anchors.right: parent.right
+      margin-top: 6
+
+      Panel
+        id: detailSpriteBase
+        size: 110 110
+        anchors.centerIn: parent
+        image-source: /images/ui/bestiary_base
+
+      UICreature
+        id: detailSprite
+        size: 64 64
+        anchors.centerIn: detailSpriteBase
+        anchors.verticalCenter: detailSpriteBase.verticalCenter
+        margin-top: -10
+        phantom: true
+        focusable: false
+        old-scaling: true
+
+    Label
+      id: detailName
+      font: sans-bold-16px
+      color: #ffd700ff
+      text-align: center
+      text-auto-resize: true
+      anchors.top: detailStage.bottom
+      anchors.horizontalCenter: parent.horizontalCenter
+      margin-top: 8
+
+    Label
+      id: detailDifficulty
+      font: verdana-11px-rounded
+      color: #00ffccff
+      text-align: center
+      text-auto-resize: true
+      anchors.top: detailName.bottom
+      anchors.horizontalCenter: parent.horizontalCenter
+      margin-top: 6
+      padding-left: 10
+      padding-right: 10
+      padding-top: 3
+      padding-bottom: 3
+      border: 1 #00ffcc88
+      background-color: #00ffcc18
+
+    BestiaryDetailDivider
+      id: detailDividerStats
+      anchors.top: detailDifficulty.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      margin-top: 10
+
+    ScrollablePanel
+      id: detailScrollArea
+      anchors.top: detailDividerStats.bottom
+      anchors.bottom: detailProgressPanel.top
+      anchors.left: parent.left
+      anchors.right: parent.right
+      margin-top: 4
+      margin-bottom: 8
+      margin-right: 14
+      vertical-scrollbar: detailScrollBar
+
+      Panel
+        id: detailScrollContent
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+        height: 420
+
+        Panel
+          id: statsRow
+          height: 36
+          anchors.top: parent.top
+          anchors.left: parent.left
+          anchors.right: parent.right
+
+          FlatPanel
+            id: hpChip
+            background-color: #141414ff
+            border: 1 #ffd70044
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            anchors.left: parent.left
+            width: 158
+            padding: 6
+            padding-left: 8
+
+            UIWidget
+              id: hpIcon
+              size: 14 14
+              background-color: #cc3333ff
+              anchors.left: parent.left
+              anchors.verticalCenter: parent.verticalCenter
+
+            Label
+              id: detailHp
+              font: verdana-11px-rounded
+              color: #ff8888ff
+              text-auto-resize: true
+              anchors.left: hpIcon.right
+              anchors.verticalCenter: parent.verticalCenter
+              margin-left: 8
+
+          FlatPanel
+            id: expChip
+            background-color: #141414ff
+            border: 1 #ffd70044
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            anchors.right: parent.right
+            width: 158
+            padding: 6
+            padding-left: 8
+
+            UIWidget
+              id: expIcon
+              size: 14 14
+              image-source: /images/game/prey/prey_star
+              anchors.left: parent.left
+              anchors.verticalCenter: parent.verticalCenter
+
+            Label
+              id: detailExp
+              font: verdana-11px-rounded
+              color: #ffcc66ff
+              text-auto-resize: true
+              anchors.left: expIcon.right
+              anchors.verticalCenter: parent.verticalCenter
+              margin-left: 8
+
+        BestiaryDetailDivider
+          id: detailDividerElements
+          anchors.top: statsRow.bottom
+          anchors.left: parent.left
+          anchors.right: parent.right
+          margin-top: 8
+
+        Label
+          id: resistTitle
+          !text: tr('ELEMENTOS')
+          font: verdana-11px-rounded
+          color: #ffd700ff
+          anchors.top: detailDividerElements.bottom
+          anchors.horizontalCenter: parent.horizontalCenter
+          margin-top: 6
+
+        Panel
+          id: resistGrid
+          height: 54
+          anchors.top: resistTitle.bottom
+          anchors.horizontalCenter: parent.horizontalCenter
+          width: 310
+          margin-top: 6
+          layout:
+            type: grid
+            cell-size: 40 50
+            cell-spacing: 5
+            flow: true
+
+        BestiaryDetailDivider
+          id: detailDividerLoot
+          anchors.top: resistGrid.bottom
+          anchors.left: parent.left
+          anchors.right: parent.right
+          margin-top: 8
+
+        Label
+          id: dropsTitle
+          !text: tr('SAQUE')
+          font: verdana-11px-rounded
+          color: #ffd700ff
+          anchors.top: detailDividerLoot.bottom
+          anchors.horizontalCenter: parent.horizontalCenter
+          margin-top: 6
+
+        Label
+          id: dropsLabel
+          anchors.top: dropsTitle.bottom
+          anchors.left: parent.left
+          anchors.right: parent.right
+          margin-top: 8
+          font: verdana-11px-rounded
+          color: #cc8888ff
+          visible: false
+          text-align: center
+          text-wrap: true
+
+        Panel
+          id: lootLockedGrid
+          height: 156
+          anchors.top: dropsTitle.bottom
+          anchors.horizontalCenter: parent.horizontalCenter
+          width: 312
+          margin-top: 8
+          visible: false
+          layout:
+            type: grid
+            cell-size: 98 72
+            cell-spacing: 6
+            flow: true
+
+          BestiaryLootSlot
+          BestiaryLootSlot
+          BestiaryLootSlot
+          BestiaryLootSlot
+          BestiaryLootSlot
+          BestiaryLootSlot
+
+        Panel
+          id: dropsGrid
+          anchors.top: dropsTitle.bottom
+          anchors.horizontalCenter: parent.horizontalCenter
+          width: 312
+          margin-top: 8
+          layout:
+            type: grid
+            cell-size: 98 72
+            cell-spacing: 6
+            flow: true
+
+    VerticalScrollBar
+      id: detailScrollBar
+      anchors.top: detailScrollArea.top
+      anchors.bottom: detailScrollArea.bottom
+      anchors.right: parent.right
+      margin-right: 2
+      step: 14
+      pixels-scroll: true
+
+    FlatPanel
+      id: detailProgressPanel
+      height: 52
+      background-color: #0a1212ff
+      border: 1 #00ffcc88
+      anchors.bottom: parent.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      padding: 6
+      padding-left: 8
+      padding-right: 8
+
+      UIWidget
+        id: progressSkull
+        size: 16 16
+        image-source: /images/game/skulls/skull_green
+        anchors.left: parent.left
+        anchors.top: parent.top
+        margin-top: 1
+
+      Label
+        id: detailProgressTitle
+        !text: tr('Progresso do bestiario')
+        font: verdana-11px-rounded
+        color: #00ffccff
+        anchors.left: progressSkull.right
+        anchors.top: parent.top
+        margin-left: 6
+
+      Label
+        id: detailProgressCount
+        font: verdana-11px-rounded
+        color: #00ffccff
+        text-align: right
+        text-auto-resize: true
+        anchors.top: parent.top
+        anchors.right: parent.right
+
+      ProgressBar
+        id: detailProgress
+        height: 10
+        background-color: #111111ff
+        image-source: /images/ui/progressbar
+        image-color: #00ffccff
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        margin-top: 4
+
+    UIButton
+      id: closeDetailsBtn
+      anchors.top: detailStage.top
+      anchors.right: detailStage.right
+      margin-top: 4
+      margin-right: 4
+      size: 16 16
+      tooltip: tr('Fechar detalhes')
+      image-source: /images/ui/miniwindow_buttons
+      image-clip: 28 0 14 14
+      image-color: #ffd700ff
+
+      $hover:
+        image-clip: 28 14 14 14
+        image-color: #fff0a0ff
+
+      $pressed:
+        image-clip: 28 28 14 14
+        image-color: #cc9900ff
+
+      @onClick: modules.game_bestiary.hideDetails()

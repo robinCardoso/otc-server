@@ -55,7 +55,8 @@
 		<item name="cursed bone" chance="220"/>
 		<item name="blue gem" chance="220"/>
 		<item id="37496" countmax="2" chance="220"/> <!--diamond-->
-		<item name="giant amethyst" chance="220"/>
+		<!-- LOOT_860: giant amethyst -->
+		<!-- <item name="giant amethyst" chance="220"/> -->
 		<item name="green gem" chance="220"/>
 		<item name="ivory comb" chance="220"/>
 		<item id="37497" countmax="2" chance="220"/> <!--moonstone-->

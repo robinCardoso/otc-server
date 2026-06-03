@@ -4,7 +4,7 @@
 	<look type="993" corpse="0"/>
 	<targetchange interval="4000" chance="20"/>
 	<flags>
-		<flag pet="1"/>
+		<!-- flag pet removido: nao suportado no TFS 8.60; summon via pet.lua -->
 		<flag summonable="0"/>
 		<flag attackable="1"/>
 		<flag hostile="0"/>

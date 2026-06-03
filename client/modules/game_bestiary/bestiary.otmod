@@ -1,0 +1,11 @@
+Module
+  name: game_bestiary
+  description: Bestiary System showing monster abates, categories, resistances and drops
+  author: Antigravity
+  website: https://github.com/edubart/otclient
+  sandboxed: true
+  autoload: true
+  scripts: [ bestiary ]
+  @onLoad: init()
+  @onUnload: terminate()
+  dependencies: [ game_interface ]

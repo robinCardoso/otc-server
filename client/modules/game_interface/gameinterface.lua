@@ -165,10 +165,15 @@ function hide()
   end
   g_effects.fadeOut(gameRootPanel, 200)
   addEvent(function()
+    if not gameRootPanel then return end
     gameRootPanel:hide()
     gameRootPanel:setOpacity(1)
-    gameMapPanel:setShader("")
-    modules.client_background.show()
+    if gameMapPanel then
+      gameMapPanel:setShader("")
+    end
+    if modules.client_background then
+      modules.client_background.show()
+    end
   end, 220)
 end
 
@@ -1086,6 +1091,9 @@ function updateSize()
     if modules.game_stats then
       modules.game_stats.ui:setMarginTop(tileSize)
     end
+    if modules.game_bestiary and modules.game_bestiary.adjustKillToastOverlayMargin then
+      modules.game_bestiary.adjustKillToastOverlayMargin()
+    end
     if g_settings.getBoolean("cacheMap") then
       gameMapPanel:setMarginLeft(0)
       gameMapPanel:setMarginRight(0)    
@@ -1105,7 +1113,10 @@ function updateSize()
   else
     if modules.game_stats then
       modules.game_stats.ui:setMarginTop(0)
-    end  
+    end
+    if modules.game_bestiary and modules.game_bestiary.adjustKillToastOverlayMargin then
+      modules.game_bestiary.adjustKillToastOverlayMargin()
+    end
   end
   
     --[[

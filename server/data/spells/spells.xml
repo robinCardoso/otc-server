@@ -1054,4 +1054,8 @@
 	<instant name="pixie skill reducer" words="###469" blockwalls="1" aggressive="1" needtarget="0" exhaustion="2000" needlearn="1"  script="monster/pixie skill reducer.lua" />
 	<instant name="Ice Crystal Bomb" words="###470"  direction="1" selftarget="1" exhaustion="2000" needlearn="1"  script="monster/ice_crystal_bomb.lua"/>
     <instant name="fury skill reducer" words="###471"  aggressive="1" blockwalls="1" needtarget="0" needlearn="1" script="monster/fury skill reducer.lua"/>
+	<instant name="malice_ue" words="###472" aggressive="1" blockwalls="1" needtarget="0" needlearn="1" script="monster/malice_ue.lua"/>
+	<instant name="malice_ue2" words="###473" aggressive="1" blockwalls="1" needtarget="0" needlearn="1" script="monster/malice_ue2.lua"/>
+	<instant name="malice_ue3" words="###593" aggressive="1" blockwalls="1" needtarget="0" needlearn="1" script="monster/malice_ue3.lua"/>
+	<instant name="malice_ue4" words="###475" aggressive="1" blockwalls="1" needtarget="0" needlearn="1" script="monster/malice_ue4.lua"/>
 </spells>

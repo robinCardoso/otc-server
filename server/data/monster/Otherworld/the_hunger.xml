@@ -21,7 +21,10 @@
 	</script>
 	<attacks>
 		<attack name="melee" interval="2000" min="0" max="-962"/>
-		<attack name="practise fire wave" interval="2000" chance="20" min="-600" max="-900"/>
+		<!-- SPELL_860: practise fire wave -> fire wave nativo -->
+		<attack name="fire" interval="2000" chance="20" length="8" spread="0" min="-600" max="-900">
+			<attribute key="areaEffect" value="firearea"/>
+		</attack>
 		<attack name="lifedrain" interval="2000" chance="20" radius="8" min="0" max="0">
 			<attribute key="areaEffect" value="redshimmer"/>
 		</attack>

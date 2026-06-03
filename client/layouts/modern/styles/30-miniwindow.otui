@@ -5,7 +5,7 @@ MiniWindow < UIMiniWindow
   height: 200
   text-offset: 24 5
   text-align: topLeft
-  color: #2e2e38
+  color: #ffffff
   image-source: /images/ui/miniwindow
   image-color: #B5A6B2
   image-border: 4

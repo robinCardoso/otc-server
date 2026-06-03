@@ -29,14 +29,10 @@
 		<attack name="firefield" interval="2000" chance="10" range="7" radius="1" target="1">
 			<attribute key="shootEffect" value="fire" />
 		</attack>
-		<attack name="malice_ue" interval="20000" chance="25" range="7" radius="1" target="1">
-		</attack>
-		<attack name="malice_ue2" interval="30000" chance="20" range="7" radius="1" target="1">
-		</attack>
-		<attack name="malice_ue3" interval="40000" chance="15" range="7" radius="1" target="1">
-		</attack>	
-		<attack name="malice_ue4" interval="50000" chance="10" range="7" radius="1" target="1">
-		</attack>		
+		<attack name="malice_ue" interval="20000" chance="25" range="7" radius="1" target="1" />
+		<attack name="malice_ue2" interval="30000" chance="20" range="7" radius="1" target="1" />
+		<attack name="malice_ue3" interval="40000" chance="15" range="7" radius="1" target="1" />
+		<attack name="malice_ue4" interval="50000" chance="10" range="7" radius="1" target="1" />
 		<attack name="lifedrain" interval="2000" chance="10" length="8" spread="0" min="-2100" max="-3200">
 			<attribute key="areaEffect" value="purpleenergy" />
 		</attack>
@@ -96,7 +92,8 @@
 		<item name="Wand of Defiance" chance="9000" />
 		<item name="Glacial Rod" chance="8300" />
 		<item name="Rift Bow" chance="4750" />
-		<item name="The Ironworker" chance="5000" />
+		<!-- LOOT_860: The Ironworker -->
+		<!-- <item name="The Ironworker" chance="5000" /> -->
 		<item name="Vampire Silk Slippers" chance="300" />
 		<item name="Royal Scale Robe" chance="1000" />
 		<item name="Thundersoul Tabard" chance="100" />

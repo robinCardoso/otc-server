@@ -1,0 +1,51 @@
+BestiaryKillToast < Panel
+  height: 36
+  width: 248
+  margin-bottom: 4
+  background-color: #151a19ee
+  border-width: 1
+  border-color: #00ffcc66
+  padding: 2
+  padding-left: 4
+  padding-right: 6
+  opacity: 1
+
+  Panel
+    id: toastSpriteBg
+    size: 36 36
+    anchors.left: parent.left
+    anchors.verticalCenter: parent.verticalCenter
+    background-color: #8b8378cc
+    border-width: 1
+    border-color: #00ffcc44
+
+    UICreature
+      id: toastSprite
+      size: 32 32
+      anchors.centerIn: parent
+      phantom: true
+      focusable: false
+      old-scaling: true
+
+  Label
+    id: toastLabel
+    anchors.left: toastSpriteBg.right
+    anchors.right: parent.right
+    anchors.verticalCenter: parent.verticalCenter
+    margin-left: 8
+    font: verdana-11px-rounded
+    color: #00ffccff
+    text-auto-resize: true
+
+UIWidget
+  id: bestiaryKillToastOverlay
+  anchors.top: parent.top
+  anchors.left: parent.left
+  margin-top: 8
+  margin-left: 8
+  width: 248
+  phantom: true
+  focusable: false
+  layout:
+    type: verticalBox
+    fit-children: true

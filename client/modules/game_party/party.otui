@@ -1,20 +1,20 @@
 PartyHealthBar < UIProgressBar
   height: 6
   background-color: #00cc00
-  border: 1 #b8b8c4
+  border: 1 #1a1a1a
   margin: 0
 
 PartyManaBar < UIProgressBar
   height: 5
   background-color: #5599ff
-  border: 1 #b8b8c4
+  border: 1 #1a1a1a
   margin: 0
 
 PartyMemberRow < Panel
   height: 46
   margin-top: 2
   padding: 3
-  background-color: #e8e8ec66
+  background-color: #00000066
   focusable: false
 
   Label
@@ -60,8 +60,8 @@ PartyInviteRow < Panel
 MiniWindow
   id: partyWindow
   !text: tr('Party')
-  width: 220
-  height: 200
+  width: 190
+  height: 180
   icon: /images/topbuttons/party
   @onClose: modules.game_party.onMiniWindowClose()
   &save: true

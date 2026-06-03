@@ -79,7 +79,8 @@
 		<item name="Magma Legs" chance="5520"/>
 		<item name="Wand of Voodoo" chance="8000"/>
 		<item name="Wand of Defiance" chance="700"/>
-		<item name="Bag You Desire" chance="10"/>
+		<!-- LOOT_860: Bag You Desire -->
+		<!-- <item name="Bag You Desire" chance="10"/> -->
 	</loot>
 </monster>
 

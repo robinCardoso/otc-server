@@ -87,15 +87,25 @@
 		<item name="platinum amulet" chance="1500" />
 		<item name="War Axe" chance="2854" />
 		<item name="Stone Skin Amulet" chance="2000" />
-		<item name="Bag You Desire" chance="10" />
-		<item name="lunar armor" chance="60" />
-		<item name="lunar helmet" chance="60" />
-		<item name="lunar legs" chance="60" />
-		<item name="lunar hammer" chance="60" />
-		<item name="lunar shield" chance="60" />
-		<item name="lunar axe" chance="60" />
-		<item name="palane backpack" chance="1000" />
-		<item name="lunar crossbow" chance="60" />
-		<item name="lunar bow" chance="60" />
+		<!-- LOOT_860: Bag You Desire -->
+		<!-- <item name="Bag You Desire" chance="10" /> -->
+		<!-- LOOT_860: lunar armor -->
+		<!-- <item name="lunar armor" chance="60" /> -->
+		<!-- LOOT_860: lunar helmet -->
+		<!-- <item name="lunar helmet" chance="60" /> -->
+		<!-- LOOT_860: lunar legs -->
+		<!-- <item name="lunar legs" chance="60" /> -->
+		<!-- LOOT_860: lunar hammer -->
+		<!-- <item name="lunar hammer" chance="60" /> -->
+		<!-- LOOT_860: lunar shield -->
+		<!-- <item name="lunar shield" chance="60" /> -->
+		<!-- LOOT_860: lunar axe -->
+		<!-- <item name="lunar axe" chance="60" /> -->
+		<!-- LOOT_860: palane backpack -->
+		<!-- <item name="palane backpack" chance="1000" /> -->
+		<!-- LOOT_860: lunar crossbow -->
+		<!-- <item name="lunar crossbow" chance="60" /> -->
+		<!-- LOOT_860: lunar bow -->
+		<!-- <item name="lunar bow" chance="60" /> -->
 	</loot>
 </monster>

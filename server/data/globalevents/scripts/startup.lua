@@ -96,4 +96,8 @@ function onStartup()
 	loadEvent() -- SnowBall event loader
 	CASTLE:load()
 	Game.setStorageValue(GlobalStorage.XpDisplayMode, 0)
+
+	if Otcv8Bestiary and Otcv8Bestiary.scheduleStartupLooksCache then
+		Otcv8Bestiary.scheduleStartupLooksCache()
+	end
 end

@@ -39,6 +39,8 @@ local defaultOptions = {
   highlightThingsUnderCursor = true,
   topHealtManaBar = true,
   displayText = true,
+  showBestiaryKillToasts = true,
+  bestiaryKillToastMaxLines = 5,
   dontStretchShrink = false,
   turnDelay = 30,
   hotkeyDelay = 30,
@@ -312,7 +314,9 @@ function setOption(key, value, force)
 
   if key == 'uiTheme' and type(value) == 'string' then
     value = normalizeUiTheme(value)
-    if modules.client_theme then
+    if modules.client_theme and modules.client_theme.ClientTheme then
+      modules.client_theme.ClientTheme.applyTheme(value)
+    elseif modules.client_theme and modules.client_theme.applyTheme then
       modules.client_theme.applyTheme(value)
     end
   end
@@ -400,6 +404,15 @@ function setOption(key, value, force)
     modules.game_healthinfo.topManaBar:setVisible(value)
   elseif key == 'displayText' then
     gameMapPanel:setDrawTexts(value)
+  elseif key == 'bestiaryKillToastMaxLines' then
+    generalPanel:getChildById('bestiaryKillToastMaxLinesLabel'):setText(tr('Bestiary toast lines: %s', value))
+    if modules.game_bestiary and modules.game_bestiary.enforceMaxVisibleToasts then
+      modules.game_bestiary.enforceMaxVisibleToasts()
+    end
+  elseif key == 'showBestiaryKillToasts' then
+    if not value and modules.game_bestiary and modules.game_bestiary.clearAllKillToasts then
+      modules.game_bestiary.clearAllKillToasts()
+    end
   elseif key == 'dontStretchShrink' then
     addEvent(function()
       modules.game_interface.updateStretchShrink()

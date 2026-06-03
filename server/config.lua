@@ -146,8 +146,8 @@ startupDatabaseOptimization = true
 -- Logs TFS (ver docs/BUILD.md)
 -- enableTfsConsoleLog: rodar-tfs-novo.bat / scripts/run-tfs-logged.ps1 gravam data/logs/tfs/tfs-console_*.log
 -- enableTfsDiagnosticLog: std::cout [login] e [extopcode] no console (alterar exige recompilar tfs.exe)
-enableTfsConsoleLog = false
-enableTfsDiagnosticLog = false
+enableTfsConsoleLog = true
+enableTfsDiagnosticLog = true
 
 -- Status server information
 ownerName = "Fazendo-Tibia"

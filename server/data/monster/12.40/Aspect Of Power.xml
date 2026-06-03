@@ -78,8 +78,10 @@
 		<item name="meat" chance="8000" />	
 		<item name="red crystal fragment" chance="1100" />		
 		<item name="life preserver" chance="970" />
-		<item name="werehyaena nose" chance="620" />	
-		<item name="werehyaena talisman" chance="510" />
+		<!-- LOOT_860: werehyaena nose -->
+		<!-- <item name="werehyaena nose" chance="620" /> -->
+		<!-- LOOT_860: werehyaena talisman -->
+		<!-- <item name="werehyaena talisman" chance="510" /> -->
 		<!--<item name="werehyaena trophy" chance="395" />-->
 	</loot>
 </monster>

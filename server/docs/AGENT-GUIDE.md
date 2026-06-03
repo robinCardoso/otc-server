@@ -26,7 +26,7 @@ Referência: `otcv8-dev/docs/LOGIN-ASSETS-860.md`.
 
 ### 2. Extended opcodes — handler separado por número
 
-Shop (**201**), Spell List (**202**) e Combat Power (**203**) **nunca** no mesmo `onExtendedOpcode`.
+Shop (**201**), Spell List (**202**), Combat Power (**203**) e Bestiary (**207**) **nunca** no mesmo `onExtendedOpcode`.
 
 Registro correto no login:
 
@@ -35,9 +35,13 @@ player:registerEvent("ExtendedOpcodeShop")
 player:registerEvent("ExtendedOpcodeSpellList")
 player:registerEvent("ExtendedOpcodeCombatPower")
 player:registerEvent("ExtendedOpcodeStock")
+player:registerEvent("ExtendedOpcodeBestiary")
+player:registerEvent("BestiaryKill")
 ```
 
-`creaturescripts.xml` declara dois eventos `type="extendedopcode"` distintos.
+Doc Bestiary: [`BESTIARY-MODULE.md`](BESTIARY-MODULE.md) + [`../../client/docs/BESTIARY-MODULE.md`](../../client/docs/BESTIARY-MODULE.md).
+
+`creaturescripts.xml` declara eventos `type="extendedopcode"` distintos (e `type="kill"` para BestiaryKill).
 
 ### 3. Combat Power — crash e teste A/B
 

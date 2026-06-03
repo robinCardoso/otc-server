@@ -215,7 +215,14 @@ function onLogin(player)
 	player:registerEvent("ExtendedOpcodeShop")
 	player:registerEvent("ExtendedOpcodeSpellList")
 	player:registerEvent("ExtendedOpcodeCombatPower")
+	player:registerEvent("ExtendedOpcodePartyMinimap")
 	player:registerEvent("ExtendedOpcodeStock")
+	player:registerEvent("ExtendedOpcodeViewport")
+	player:registerEvent("ExtendedOpcodeBestiary")
+	player:registerEvent("BestiaryKill")
+	if Otcv8Bestiary and Otcv8Bestiary.scheduleLoginSync then
+		Otcv8Bestiary.scheduleLoginSync(player)
+	end
 	-- players_online: já inserido em C++ (Player::onCreatureAppear → IOLoginData::updateOnlineStatus).
 	-- INSERT duplicado aqui corrompia a tabela MEMORY e podia derrubar o tfs.exe no login.
 

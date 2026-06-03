@@ -1,0 +1,24 @@
+11.8/the_scourge_of_oblivion.xml
+12.30/Bad Thought.xml
+12.30/Rewar The Bloody.xml
+12.40/Paladin's Apparition.xml
+12.40/Sorcerer's Apparition.xml
+12.40/bosses/.xml
+12.40/bosses/Basilisco.xml
+12.40/bosses/ancient lion knight.xml
+12.40/bosses/drume.xml
+12.40/bosses/kraken.xml
+12.40/bosses/srezz yellow eyes.xml
+12.40/bosses/yirkas blue scales.xml
+12.40/knight.xml
+12.60/Pirat Bombardier.xml
+12.60/Pirat Mate.xml
+12.60/Pirat Scoundrel.xml
+12.60/Ratmiral Blackwhiskers.xml
+12.60/Smelly Cheese.xml
+12.60/Weak Spot.xml
+The_percht_queens_island/the_percht_queen.xml
+Winter_update/izcandar_the_banished.xml
+update 12.30/brain head.xml
+update 12.30/brother worm.xml
+update 12.30/the pale worm.xml

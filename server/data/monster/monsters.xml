@@ -13,16 +13,13 @@
 	
 	<!--Update 12.30-->
 	<monster name="A Weak Spot" file="update 12.30/a weak spot.xml"/>
-	<monster name="Brother Worm" file="update 12.30/brother worm.xml"/>
 	<monster name="Irgix The Flimsy" file="update 12.30/irgix the flimsy.xml"/>
 	<monster name="Flimsy Lost Soul" file="update 12.30/flimsy lost soul.xml"/>
 	<monster name="Cerebellum" file="update 12.30/cerebellum.xml"/>
-	<monster name="Brain Head" file="update 12.30/brain head.xml"/>
 	<monster name="Thaian" file="update 12.30/thaian.xml"/>
 	<monster name="Thaian's Ghost" file="update 12.30/thaian's ghost.xml"/>
 	<monster name="The Dread Maiden" file="update 12.30/the dread maiden.xml"/>
 	<monster name="The Fear Feaster" file="update 12.30/the fear feaster.xml"/>
-	<monster name="The Pale Worm" file="update 12.30/the pale worm.xml"/>
 	<monster name="The Unwelcome" file="update 12.30/the unwelcome.xml"/>
 	
 	<!-- Winter Update 12.30 -->
@@ -31,7 +28,6 @@
 	<monster name="Flimsy Lost Soul" file="12.30/Flimsy Lost Soul.xml"/>
 	<monster name="Evil Prospector" file="12.30/Evil Prospector.xml"/>
 	<monster name="Cursed Prospector" file="12.30/Cursed Prospector.xml"/>
-    <monster name="Bad Thought" file="12.30/Bad Thought.xml"/>
 	<monster name="Vok The Freakish" file="12.30/Bosses/Vok The Freakish.xml"/>
 	<monster name="Unaz The Mean" file="12.30/Bosses/Unaz The Mean.xml"/>
 	<monster name="Irgix The Flimsy" file="12.30/Bosses/Irgix The Flimsy.xml"/>
@@ -52,11 +48,7 @@
 	<monster name="Distorted Phantom" file="12.40/distorted phantom.xml" />
 	<monster name="Infernal Demon" file="12.40/infernal demon.xml" />
 	<monster name="Many Faces" file="12.40/many faces.xml" />
-	<monster name="Sorcerer's Apparition" file="12.40/Sorcerer's Apparition.xml" />
-	<monster name="Druid's Apparition" file="12.40/Sorcerer's Apparition.xml" />  
-	<monster name="Paladin's Apparition" file="12.40/Paladin's Apparition.xml" />
 	<monster name="Mirror Image" file="12.40/Mirror Image.xml" />
-	<monster name="Knight's Apparition" file="12.40/knight.xml" />
 	<monster name="White Lion" file="12.40/white Lion.xml" />
 	<monster name="Werelioness" file="12.40/werelioness.xml" />
 	<monster name="Werelion" file="12.40/werelion.xml" />
@@ -73,16 +65,10 @@
 	<!-- 12.40 bosses -->
 	<monster name="Goshnar's Cruelty" file="12.40/bosses/goshnar's cruelty.xml" />
 	<monster name="Goshnar's Spite" file="12.40/bosses/Goshnar's Spite.xml" />
-	<monster name="Basilisco" file="12.40/bosses/Basilisco.xml" />
-	<monster name="Tentugly's Head" file="12.40/bosses/kraken.xml" />
 	<monster name="Goshnar's Greed" file="12.40/bosses/goshnar's greed.xml" />
 	<monster name="Goshnar's Hatred" file="12.40/bosses/goshnar's hatred.xml" />
 	<monster name="Goshnar's Malice" file="12.40/bosses/goshnar's malice.xml" />
 	<monster name="Goshnar's Megalomania" file="12.40/bosses/goshnar's megalomania.xml" />
-	<monster name="Srezz Yellow Eyes" file="12.40/bosses/srezz yellow eyes.xml" />
-	<monster name="Yirkas Blue Scales" file="12.40/bosses/yirkas blue scales.xml" />
-	<monster name="Ancient Lion Knight" file="12.40/bosses/ancient lion knight.xml" />
-	<monster name="Drume" file="12.40/bosses/drume.xml" />
 	<monster name="Soul Sphere" file="12.40/bosses/Soul Sphere.xml" />
 	<monster name="Powerful Soul" file="12.40/bosses/Powerful Soul.xml" />
 	<monster name="Soulsnatcher" file="12.40/bosses/Soulsnatcher.xml" />
@@ -100,22 +86,16 @@
 	<monster name="Exotic Bat" file="12.60/exoticbat.xml" />
 	<monster name="Quara Saboteur" file="12.60/Quara Saboteur.xml" />
 	<monster name="Servant Of Tentugly" file="12.60/Servant Of Tentugly.xml" />
-	<monster name="Pirat Bombardier" file="12.60/Pirat Bombardier.xml" /> 
 	<monster name="Pirat Bomb" file="12.60/Pirat Bomb.xml" /> 
 	<monster name="Mouldy Cheese" file="12.60/Mouldy Cheese.xml" /> 
-	<monster name="Pirat Mate" file="12.60/Pirat Mate.xml" /> 
 	<monster name="Pirat Artillerist" file="12.60/Pirat Artillerist.xml" /> 
 	<monster name="Mintwarella Cheese" file="12.60/Mintwarella Cheese.xml" />
 	<monster name="Spyrat" file="12.60/Spyrat.xml" />
 	<monster name="Pirate Cutthroat" file="12.60/Pirat Cutthroat.xml" />
-	<monster name="Pirate Scoundrel" file="12.60/Pirat Scoundrel.xml" />
 	<monster name="Raccoon Supplies" file="12.60/Raccoon Supplies.xml" />
 	<monster name="Mean Termite" file="12.60/Mean Termite.xml" />
-	<monster name="Weak Spot" file="12.60/Weak Spot.xml" />
 	<monster name="Spy Rat" file="12.60/Spy Rat.xml" />
 	<monster name="Angry Elemental" file="12.60/Angry Elemental.xml" />
-	<monster name="Smelly Cheese" file="12.60/Smelly Cheese.xml" />
-	<monster name="Ratmiral Blackwhiskers" file="12.60/Ratmiral Blackwhiskers.xml" />
 	
 	<!-- Amazons -->
 	<monster name="Amazon" file="Amazons/amazon.xml"/>
@@ -200,7 +180,6 @@
 	<monster name="The Diamond Blossom" file="11.8/the_diamond_blossom.xml"/>
 	<monster name="The Lily of Night" file="11.8/the_lily_of_night.xml"/>
 	<monster name="The Scion of Havoc" file="11.8/the_scion_of_havoc.xml"/>
-	<monster name="The Scourge of Oblivion" file="11.8/the_scourge_of_oblivion.xml"/>
 	<monster name="The Spellstealer" file="11.8/the_spellstealer.xml"/>
 	<monster name="True Dawnfire Asura" file="11.8/true_dawnfire_asura.xml"/>
 	<monster name="True Frost Flower Asura" file="11.8/true_frost_flower_asura.xml"/>
@@ -1443,7 +1422,6 @@
 	<monster name="Percht" file="The_percht_queens_island/percht.xml"/>
 	<monster name="Percht Minion" file="The_percht_queens_island/percht_minion.xml"/>
 	<monster name="Schiach" file="The_percht_queens_island/schiach.xml"/>
-	<monster name="The Percht Queen" file="The_percht_queens_island/the_percht_queen.xml"/>
 	<monster name="Warm Fire" file="The_percht_queens_island/warm_fire.xml"/>
 
 	<!-- Pharaohs -->
@@ -1631,7 +1609,6 @@
 	<monster name="Hibernal Moth" file="Winter_update/hibernal_moth.xml"/>
 	<monster name="Horrible Dream" file="Winter_update/horrible_dream.xml"/>
 	<monster name="Insane Siren" file="Winter_update/insane_siren.xml"/>
-	<monster name="Izcandar the Banished" file="Winter_update/izcandar_the_banished.xml"/>
 	<monster name="Lacewing Moth" file="Winter_update/lacewing_moth.xml"/>
 	<monster name="Lucifuga Aranea" file="Winter_update/lucifuga_aranea.xml"/>
 	<monster name="Lumbering Carnivor" file="Winter_update/lumbering_carnivor.xml"/>

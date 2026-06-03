@@ -72,7 +72,8 @@
 		<item name="purple tome" chance="1180" />
 		<item name="gold coin" countmax="100" chance="60000" />
 		<item name="gold coin" countmax="100" chance="60000" />
-		<item name="Apron" countmax="1" chance="9690" />
+		<!-- LOOT_860: Apron -->
+		<!-- <item name="Apron" countmax="1" chance="9690" /> -->
 		<item name="Blue Gem" countmax="1" chance="5000" />		
 		<item name="Green Gem" countmax="1" chance="5000" />		
 		<item name="Hailstorm Rod" countmax="1" chance="7470" />		
@@ -88,8 +89,10 @@
 		<!--<item name="Ring of Red Plasma" chance="800" /> -->
 		<item name="Stone Skin Amulet" chance="2300" />
 		<item name="Glacial Rod" chance="1000" />
-		<item name="Gruesome Fan" chance="5000" />
-		<item name="Bag You Desire" chance="5" />
+		<!-- LOOT_860: Gruesome Fan -->
+		<!-- <item name="Gruesome Fan" chance="5000" /> -->
+		<!-- LOOT_860: Bag You Desire -->
+		<!-- <item name="Bag You Desire" chance="5" /> -->
 		<item name="Ultimate Health Potion" chance="14920" />
 	</loot>
 </monster>

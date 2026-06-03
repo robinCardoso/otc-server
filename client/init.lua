@@ -5,12 +5,12 @@ DEFAULT_LAYOUT = "modern" -- chrome OTUI base; tom in-game via uiTheme (sem rein
 
 -- If you don't use updater or other service, set it to updater = ""
 Services = {
-  website = "http://otclient.ovh", -- currently not used
-  updater = "http://otclient.ovh/api/updater.php",
+  website = "",
+  updater = "",
   stats = "",
-  crash = "http://otclient.ovh/api/crash.php",
-  feedback = "http://otclient.ovh/api/feedback.php",
-  status = "http://otclient.ovh/api/status.php"
+  crash = "",
+  feedback = "",
+  status = ""
 }
 
 -- API JSON MyAAC: criar conta/personagem pelo cliente (XAMPP)

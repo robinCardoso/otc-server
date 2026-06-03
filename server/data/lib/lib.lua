@@ -17,9 +17,13 @@ dofile('data/lib/custom/custom.lua')
 dofile('data/lib/coin.lua')
 dofile('data/lib/castxp.lua')
 
--- OTCv8 extended opcodes — json global antes das libs otcv8_*
+-- OTCv8 extended opcodes (201-207) — json global antes das libs otcv8_*
 json = dofile('data/lib/core/json.lua')
+dofile('data/lib/bestiary_monsters.lua')
 dofile('data/lib/otcv8_spelllist.lua')
 dofile('data/lib/otcv8_combatpower.lua')
 dofile('data/lib/otcv8_combatpower_spells.lua')
+dofile('data/lib/otcv8_party.lua')
 dofile('data/lib/otcv8_stock.lua')
+dofile('data/lib/otcv8_bestiary.lua')
+dofile('data/lib/otcv8_viewport.lua')

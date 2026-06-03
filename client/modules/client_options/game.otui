@@ -15,6 +15,25 @@ OptionPanel
     !text: tr('Display text messages')
 
   OptionCheckBox
+    id: showBestiaryKillToasts
+    !text: tr('Bestiary kill notifications on screen')
+    !tooltip: tr('Shows kill progress in the top-left corner when hunting bestiary creatures')
+
+  Label
+    id: bestiaryKillToastMaxLinesLabel
+    margin-top: 6
+    !tooltip: tr('Maximum different creatures shown at once in kill toasts')
+    @onSetup: |
+      local value = modules.client_options.getOption('bestiaryKillToastMaxLines')
+      self:setText(tr('Bestiary toast lines: %s', value))
+
+  OptionScrollbar
+    id: bestiaryKillToastMaxLines
+    margin-top: 3
+    minimum: 1
+    maximum: 10
+
+  OptionCheckBox
     id: wsadWalking
     !text: tr('Enable WSAD walking')
     !tooltip: tr('Disable chat and allow walk using WSAD keys')

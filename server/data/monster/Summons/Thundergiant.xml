@@ -4,7 +4,7 @@
 	<look type="994" corpse="0" />
 	<targetchange interval="4000" chance="20" />
 	<flags>
-		<flag pet="1" />
+		<!-- flag pet removido: nao suportado no TFS 8.60; summon via pet.lua -->
 		<flag summonable="0" />
 		<flag attackable="1" />
 		<flag hostile="0" />
@@ -19,8 +19,9 @@
 	</flags>
 	<attacks>
 		<attack name="melee" interval="200" chance="25" min="-100" max="-310" />
-		<attack name="Front Sweep" interval="500" chance="23" length="3" spread="3" min="-100" max="-500">
-			<attribute key="areaEffect" value="lifedrain" />
+		<!-- SPELL_860: Front Sweep -> physical area (spell de player nao carrega em monster) -->
+		<attack name="physical" interval="500" chance="23" length="3" spread="3" min="-100" max="-500">
+			<attribute key="areaEffect" value="redshimmer" />
 		</attack>
 		<attack name="energy" interval="2000" chance="15" range="7" length="2" min="-75" max="-705">
 			<attribute key="shootEffect" value="energyball" />

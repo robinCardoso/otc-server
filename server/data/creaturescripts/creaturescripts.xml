@@ -261,5 +261,9 @@
 	<event type="extendedopcode" name="ExtendedOpcodeShop" script="otcv8_shop.lua" />
 	<event type="extendedopcode" name="ExtendedOpcodeSpellList" script="otcv8_spelllist.lua" />
 	<event type="extendedopcode" name="ExtendedOpcodeCombatPower" script="otcv8_combatpower.lua" />
+	<event type="extendedopcode" name="ExtendedOpcodePartyMinimap" script="otcv8_partyminimap.lua" />
 	<event type="extendedopcode" name="ExtendedOpcodeStock" script="otcv8_stock.lua" />
+	<event type="extendedopcode" name="ExtendedOpcodeViewport" script="otcv8_viewport.lua" />
+	<event type="extendedopcode" name="ExtendedOpcodeBestiary" script="otcv8_bestiary.lua" />
+	<event type="kill" name="BestiaryKill" script="bestiary_kill.lua" />
 </creaturescripts>
