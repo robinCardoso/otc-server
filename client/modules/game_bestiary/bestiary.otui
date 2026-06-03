@@ -187,12 +187,11 @@ BestiaryLootSlot < FlatPanel
 
   UIWidget
     id: lockIcon
-    size: 12 12
+    size: 16 16
     image-source: /images/game/actionbar/locked
-    anchors.top: parent.top
-    anchors.right: parent.right
-    margin-top: 2
-    margin-right: 2
+    visible: false
+    anchors.horizontalCenter: lootItem.horizontalCenter
+    anchors.verticalCenter: lootItem.verticalCenter
 
   Label
     id: lootItemName
@@ -206,17 +205,26 @@ BestiaryLootSlot < FlatPanel
     anchors.right: parent.right
     margin-top: 2
 
-  Label
-    id: lockHint
-    !text: tr('Mate 1 para desbloquear')
-    text-align: center
-    font: verdana-11px-rounded
-    color: #cc6666ff
-    text-wrap: true
-    anchors.bottom: parent.bottom
+  FlatPanel
+    id: lockHintBg
+    height: 14
+    background-color: #000000aa
+    visible: false
+    anchors.top: lootItem.bottom
     anchors.left: parent.left
     anchors.right: parent.right
-    margin-bottom: 2
+    margin-top: 2
+
+  Label
+    id: lockHint
+    !text: tr('Bloqueado')
+    text-align: center
+    font: verdana-11px-rounded
+    color: #ffdd88ff
+    visible: false
+    anchors.fill: lockHintBg
+    margin-top: 1
+    margin-bottom: 1
 
 MainWindow
   id: bestiaryWindow
@@ -345,6 +353,19 @@ MainWindow
       anchors.right: parent.right
       step: 30
       pixels-scroll: true
+
+  // Bloqueia cliques na sidebar/grid enquanto detalhes estao abertos
+  UIWidget
+    id: detailsBackdrop
+    anchors.top: parent.top
+    anchors.bottom: parent.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    margin-right: 360
+    background-color: #00000055
+    visible: false
+    phantom: false
+    focusable: true
 
   // Painel lateral — detalhes do monstro
   FlatPanel
@@ -618,9 +639,8 @@ MainWindow
       ProgressBar
         id: detailProgress
         height: 10
-        background-color: #111111ff
-        image-source: /images/ui/progressbar
-        image-color: #00ffccff
+        background-color: #ffd700ff
+        border: 1 #333333ff
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.right: parent.right

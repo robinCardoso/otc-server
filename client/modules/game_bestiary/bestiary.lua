@@ -102,6 +102,65 @@ function init()
   end
 
   initKillToasts()
+  setupDetailsBackdrop()
+end
+
+function setupDetailsBackdrop()
+  if not bestiaryWindow then
+    return
+  end
+
+  local backdrop = bestiaryWindow:recursiveGetChildById('detailsBackdrop')
+  if not backdrop then
+    return
+  end
+
+  backdrop.onMousePress = function()
+    return true
+  end
+  backdrop.onMouseRelease = function()
+    return true
+  end
+  backdrop.onMouseWheel = function()
+    return true
+  end
+  backdrop.onDoubleClick = function()
+    return true
+  end
+end
+
+function setMainBestiaryInputEnabled(enabled)
+  if not bestiaryWindow then
+    return
+  end
+
+  local sidebar = bestiaryWindow:recursiveGetChildById('sidebar')
+  local mainContent = bestiaryWindow:recursiveGetChildById('mainContent')
+  if sidebar then
+    sidebar:setEnabled(enabled)
+  end
+  if mainContent then
+    mainContent:setEnabled(enabled)
+  end
+end
+
+function ensureDetailsLayerOnTop()
+  if not bestiaryWindow then
+    return
+  end
+
+  local backdrop = bestiaryWindow:recursiveGetChildById('detailsBackdrop')
+  local panel = bestiaryWindow:recursiveGetChildById('detailsPanel')
+  if backdrop and backdrop:isVisible() then
+    backdrop:raise()
+  end
+  if panel and panel:isVisible() then
+    panel:raise()
+    local closeBtn = panel:recursiveGetChildById('closeDetailsBtn')
+    if closeBtn then
+      closeBtn:raise()
+    end
+  end
 end
 
 function terminate()
@@ -141,6 +200,9 @@ end
 function refreshMonsterGridIfVisible(filterText)
   if isBestiaryVisible() then
     updateMonsterGrid(filterText)
+    if selectedCreature then
+      ensureDetailsLayerOnTop()
+    end
   end
 end
 
@@ -473,9 +535,33 @@ function applyLootSlot(slot, drop, locked, creatureName)
   local itemWidget = slot:getChildById('lootItem')
   local lockIcon = slot:getChildById('lockIcon')
   local lockHint = slot:getChildById('lockHint')
+  local lockHintBg = slot:getChildById('lockHintBg')
   local nameLabel = slot:getChildById('lootItemName')
 
+  local function showLockedState()
+    itemWidget:setVisible(false)
+    itemWidget:setItem(nil)
+    lockIcon:setVisible(true)
+    if lockHintBg then
+      lockHintBg:setVisible(true)
+    end
+    if lockHint then
+      lockHint:setVisible(true)
+      lockHint:setText(tr('Bloqueado'))
+    end
+    if nameLabel then
+      nameLabel:setVisible(false)
+    end
+    slot:setTooltip(tr("Mate 1 criatura para desbloquear o saque."))
+  end
+
   if drop then
+    if locked then
+      showLockedState()
+      return
+    end
+
+    itemWidget:setVisible(true)
     local resolved = resolveDropItem(drop, creatureName)
     if resolved and resolved.clientId then
       if not Spells.applyItemIcon(itemWidget, resolved.clientId, 1) then
@@ -484,35 +570,25 @@ function applyLootSlot(slot, drop, locked, creatureName)
     else
       itemWidget:setItem(nil)
     end
-    itemWidget:setOpacity(locked and 0.35 or 1)
+    itemWidget:setOpacity(1)
 
-    if locked then
-      lockIcon:setVisible(true)
-      lockHint:setVisible(true)
-      if nameLabel then
-        nameLabel:setVisible(false)
-      end
-      slot:setTooltip(tr("Mate 1 criatura para desbloquear o saque."))
-    else
-      lockIcon:setVisible(false)
+    lockIcon:setVisible(false)
+    if lockHintBg then
+      lockHintBg:setVisible(false)
+    end
+    if lockHint then
       lockHint:setVisible(false)
-      local displayName = resolved and resolved.name or drop.name or "Item"
-      if nameLabel then
-        nameLabel:setVisible(true)
-        nameLabel:setText(displayName)
-      end
-      local chancePercent = drop.chance / 1000
-      slot:setTooltip(string.format("%s (Chance: %.2f%%)", displayName, chancePercent))
     end
-  else
-    itemWidget:setItem(nil)
-    itemWidget:setOpacity(0.35)
-    lockIcon:setVisible(true)
-    lockHint:setVisible(true)
+
+    local displayName = resolved and resolved.name or drop.name or "Item"
     if nameLabel then
-      nameLabel:setVisible(false)
+      nameLabel:setVisible(true)
+      nameLabel:setText(displayName)
     end
-    slot:setTooltip(tr("Mate 1 criatura para desbloquear o saque."))
+    local chancePercent = drop.chance / 1000
+    slot:setTooltip(string.format("%s (Chance: %.2f%%)", displayName, chancePercent))
+  else
+    showLockedState()
   end
 end
 
@@ -677,6 +753,7 @@ function updateDetailProgress(panel, creature, diff)
   progressBar:setMaximum(diff.kills)
   progressBar:setValue(creature.kills)
   progressBar:setTooltip(tr("Kills: %d / %d", creature.kills, diff.kills))
+  progressBar:updateBackground()
 end
 
 function loadDatabase()
@@ -895,8 +972,15 @@ end
 
 function showCreatureDetails(creature)
   selectedCreature = creature
+  local backdrop = bestiaryWindow:recursiveGetChildById('detailsBackdrop')
   local panel = bestiaryWindow:recursiveGetChildById('detailsPanel')
+
+  if backdrop then
+    backdrop:setVisible(true)
+  end
+  setMainBestiaryInputEnabled(false)
   panel:setVisible(true)
+  ensureDetailsLayerOnTop()
 
   local diff = BestiaryDifficulty[creature.difficulty] or BestiaryDifficulty[1]
 
@@ -925,15 +1009,22 @@ function showCreatureDetails(creature)
   scheduleDetailScrollRefresh(panel)
   resetDetailScroll(panel)
 
-  local closeBtn = panel:recursiveGetChildById('closeDetailsBtn')
-  if closeBtn then
-    closeBtn:raise()
-  end
+  scheduleEvent(function()
+    if selectedCreature == creature and panel:isVisible() then
+      updateDetailProgress(panel, creature, diff)
+      ensureDetailsLayerOnTop()
+    end
+  end, 50)
 end
 
 function hideDetails()
+  local backdrop = bestiaryWindow:recursiveGetChildById('detailsBackdrop')
   local panel = bestiaryWindow:recursiveGetChildById('detailsPanel')
+  if backdrop then
+    backdrop:setVisible(false)
+  end
   panel:setVisible(false)
+  setMainBestiaryInputEnabled(true)
   selectedCreature = nil
 end
 

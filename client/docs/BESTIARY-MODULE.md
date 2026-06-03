@@ -226,7 +226,7 @@ Log saudável após kill: `[Bestiary] toast: Rotworm 5/25` + sprite visível no 
 | Busca | `searchEdit` | Filtro por nome (debounce 200 ms) |
 | Status | `gridStatus` | Mensagens de filtro / limite / vazio |
 | Grid | `monsterGrid` | Cards `BestiaryMonsterCard` (grid 140×175, max **96** visíveis) |
-| Detalhes | `detailsPanel` | Slide-in 340 px à direita |
+| Detalhes | `detailsPanel` | Painel 360 px à direita; `detailsBackdrop` escurece sidebar/grid, absorve cliques (`onMousePress` + `setEnabled(false)` no fundo) |
 
 ### Card de monstro (`BestiaryMonsterCard` 140×180)
 
@@ -246,8 +246,8 @@ Log saudável após kill: `[Bestiary] toast: Rotworm 5/25` + sprite visível no 
 | Palco | `detailStage`, `detailSprite` | Sprite 96 px, scale **1.5**, rotação auto |
 | Stats | `detailHp`, `detailExp` | Chips HP / EXP do JSON |
 | Elementos | `resistGrid` | 7 chips (`BestiaryElementChip`) — verde &lt; 100%, vermelho &gt; 100% |
-| Saque | `lootGrid` | Bloqueado até **1 kill**; slots `UIItem` + label `lootItemName`; ícone via mapa `items` do servidor |
-| Progresso | `detailProgressPanel` | Label + `ProgressBar` 10 px |
+| Saque | `lootGrid` | **0 kills:** cadeado + label `Bloqueado` (sem preview do item); tooltip com instrução. **≥1 kill:** `UIItem` + `lootItemName`; ícone via mapa `items` do servidor |
+| Progresso | `detailProgressPanel` | Label + `ProgressBar` 10 px (fill **`#ffd700`** dourado; trilho com borda `#333`) |
 
 ### Dificuldades (cliente — `BestiaryDifficulty`)
 
