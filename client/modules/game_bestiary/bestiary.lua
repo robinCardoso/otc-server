@@ -305,7 +305,7 @@ function applyKillsFromServer(killsTable)
 end
 
 function onExtendedJSONOpcode(protocol, code, jsonData)
-  -- protocolgame.lua já faz o chunk assembly (S/P/E) e json.decode antes de chamar aqui.
+  -- protocolgame.lua ja faz o chunk assembly (S/P/E) e json.decode antes de chamar aqui.
   -- jsonData chega como table Lua pronta.
   if type(jsonData) ~= "table" then
     g_logger.error("[Bestiary] onExtendedJSONOpcode: dado invalido (type=" .. type(jsonData) .. ")")
@@ -516,7 +516,7 @@ function resolveDropItem(drop, creatureName)
   end
 
   g_logger.warning(string.format(
-    "[Bestiary] loot item nao resolvido: %s (serverId=%s, %s) — aguardando sync 'items'",
+    "[Bestiary] loot item nao resolvido: %s (serverId=%s, %s) - aguardando sync 'items'",
     label,
     serverId or "-",
     creatureName or "?"
@@ -887,7 +887,7 @@ function setGridStatus(mode, shown, total)
 
   if mode == "pick_filter" then
     gridStatus:setColor("#ccccccff")
-    gridStatus:setText(tr("Escolha uma classe à esquerda ou digite pelo menos 2 letras na busca. (%d criaturas)", total))
+    gridStatus:setText(tr("Escolha uma classe no painel esquerdo ou digite pelo menos 2 letras na busca. (%d criaturas)", total))
   elseif mode == "limited" then
     gridStatus:setColor("#ccccccff")
     gridStatus:setText(tr("Mostrando %d de %d. Digite mais para filtrar.", shown, total))
@@ -988,7 +988,7 @@ function showCreatureDetails(creature)
 
   local detailSprite = panel:recursiveGetChildById('detailSprite')
   if not detailSprite then
-    g_logger.error("[Bestiary] detailSprite nao encontrado — verifique bestiary.otui")
+    g_logger.error("[Bestiary] detailSprite nao encontrado - verifique bestiary.otui")
   else
     applyCreatureOutfit(detailSprite, creature, { detail = true })
   end
@@ -1324,7 +1324,7 @@ function showCompleteToast(creature)
   applyToastSprite(toast, creature)
   local label = toast:getChildById('toastLabel')
   if label then
-    label:setText(tr('%s — Bestiary completo!', creature.name))
+    label:setText(tr('%s - Bestiary completo!', creature.name))
   end
   styleCompleteToast(toast)
   toast:setVisible(true)

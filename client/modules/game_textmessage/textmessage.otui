@@ -16,7 +16,9 @@ Panel
       type: verticalBox
       fit-children: true
     width: 360
-    anchors.centerIn: parent
+    anchors.top: parent.top
+    anchors.horizontalCenter: parent.horizontalCenter
+    margin-top: 350
 
     TextMessageLabel
       id: highCenterLabel
