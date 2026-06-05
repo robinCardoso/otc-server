@@ -220,9 +220,9 @@ function onLogin(player)
 	player:registerEvent("ExtendedOpcodeViewport")
 	player:registerEvent("ExtendedOpcodeBestiary")
 	player:registerEvent("BestiaryKill")
-	if Otcv8Bestiary and Otcv8Bestiary.scheduleLoginSync then
-		Otcv8Bestiary.scheduleLoginSync(player)
-	end
+	-- if Otcv8Bestiary and Otcv8Bestiary.scheduleLoginSync then
+	-- 	Otcv8Bestiary.scheduleLoginSync(player)
+	-- end
 	-- players_online: já inserido em C++ (Player::onCreatureAppear → IOLoginData::updateOnlineStatus).
 	-- INSERT duplicado aqui corrompia a tabela MEMORY e podia derrubar o tfs.exe no login.
 

@@ -91,6 +91,7 @@ function init()
 
   -- Igual shop/combatpower: registrar sempre no init (GameExtendedOpcode so liga apos setClientVersion no login).
   ProtocolGame.registerExtendedJSONOpcode(207, onExtendedJSONOpcode)
+  ProtocolGame.registerExtendedJSONOpcode(208, onExtendedJSONOpcode)
 
   connect(g_game, {
     onGameStart = onGameStart,
@@ -171,6 +172,7 @@ function terminate()
   bestiaryButton:destroy()
 
   ProtocolGame.unregisterExtendedJSONOpcode(207)
+  ProtocolGame.unregisterExtendedJSONOpcode(208)
 
   disconnect(g_game, {
     onGameStart = onGameStart,

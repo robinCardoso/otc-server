@@ -3,6 +3,7 @@
 
 Otcv8Bestiary = {
   OPCODE = 207,
+  OPCODE_LOOKS = 208,
   STORAGE_BASE = 150000,
   MAX_PACKET_SIZE = 6000,
   LOOKS_VERSION = 1,
@@ -43,7 +44,7 @@ function Otcv8Bestiary.addKill(player, name)
   return newKills
 end
 
-function Otcv8Bestiary.sendJSON(player, action, data)
+function Otcv8Bestiary.sendJSON(player, action, data, customOpcode)
   if not json or not json.encode then
     print("[Otcv8Bestiary] json library not loaded (see data/lib/lib.lua)")
     return false
@@ -59,7 +60,7 @@ function Otcv8Bestiary.sendJSON(player, action, data)
     return false
   end
 
-  local opcode = Otcv8Bestiary.OPCODE
+  local opcode = customOpcode or Otcv8Bestiary.OPCODE
   local chunks = {}
   for i = 1, #buffer, Otcv8Bestiary.MAX_PACKET_SIZE do
     chunks[#chunks + 1] = buffer:sub(i, i + Otcv8Bestiary.MAX_PACKET_SIZE - 1)
@@ -139,7 +140,7 @@ function Otcv8Bestiary.sendLooks(player)
   if not Otcv8Bestiary.buildLooksCache() then
     return false
   end
-  return Otcv8Bestiary.sendJSON(player, "looks", Otcv8Bestiary.looksPayload)
+  return Otcv8Bestiary.sendJSON(player, "looks", Otcv8Bestiary.looksPayload, Otcv8Bestiary.OPCODE_LOOKS)
 end
 
 function Otcv8Bestiary.collectLootItemIds(lootList, seen)
