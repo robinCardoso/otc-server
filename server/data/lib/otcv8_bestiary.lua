@@ -5,6 +5,7 @@ Otcv8Bestiary = {
   OPCODE = 207,
   OPCODE_LOOKS = 208,
   STORAGE_BASE = 150000,
+  POINTS_STORAGE = 149999,
   MAX_PACKET_SIZE = 6000,
   LOOKS_VERSION = 1,
   ITEMS_BATCH_SIZE = 70,
@@ -42,6 +43,18 @@ function Otcv8Bestiary.addKill(player, name)
   local newKills = currentKills + 1
   player:setStorageValue(storage, newKills)
   return newKills
+end
+
+function Otcv8Bestiary.getPoints(player)
+  local points = player:getStorageValue(Otcv8Bestiary.POINTS_STORAGE)
+  return points < 0 and 0 or points
+end
+
+function Otcv8Bestiary.addPoints(player, amount)
+  local current = Otcv8Bestiary.getPoints(player)
+  local newTotal = current + amount
+  player:setStorageValue(Otcv8Bestiary.POINTS_STORAGE, newTotal)
+  return newTotal
 end
 
 function Otcv8Bestiary.sendJSON(player, action, data, customOpcode)

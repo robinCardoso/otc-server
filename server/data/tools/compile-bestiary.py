@@ -229,6 +229,22 @@ def main():
         print(f"Error writing client database: {e}")
         return
 
+    # Map difficulty to kills based on client BestiaryDifficulty table
+    difficulty_to_kills = {
+        1: 25,
+        2: 500,
+        3: 1000,
+        4: 2500
+    }
+
+    # Map difficulty to points based on client BestiaryDifficulty table
+    difficulty_to_points = {
+        1: 1,
+        2: 15,
+        3: 25,
+        4: 50
+    }
+
     # Output Server Lua Names List
     print(f"Writing {len(monster_names)} names to server lua file at {SERVER_LUA_PATH}...")
     try:
@@ -237,6 +253,27 @@ def main():
             f.write("BestiaryMonsterNames = {\n")
             for name in sorted(monster_names):
                 f.write(f'  "{name}",\n')
+            f.write("}\n\n")
+            
+            f.write("BestiaryMonsterLimits = {\n")
+            for entry in database_entries:
+                limit = difficulty_to_kills.get(entry["difficulty"], 500)
+                safe_name = entry["name"].replace('"', '\\"')
+                f.write(f'  ["{safe_name}"] = {limit},\n')
+            f.write("}\n\n")
+            
+            f.write("BestiaryMonsterPoints = {\n")
+            for entry in database_entries:
+                pts = difficulty_to_points.get(entry["difficulty"], 15)
+                safe_name = entry["name"].replace('"', '\\"')
+                f.write(f'  ["{safe_name}"] = {pts},\n')
+            f.write("}\n\n")
+
+            f.write("BestiaryMonsterExp = {\n")
+            for entry in database_entries:
+                base_exp = entry.get("exp", 0)
+                safe_name = entry["name"].replace('"', '\\"')
+                f.write(f'  ["{safe_name}"] = {base_exp},\n')
             f.write("}\n")
     except Exception as e:
         print(f"Error writing server lua file: {e}")
