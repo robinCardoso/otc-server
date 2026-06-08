@@ -112,6 +112,8 @@ public:
 
     void setFloorFading(int value) { m_floorFading = value; }
     void setCrosshair(const std::string& file);
+    void setStretchMap(bool stretch) { m_stretchMap = stretch; }
+    bool isStretchMap() { return m_stretchMap; }
 
     //void setShader(const PainterShaderProgramPtr& shader, float fadein, float fadeout);
     //PainterShaderProgramPtr getShader() { return m_shader; }
@@ -163,6 +165,7 @@ private:
     CreaturePtr m_followingCreature;
     Otc::DrawFlags m_drawFlags;
     bool m_drawLight = false;
+    bool m_stretchMap = false;
     float m_minimumAmbientLight;
     std::unique_ptr<LightView> m_lightView;
     TexturePtr m_lightTexture;

@@ -142,7 +142,7 @@ gameMapPanel
               └── toastLabel
 ```
 
-Margem superior ajustada por `adjustKillToastOverlayMargin()` (layout modern — igual `game_stats`).
+Margens ajustadas por `adjustKillToastOverlayMargin()` usando o retângulo real de desenho do mapa (`UIMap:getMapRect()` ou estimativa Lua) — o toast fica no canto superior esquerdo **dos tiles**, não na faixa cinza do widget. Ver também [`VIEWPORT-CLASSIC-VIEW.md`](VIEWPORT-CLASSIC-VIEW.md) (Classic ON/OFF e `getMapRect`).
 
 ### Arquivos
 
@@ -189,6 +189,7 @@ Sprite toast: `applyCreatureOutfit(..., { toast = true })` — usa **`recursiveG
 | Toast de texto OK, **sprite vazio/preto** | `getChildById('toastSprite')` não acha filho aninhado | Usar `recursiveGetChildById` (corrigido) |
 | Toast de texto OK, sprite invisível | Fundo preto + mob escuro | Pedestal `toastSpriteBg` cinza-pedra |
 | Nada na tela, log `[Bestiary] toast:` OK | Overlay no layer errado | Overlay via `loadUI(..., getMapPanel())` + `raise()` |
+| Toast na faixa cinza fora do mapa | Ancorado no widget, não em `m_mapRect` | `adjustKillToastOverlayMargin()` com `getMapRect()` |
 | Nenhum toast ao matar | `showBestiaryKillToasts` off | Opções → Game |
 | Só no relog, não ao matar | Servidor sem `BestiaryKill` ou `update` falha | Ver `login.lua` + XML; log TFS `sendUpdate` |
 | Monstro já completo | Sem toast de progresso | Esperado |

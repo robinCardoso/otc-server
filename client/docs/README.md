@@ -12,6 +12,7 @@ Cliente OTClientV8 compilado localmente para o servidor TFS 8.60.
 | [SPELL-LIST-MODULE.md](SPELL-LIST-MODULE.md) | Lista de magias opcode **202** (ponte → servidor) |
 | [COMBAT-POWER-MODULE.md](COMBAT-POWER-MODULE.md) | Modal Combat Power opcode **203** — layout, JSON, ícones, troubleshooting |
 | [BESTIARY-MODULE.md](BESTIARY-MODULE.md) | Bestiary opcode **207** — catálogo JSON, kills/looks sync, UI, roadmap |
+| [VIEWPORT-CLASSIC-VIEW.md](VIEWPORT-CLASSIC-VIEW.md) | Mapa **25×20**, opção **Classic view**, layout vs zoom, build e testes |
 | [SHOP-MODULE.md](SHOP-MODULE.md) | UI Shop opcode **201** (ponte → servidor) |
 | [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | Login, movimento, assets, erros comuns |
 

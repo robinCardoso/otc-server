@@ -172,10 +172,20 @@ class QTreeLeafNode final : public QTreeNode
 class Map
 {
 	public:
-		static constexpr int32_t maxViewportX = 11; //min value: maxClientViewportX + 1
-		static constexpr int32_t maxViewportY = 11; //min value: maxClientViewportY + 1
-		static constexpr int32_t maxClientViewportX = 8;
-		static constexpr int32_t maxClientViewportY = 6;
+		// OTCv8 wide viewport (25x20 tiles) — must match client resetAwareRange()
+		static constexpr int32_t clientMapWidth = 25;
+		static constexpr int32_t clientMapHeight = 20;
+		static constexpr int32_t clientMapLeft = 12;
+		static constexpr int32_t clientMapRight = 12;
+		static constexpr int32_t clientMapTop = 9;
+		static constexpr int32_t clientMapBottom = 10;
+		static_assert(clientMapLeft + clientMapRight + 1 == clientMapWidth);
+		static_assert(clientMapTop + clientMapBottom + 1 == clientMapHeight);
+
+		static constexpr int32_t maxClientViewportX = clientMapLeft;
+		static constexpr int32_t maxClientViewportY = clientMapTop;
+		static constexpr int32_t maxViewportX = clientMapRight + 1;
+		static constexpr int32_t maxViewportY = clientMapBottom + 1;
 
 		uint32_t clean() const;
 

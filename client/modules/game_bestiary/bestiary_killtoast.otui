@@ -41,8 +41,8 @@ UIWidget
   id: bestiaryKillToastOverlay
   anchors.top: parent.top
   anchors.left: parent.left
-  margin-top: 8
-  margin-left: 8
+  margin-top: 0
+  margin-left: 0
   width: 248
   phantom: true
   focusable: false

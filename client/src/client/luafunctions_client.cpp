@@ -911,6 +911,8 @@ void Client::registerLuaFunctions()
     g_lua.bindClassMemberFunction<UIMap>("setDrawPlayerBars", &UIMap::setDrawPlayerBars);
     g_lua.bindClassMemberFunction<UIMap>("setAnimated", &UIMap::setAnimated);
     g_lua.bindClassMemberFunction<UIMap>("setKeepAspectRatio", &UIMap::setKeepAspectRatio);
+    g_lua.bindClassMemberFunction<UIMap>("fitZoomToScreen", &UIMap::fitZoomToScreen);
+    g_lua.bindClassMemberFunction<UIMap>("refreshMapGeometry", &UIMap::refreshMapGeometry);
     g_lua.bindClassMemberFunction<UIMap>("setMinimumAmbientLight", &UIMap::setMinimumAmbientLight);
     g_lua.bindClassMemberFunction<UIMap>("setLimitVisibleRange", &UIMap::setLimitVisibleRange);
     g_lua.bindClassMemberFunction<UIMap>("setFloorFading", &UIMap::setFloorFading);
@@ -936,6 +938,7 @@ void Client::registerLuaFunctions()
     g_lua.bindClassMemberFunction<UIMap>("getMaxZoomIn", &UIMap::getMaxZoomIn);
     g_lua.bindClassMemberFunction<UIMap>("getMaxZoomOut", &UIMap::getMaxZoomOut);
     g_lua.bindClassMemberFunction<UIMap>("getZoom", &UIMap::getZoom);
+    g_lua.bindClassMemberFunction<UIMap>("getMapRect", &UIMap::getMapRect);
     g_lua.bindClassMemberFunction<UIMap>("getMinimumAmbientLight", &UIMap::getMinimumAmbientLight);
     g_lua.bindClassMemberFunction<UIMap>("getShader", &UIMap::getShader);
 

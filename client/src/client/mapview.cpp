@@ -541,6 +541,10 @@ Rect MapView::calcFramebufferSource(const Size& destSize, bool inNextFrame)
             drawOffset += walkOff * scaleFactor;
     }
 
+    if (m_stretchMap) {
+        return Rect(drawOffset, destSize);
+    }
+
     Size srcSize = destSize;
     Size srcVisible = m_visibleDimension * g_sprites.spriteSize();
     srcSize.scale(srcVisible, Fw::KeepAspectRatio);

@@ -62,6 +62,8 @@ public:
     void setDrawPlayerBars(bool enable) { m_mapView->setDrawPlayerBars(enable); }
     void setAnimated(bool enable) { m_mapView->setAnimated(enable); }
     void setKeepAspectRatio(bool enable);
+    void fitZoomToScreen(int targetTilePx, int minZoom, int maxZoom);
+    void refreshMapGeometry();
     void setMinimumAmbientLight(float intensity) { m_mapView->setMinimumAmbientLight(intensity); }
     void setLimitVisibleRange(bool limitVisibleRange) { m_limitVisibleRange = limitVisibleRange; updateVisibleDimension(); }
     void setFloorFading(int value) { m_mapView->setFloorFading(value); }
@@ -87,6 +89,7 @@ public:
     int getMaxZoomIn() { return m_maxZoomIn; }
     int getMaxZoomOut() { return m_maxZoomOut; }
     int getZoom() { return m_zoom; }
+    Rect getMapRect() { return m_mapRect; }
     float getMinimumAmbientLight() { return m_mapView->getMinimumAmbientLight(); }
 
     void setShader(const std::string& shader)
@@ -103,6 +106,7 @@ protected:
     virtual void onGeometryChange(const Rect& oldRect, const Rect& newRect);
 
 private:
+    Size clampVisibleDimensionToAwareRange(const Size& visibleDimension);
     void updateVisibleDimension();
     void updateMapSize();
 

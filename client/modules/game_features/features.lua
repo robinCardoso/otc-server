@@ -58,6 +58,7 @@ function updateFeatures(version)
     if(version >= 860) then
         g_game.enableFeature(GameAttackSeq)
         g_game.enableFeature(GameSpellList) -- painel Spell Cooldowns (opcode 0xA4/0xA5 do TFS)
+        g_game.enableFeature(GameBiggerMapCache) -- viewport 25x20 (TFS + resetAwareRange)
     end
 
     if(version >= 862) then

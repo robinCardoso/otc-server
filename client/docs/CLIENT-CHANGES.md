@@ -166,6 +166,42 @@ Perfis antigos em `%AppData%\otclientv8\` são atualizados na primeira abertura 
 - Slider `walkFirstStepDelay`: mínimo **0** (antes 50).
 - Label ctrl turn usa `walkCtrlTurnDelay` (bug de cópia corrigido).
 
+## Viewport 25×20 e Classic view ✅
+
+Mapa na rede alinhado ao TFS (**25×20**). A opção **Classic view** (Interface) altera **só o zoom** do mapa no painel — layout de painéis, chat e action bar permanece o mesmo.
+
+| Classic view | Comportamento |
+|--------------|---------------|
+| **ON** | Proporção Tibia (~15×11), `keepAspectRatio`, barras cinzas (letterbox) |
+| **OFF** | `fitZoomToScreen` preenche largura com os 25 tiles do servidor — sem faixas pretas |
+
+**Doc canônica:** [`docs/VIEWPORT-CLASSIC-VIEW.md`](VIEWPORT-CLASSIC-VIEW.md) + [`../server/docs/VIEWPORT-MODULE.md`](../server/docs/VIEWPORT-MODULE.md).
+
+### C++ (`src/client/`)
+
+| Arquivo | Mudança |
+|---------|---------|
+| `map.cpp` | `resetAwareRange()` → 12, 9, 12, 10 |
+| `uimap.cpp` | `fitZoomToScreen`, `refreshMapGeometry`, `clampVisibleDimensionToAwareRange`, `getMapRect` |
+| `mapview.cpp` | `setStretchMap(false)` — sem esticar sprites |
+| `luafunctions_client.cpp` | Bindings Lua para os métodos acima |
+
+**Requer:** `.\scripts\build-client.ps1`
+
+### Lua / UI
+
+| Arquivo | Mudança |
+|---------|---------|
+| `init.lua` | `CLASSIC_MAP_TARGET_TILE_PX`, `CLASSIC_MAP_ZOOM_FALLBACK`, `CLASSIC_MAP_ZOOM_MAX` |
+| `modules/game_viewport/viewport.lua` | `g_map.setAwareRange(12,9,12,10)` — sem opcode 206 no login |
+| `modules/game_interface/gameinterface.lua` | `refreshViewMode` (layout clássico fixo), `updateClassicMapView` (zoom ON/OFF) |
+| `modules/game_features/features.lua` | `GameBiggerMapCache` no protocolo 860 |
+| `modules/game_bestiary/bestiary.lua` | Toast de kill via `getMapRect()` — canto dos tiles, não faixa cinza |
+
+**Requer:** reiniciar `otclient_gl.exe` (Lua); **relog** após novo `tfs.exe`.
+
+**Não usar:** modo wide OTC original (`fill('parent')` no mapa, painéis transparentes, `setStretchMap(true)`).
+
 ## Shop OTCv8 (`game_shop`)
 
 Loja premium via **extended opcode 201** — não é NPC trade (`game_npctrade`).

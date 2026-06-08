@@ -33,6 +33,13 @@ STOCK_ENABLED = true
 STOCK_WINDOW_WIDTH = 720
 STOCK_WINDOW_HEIGHT = 520
 
+-- Classic view: zoom do mapa (nao altera layout da tela)
+-- Classic ON  = barras laterais cinza (proporcao 15x11)
+-- Classic OFF = mapa preenche largura (viewport 25x20 do servidor)
+CLASSIC_MAP_TARGET_TILE_PX = 40
+CLASSIC_MAP_ZOOM_FALLBACK = 11
+CLASSIC_MAP_ZOOM_MAX = 21
+
 -- CONFIG END
 
 -- print first terminal message

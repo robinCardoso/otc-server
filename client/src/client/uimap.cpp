@@ -115,16 +115,90 @@ bool UIMap::zoomOut()
 
 void UIMap::setVisibleDimension(const Size& visibleDimension)
 {
-    m_mapView->setVisibleDimension(visibleDimension);
-    m_aspectRatio = visibleDimension.ratio();
+    Size dim = visibleDimension;
+    if(!m_keepAspectRatio)
+        dim = clampVisibleDimensionToAwareRange(dim);
+
+    m_mapView->setVisibleDimension(dim);
+    m_aspectRatio = dim.ratio();
 
     if(m_keepAspectRatio)
         updateMapSize();
 }
 
+void UIMap::fitZoomToScreen(int targetTilePx, int minZoom, int maxZoom)
+{
+    if(targetTilePx < 8)
+        targetTilePx = 8;
+
+    const Rect clippingRect = getPaddingRect();
+    const int h = clippingRect.height();
+    if(h < 80)
+        return;
+
+    auto toOddDown = [](int value) {
+        value = std::max(3, value);
+        if(value % 2 == 0)
+            value -= 1;
+        return value;
+    };
+
+    int zoom = toOddDown(h / targetTilePx);
+
+    if(minZoom % 2 == 0)
+        minZoom += 1;
+    if(maxZoom % 2 == 0)
+        maxZoom -= 1;
+    zoom = stdext::clamp<int>(zoom, minZoom, maxZoom);
+    zoom = stdext::clamp<int>(zoom, m_maxZoomIn, m_maxZoomOut);
+
+    m_keepAspectRatio = false;
+    m_mapView->setStretchMap(false);
+    m_zoom = zoom;
+    updateMapSize();
+}
+
+void UIMap::refreshMapGeometry()
+{
+    m_keepAspectRatio = false;
+    m_mapView->setStretchMap(false);
+    updateMapSize();
+}
+
+Size UIMap::clampVisibleDimensionToAwareRange(const Size& visibleDimension)
+{
+    auto toOdd = [](int value) {
+        value = std::max(3, value);
+        if(value % 2 == 0)
+            value += 1;
+        return value;
+    };
+
+    const int height = toOdd(visibleDimension.height());
+
+    if(!m_limitVisibleRange)
+        return Size(toOdd(visibleDimension.width()), height);
+
+    AwareRange range = g_map.getAwareRange();
+    int maxW = range.horizontal();
+    if(maxW % 2 == 0)
+        maxW -= 1;
+
+    auto clampOdd = [](int value, int maxValue) {
+        value = std::min(value, maxValue);
+        value = std::max(3, value);
+        if(value % 2 == 0)
+            value -= 1;
+        return value;
+    };
+
+    return Size(clampOdd(visibleDimension.width(), maxW), height);
+}
+
 void UIMap::setKeepAspectRatio(bool enable)
 {
     m_keepAspectRatio = enable;
+    m_mapView->setStretchMap(false);
     if(enable)
         m_aspectRatio = getVisibleDimension().ratio();
     updateMapSize();

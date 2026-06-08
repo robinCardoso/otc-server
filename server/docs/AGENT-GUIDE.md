@@ -14,15 +14,17 @@ Documento principal para implementar features no stack **-orig** sem reintroduzi
 
 ## Lições aprendidas (resumo)
 
-### 1. Viewport 18×14 — não negociar
+### 1. Viewport 25×20 — alinhar servidor e cliente
 
-O TFS envia mapa **18×14** (`protocolgame.cpp`: `GetMapDescription(..., 18, 14)`).
+O TFS deste fork envia mapa **25×20** (`map.h` → `protocolgame.cpp`: `GetMapDescription(..., Map::clientMapWidth, Map::clientMapHeight)`).
 
-Se o OTC pedir **29×20** (ex.: `changeMapAwareRange(31,21)` ou viewport antigo), o parser do opcode **0x64** lê bytes de coordenada como `itemId` → log `invalid id 61823` / `62078` e desconexão.
+O OTC espelha em `resetAwareRange()` → left=12, top=9, right=12, bottom=10 (`client/map.cpp`, `game_viewport/viewport.lua`).
 
-**Não** é problema de DAT/SPR (hashes iguais entre builds). É dessincronia de protocolo.
+**Classic view** (opção Interface) altera só o **zoom** no cliente — **não** o pacote de rede. Ver [`../client/docs/VIEWPORT-CLASSIC-VIEW.md`](../client/docs/VIEWPORT-CLASSIC-VIEW.md) e [`VIEWPORT-MODULE.md`](VIEWPORT-MODULE.md).
 
-Referência: `otcv8-dev/docs/LOGIN-ASSETS-860.md`.
+Se cliente e servidor divergirem (ex.: OTC pedindo **29×20** com TFS em 18×14), o parser do opcode **0x64** lê bytes de coordenada como `itemId` → log `invalid id 61823` / `62078` e desconexão. **Não** é DAT/SPR corrompido — é dessincronia de protocolo.
+
+**Não** usar `changeMapAwareRange(31,21)` nem opcode **206** no login sem alinhar TFS + rebuild C++.
 
 ### 2. Extended opcodes — handler separado por número
 

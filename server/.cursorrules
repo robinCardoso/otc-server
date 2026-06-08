@@ -30,7 +30,8 @@ Referência cruzada (sem `-orig`): `otserv_860/docs/`, `otcv8-dev/docs/` — **l
 | **Depot TFS (persistência)** | `docs/DEPOT-SYSTEM.md` — **ler antes** de tocar `iologindata.cpp`, save/load, Estoque |
 | **Estoque depot** opcode 205 | `docs/STOCK-MODULE.md` — `game_stock`, Ctrl+Shift+E, `!estoque` |
 | Compilar **cliente** | `otcv8-dev-orig/docs/BUILD.md` |
-| **Login / DAT / SPR / opcode 0x64** | `otcv8-dev/docs/LOGIN-ASSETS-860.md` (referência; viewport **18×14**) |
+| **Viewport 25×20 + Classic view** | `docs/VIEWPORT-MODULE.md` + `../client/docs/VIEWPORT-CLASSIC-VIEW.md` |
+| **Login / DAT / SPR / opcode 0x64** | `otcv8-dev/docs/LOGIN-ASSETS-860.md` (referência vanilla **18×14**; este fork usa **25×20**) |
 | Combat Power UI (cliente) | `otcv8-dev-orig/modules/game_combatpower/` + `otcv8-dev/docs/COMBAT-POWER-MODULE.md` |
 | Shop in-game opcode 201 | `data/creaturescripts/scripts/otcv8_shop.lua` → `initShop()` |
 | Dano / fórmulas TFS | `otserv_860/docs/DAMAGE.md` (referência) |
@@ -54,12 +55,13 @@ Referência cruzada (sem `-orig`): `otserv_860/docs/`, `otcv8-dev/docs/` — **l
 
 ## Regras anti-regressão
 
-### Mapa / viewport **18×14** (não 29×20)
+### Mapa / viewport **25×20** (servidor + cliente alinhados)
 
-- TFS: `GetMapDescription(pos.x-8, pos.y-6, 18, 14)` em `src/protocolgame.cpp` — igual em `otserv_860_sem_erro` e `-orig`.
-- OTC: `Map::resetAwareRange()` → left=8, top=6, right=9, bottom=7.
-- **Não** usar `changeMapAwareRange(31,21)` nem `game_viewport` com range 29×20 sem alinhar TFS + rebuild C++.
-- Erro `unable to create item with invalid id 61823/62078` no opcode **0x64** = **dessync de parse** (byte de coordenada lido como itemId), não item inválido no servidor.
+- TFS: `Map::clientMap*` em `src/map.h`; `GetMapDescription` em `src/protocolgame.cpp` (25×20, offsets 12/9).
+- OTC: `resetAwareRange()` → left=12, top=9, right=12, bottom=10; `game_viewport/viewport.lua` idem.
+- **Classic view** = só zoom no cliente (`updateClassicMapView`); **não** muda pacotes do servidor.
+- **Não** usar range 29×20 nem `changeMapAwareRange(31,21)` sem alterar TFS + rebuild dos dois lados.
+- Erro `invalid id 61823/62078` no opcode **0x64** = **dessync de parse**, não item inválido no servidor.
 
 ### Extended opcodes OTC
 

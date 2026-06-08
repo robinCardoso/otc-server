@@ -1,7 +1,7 @@
--- Must match TFS 8.60 GetMapDescription (18x14 tiles): left=8 top=6 right=9 bottom=7
--- Doc: otserv_860/docs/VIEWPORT-MODULE.md
+-- Must match TFS GetMapDescription (25x20 tiles): left=12 top=9 right=12 bottom=10
+-- Doc: server/docs/VIEWPORT-MODULE.md
 
-local PROTOCOL_RANGE = { left = 8, top = 6, right = 9, bottom = 7 }
+local PROTOCOL_RANGE = { left = 12, top = 9, right = 12, bottom = 10 }
 
 local function applyProtocolRange()
   g_map.setAwareRange(PROTOCOL_RANGE.left, PROTOCOL_RANGE.top, PROTOCOL_RANGE.right, PROTOCOL_RANGE.bottom)

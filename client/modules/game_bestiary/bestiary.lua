@@ -1054,10 +1054,56 @@ function getKillToastMaxLines()
   return KILL_TOAST_MAX_LINES_DEFAULT
 end
 
+local KILL_TOAST_MAP_INSET = 8
+
+local function estimateMapDrawRect(mapPanel)
+  local padL = mapPanel:getPaddingLeft()
+  local padT = mapPanel:getPaddingTop()
+  local clipW = mapPanel:getWidth() - padL - mapPanel:getPaddingRight()
+  local clipH = mapPanel:getHeight() - padT - mapPanel:getPaddingBottom()
+  if clipW <= 0 or clipH <= 0 then
+    return { x = padL, y = padT, width = clipW, height = clipH }
+  end
+
+  local centerX = padL + clipW / 2
+  local centerY = padT + clipH / 2
+  local mapW, mapH
+
+  if mapPanel:isKeepAspectRatioEnabled() then
+    local zoom = mapPanel:getZoom()
+    local dim = mapPanel:getVisibleDimension()
+    mapH = zoom
+    mapW = zoom * (dim.width / dim.height)
+    local scale = math.min(clipW / mapW, clipH / mapH)
+    mapW = mapW * scale
+    mapH = mapH * scale
+  else
+    mapW = clipW - 2
+    mapH = clipH - 2
+  end
+
+  return {
+    x = math.floor(centerX - mapW / 2),
+    y = math.floor(centerY - mapH / 2),
+    width = math.floor(mapW),
+    height = math.floor(mapH)
+  }
+end
+
+local function getMapDrawRect(mapPanel)
+  if mapPanel.getMapRect then
+    return mapPanel:getMapRect()
+  end
+  return estimateMapDrawRect(mapPanel)
+end
+
 function initKillToasts()
   local mapPanel = modules.game_interface.getMapPanel()
   if mapPanel then
-    connect(mapPanel, { onGeometryChange = adjustKillToastOverlayMargin })
+    connect(mapPanel, {
+      onGeometryChange = adjustKillToastOverlayMargin,
+      onVisibleDimensionChange = adjustKillToastOverlayMargin
+    })
   end
   ensureKillToastsPanel()
 end
@@ -1067,26 +1113,14 @@ function adjustKillToastOverlayMargin()
     return
   end
 
-  local baseMargin = 8
-  if g_settings.getBoolean("classicView") or g_app.isMobile() then
-    killToastPanel:setMarginTop(baseMargin)
-    return
-  end
-
-  local gameRootPanel = modules.game_interface.getRootPanel()
   local mapPanel = modules.game_interface.getMapPanel()
-  if not gameRootPanel or not mapPanel then
+  if not mapPanel then
     return
   end
 
-  local dim = mapPanel:getVisibleDimension()
-  if not dim or dim.height <= 0 then
-    killToastPanel:setMarginTop(baseMargin)
-    return
-  end
-
-  local tileSize = gameRootPanel:getHeight() / dim.height
-  killToastPanel:setMarginTop(math.floor(tileSize) + baseMargin)
+  local mapRect = getMapDrawRect(mapPanel)
+  killToastPanel:setMarginLeft((mapRect.x or 0) + KILL_TOAST_MAP_INSET)
+  killToastPanel:setMarginTop((mapRect.y or 0) + KILL_TOAST_MAP_INSET)
 end
 
 function ensureKillToastsPanel()
@@ -1135,7 +1169,10 @@ function terminateKillToasts()
   clearAllKillToasts()
   local mapPanel = modules.game_interface.getMapPanel()
   if mapPanel then
-    disconnect(mapPanel, { onGeometryChange = adjustKillToastOverlayMargin })
+    disconnect(mapPanel, {
+      onGeometryChange = adjustKillToastOverlayMargin,
+      onVisibleDimensionChange = adjustKillToastOverlayMargin
+    })
   end
   if killToastPanel and not killToastPanel:isDestroyed() then
     killToastPanel:destroy()

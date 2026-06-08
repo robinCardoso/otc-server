@@ -17,6 +17,95 @@ bottomSplitter = nil
 limitedZoom = false
 hookedMenuOptions = {}
 lastDirTime = g_clock.millis()
+local SIDE_PANEL_WIDTH = 198
+local classicMapViewUpdating = false
+
+local function hudToOdd(value, fallback)
+  value = math.floor(tonumber(value) or 0)
+  if value < 3 then
+    value = fallback or 3
+  end
+  if value % 2 == 0 then
+    value = value + 1
+  end
+  return value
+end
+
+local function getClassicMapTuning()
+  local fallback = tonumber(_G.CLASSIC_MAP_ZOOM_FALLBACK)
+  if not fallback or fallback < 3 then
+    fallback = 11
+  end
+  return {
+    targetPx = tonumber(_G.CLASSIC_MAP_TARGET_TILE_PX) or 40,
+    minZoom = fallback,
+    maxZoom = tonumber(_G.CLASSIC_MAP_ZOOM_MAX) or 21,
+  }
+end
+
+local function isClassicMapTuningEnabled()
+  return (tonumber(_G.CLASSIC_MAP_TARGET_TILE_PX) or 0) > 0
+end
+
+function updateClassicMapView()
+  if classicMapViewUpdating or not gameMapPanel then
+    return
+  end
+  classicMapViewUpdating = true
+  local ok, err = pcall(function()
+    local classic = g_settings.getBoolean("classicView") and not g_app.isMobile()
+    local tuning = getClassicMapTuning()
+    local targetPx = tuning.targetPx
+    local minZoom = tuning.minZoom
+    local maxZoom = tuning.maxZoom
+
+    if not limitedZoom or (g_game.isOnline() and g_game.isGM()) then
+      gameMapPanel:setMaxZoomOut(math.max(513, maxZoom + 2))
+    end
+
+    local rect = gameMapPanel:getPaddingRect()
+    local w, h = rect.width, rect.height
+    if h < 80 or w < 80 then
+      return
+    end
+
+    gameMapPanel:setVisibleDimension({ width = 15, height = 11 })
+    gameMapPanel:setLimitVisibleRange(false)
+
+    if classic then
+      gameMapPanel:setKeepAspectRatio(true)
+      local dimH = hudToOdd(h / targetPx, minZoom)
+      dimH = math.min(dimH, hudToOdd(maxZoom, maxZoom))
+      dimH = math.max(dimH, hudToOdd(minZoom, minZoom))
+      gameMapPanel:setZoom(dimH)
+    elseif isClassicMapTuningEnabled() and gameMapPanel.fitZoomToScreen then
+      gameMapPanel:fitZoomToScreen(targetPx, minZoom, maxZoom)
+      if gameMapPanel.refreshMapGeometry then
+        gameMapPanel:refreshMapGeometry()
+      end
+    else
+      gameMapPanel:setKeepAspectRatio(false)
+      gameMapPanel:setZoom(11)
+    end
+  end)
+  classicMapViewUpdating = false
+  if not ok then
+    g_logger.error('[Classic map] updateClassicMapView: ' .. tostring(err))
+  end
+end
+
+local function ensureSidePanelsVisible()
+  if not gameLeftPanels or not gameRightPanels then
+    return
+  end
+  for _, parent in ipairs({ gameLeftPanels, gameRightPanels }) do
+    for _, panel in ipairs(parent:getChildren()) do
+      panel:setVisible(true)
+      panel:setWidth(SIDE_PANEL_WIDTH)
+      panel:setOn(true)
+    end
+  end
+end
 
 function init()
   g_ui.importStyle('styles/countwindow')
@@ -978,7 +1067,27 @@ function refreshViewMode()
       leftPanels = leftPanels + 1
     end
   end
-  
+
+  -- Classic view ON/OFF altera só o desenho do mapa (proporção fixa vs esticar).
+  -- Layout da tela (painéis laterais, chat, barras) permanece igual.
+  gameMapPanel:breakAnchors()
+  gameMapPanel:addAnchor(AnchorLeft, 'gameLeftActionPanel', AnchorRight)
+  gameMapPanel:addAnchor(AnchorRight, 'gameRightActionPanel', AnchorLeft)
+  gameMapPanel:addAnchor(AnchorBottom, 'gameBottomActionPanel', AnchorTop)
+  gameMapPanel:addAnchor(AnchorTop, 'gameTopBar', AnchorBottom)
+  gameMapPanel:setOn(false)
+  gameMapPanel:setMarginLeft(0)
+  gameMapPanel:setMarginRight(0)
+  gameMapPanel:setMarginTop(0)
+  gameRightPanels:setMarginTop(0)
+  gameLeftPanels:setMarginTop(0)
+
+  if modules.game_viewport and modules.game_viewport.sync then
+    modules.game_viewport.sync(classic and 'classic' or 'wide')
+  end
+
+  updateClassicMapView()
+
   if not g_game.isOnline() then
     return
   end
@@ -1000,66 +1109,25 @@ function refreshViewMode()
     else
       panel = gameRightPanels:getChildByIndex(i)
     end
-    if classic then
-      panel:setImageColor('#7B6A72')
-    else
-      panel:setImageColor('alpha')
-    end
-  end
-  
-  if classic then
-    gameRightPanels:setMarginTop(0)
-    gameLeftPanels:setMarginTop(0)
-    gameMapPanel:setMarginLeft(0)
-    gameMapPanel:setMarginRight(0)
-    gameMapPanel:setMarginTop(0)
+    panel:setImageColor('#7B6A72')
   end
 
-  gameMapPanel:setVisibleDimension({ width = 15, height = 11 })
-  
-  if classic then  
-    gameMapPanel:addAnchor(AnchorLeft, 'gameLeftActionPanel', AnchorRight)
-    gameMapPanel:addAnchor(AnchorRight, 'gameRightActionPanel', AnchorLeft)
-    gameMapPanel:addAnchor(AnchorBottom, 'gameBottomActionPanel', AnchorTop)
-    gameMapPanel:addAnchor(AnchorTop, 'gameTopBar', AnchorBottom)
-    gameMapPanel:setKeepAspectRatio(true)
-    gameMapPanel:setLimitVisibleRange(false)
-    gameMapPanel:setZoom(11)
-    gameMapPanel:setOn(false) -- frame
+  modules.client_topmenu.getTopMenu():setImageColor('#7B6A72')
 
-    modules.client_topmenu.getTopMenu():setImageColor('#7B6A72')
-  
-    if modules.game_console then
-      modules.game_console.switchMode(false)
-    end
-  else
-    gameMapPanel:fill('parent')
-    gameMapPanel:setKeepAspectRatio(false)
-    gameMapPanel:setLimitVisibleRange(false)
-    gameMapPanel:setOn(true)
-    if g_app.isMobile() then
-      gameMapPanel:setZoom(11)
-    else
-      gameMapPanel:setZoom(15)
-    end
-               
-    modules.client_topmenu.getTopMenu():setImageColor('#ffffff66')  
-    if g_app.isMobile() then
-      gameMapPanel:setMarginTop(-32)   
-    end
-    if modules.game_console then
-      modules.game_console.switchMode(true)
-    end
+  if modules.game_console then
+    modules.game_console.switchMode(false)
   end
   if modules.game_actionbar and modules.game_actionbar.switchMode then
-    modules.game_actionbar.switchMode(not classic)
+    modules.game_actionbar.switchMode(false)
   end
   
-  if g_settings.getBoolean("cacheMap") then
-    g_game.enableFeature(GameBiggerMapCache)
-  end
-  
+  g_game.enableFeature(GameBiggerMapCache)
+
+  ensureSidePanelsVisible()
   updateSize()
+  if modules.game_bestiary and modules.game_bestiary.adjustKillToastOverlayMargin then
+    modules.game_bestiary.adjustKillToastOverlayMargin()
+  end
 end
 
 function limitZoom()
@@ -1069,53 +1137,21 @@ end
 function updateSize()
   if g_app.isMobile() then return end
 
-  local classic = g_settings.getBoolean("classicView")
-  local height = gameMapPanel:getHeight()
-  local width = gameMapPanel:getWidth()
-     
-  if not classic then
-    local rheight = gameRootPanel:getHeight()
-    local rwidth = gameRootPanel:getWidth()
-
-    local dimenstion = gameMapPanel:getVisibleDimension()  
-    local zoom = gameMapPanel:getZoom()  
-    local awareRange = g_map.getAwareRange()
-    local dheight = dimenstion.height
-    local dwidth = dimenstion.width
-    local tileSize = rheight / dheight
-    local maxWidth = tileSize * (awareRange.width + 1)
-    if g_game.getFeature(GameChangeMapAwareRange) and g_game.getFeature(GameNewWalking) then
-      maxWidth = tileSize * (awareRange.width - 1)
-    end
-    gameMapPanel:setMarginTop(-tileSize)
-    if modules.game_stats then
-      modules.game_stats.ui:setMarginTop(tileSize)
-    end
-    if modules.game_bestiary and modules.game_bestiary.adjustKillToastOverlayMargin then
-      modules.game_bestiary.adjustKillToastOverlayMargin()
-    end
-    if g_settings.getBoolean("cacheMap") then
-      gameMapPanel:setMarginLeft(0)
-      gameMapPanel:setMarginRight(0)    
-    else
-      local margin = math.max(0, math.floor((rwidth - maxWidth) / 2))
-      gameMapPanel:setMarginLeft(margin)
-      gameMapPanel:setMarginRight(margin)
-    end
-      
-    if modules.game_bot then
-      for i, child in ipairs(gameMapPanel:getChildren()) do
-        if child.botIcon and child.onGeometryChange then
-          child.onGeometryChange(child)
-        end
+  gameMapPanel:setMarginLeft(0)
+  gameMapPanel:setMarginRight(0)
+  gameMapPanel:setMarginTop(0)
+  if modules.game_stats then
+    modules.game_stats.ui:setMarginTop(0)
+  end
+  updateClassicMapView()
+  if modules.game_bestiary and modules.game_bestiary.adjustKillToastOverlayMargin then
+    modules.game_bestiary.adjustKillToastOverlayMargin()
+  end
+  if modules.game_bot then
+    for i, child in ipairs(gameMapPanel:getChildren()) do
+      if child.botIcon and child.onGeometryChange then
+        child.onGeometryChange(child)
       end
-    end
-  else
-    if modules.game_stats then
-      modules.game_stats.ui:setMarginTop(0)
-    end
-    if modules.game_bestiary and modules.game_bestiary.adjustKillToastOverlayMargin then
-      modules.game_bestiary.adjustKillToastOverlayMargin()
     end
   end
   

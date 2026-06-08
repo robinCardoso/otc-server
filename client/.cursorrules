@@ -14,7 +14,7 @@ Rodar o jogo a partir desta pasta (`data/`, `modules/`, `init.lua`).
 
 Login: `127.0.0.1:7171:860` + conta/senha. Assets obrigatórios: `data/things/860/Tibia.dat` e `Tibia.spr` (8.60).
 
-Documentação completa: `docs/README.md`, `docs/BUILD.md`, `docs/TROUBLESHOOTING.md`, `docs/CLIENT-CHANGES.md`, `docs/ASSIGN-SPELL.md`, `docs/SPELL-LIST-MODULE.md` (ponte → `otserv_860/docs/SPELL-LIST-MODULE.md`), `docs/BESTIARY-MODULE.md` (opcode **207** — ponte → `server/docs/BESTIARY-MODULE.md`).
+Documentação completa: `docs/README.md`, `docs/BUILD.md`, `docs/TROUBLESHOOTING.md`, `docs/CLIENT-CHANGES.md`, `docs/VIEWPORT-CLASSIC-VIEW.md` (mapa **25×20** + Classic view), `docs/ASSIGN-SPELL.md`, `docs/SPELL-LIST-MODULE.md` (ponte → `otserv_860/docs/SPELL-LIST-MODULE.md`), `docs/BESTIARY-MODULE.md` (opcode **207** — ponte → `server/docs/BESTIARY-MODULE.md`).
 
 ## Estrutura em C:\8.6\otserv_860\
 
@@ -73,6 +73,7 @@ Não fazer `git pull` no vcpkg sem necessidade. Scripts aplicam/checam:
 - **Assign Spell (opcode 202):** `modules/game_actionbar/actionbar.lua` — lista do TFS. Servidor: `otcv8_spelllist.lua`. `!spelllist`.
 - **Combat Power (opcode 203):** `modules/game_combatpower/` — modal ataque/defesa do TFS. Servidor: `getCombatPreview()`. `!power`. Doc: `docs/COMBAT-POWER-MODULE.md`.
 - **Bestiary (opcode 207):** `modules/game_bestiary/` — catálogo JSON local + kills/looks do TFS. Ctrl+Shift+B. Doc: `docs/BESTIARY-MODULE.md` + `../server/docs/BESTIARY-MODULE.md`.
+- **Viewport 25×20 + Classic view:** servidor e cliente com aware range 12/9/12/10; Classic view = só zoom (`updateClassicMapView`). Doc: `docs/VIEWPORT-CLASSIC-VIEW.md` + `../server/docs/VIEWPORT-MODULE.md`.
 
 Alterações Lua: reiniciar exe. Alterações C++: `.\scripts\build-client.ps1` ou MSBuild.
 
