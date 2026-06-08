@@ -19,6 +19,26 @@ BestiaryCategoryButton < UIButton
     color: #ffd700ff
     border-color: #ffd700ff
 
+BestiaryFilterButton < UIButton
+  height: 24
+  width: 96
+  margin-right: 4
+  background-color: #1a1a1acc
+  border: 1 #2c2c2cff
+  padding: 4
+  text-align: center
+  font: verdana-11px-rounded
+  color: #dfdfdfff
+
+  $hover:
+    background-color: #2c2c2cff
+    color: #ffffffff
+
+  $on:
+    background-color: #2c2c2cee
+    color: #ffd700ff
+    border-color: #ffd700ff
+
 BestiaryMonsterCard < UIWidget
   size: 140 180
   background-color: #111111ee
@@ -29,12 +49,42 @@ BestiaryMonsterCard < UIWidget
     background-color: #1a1a1aee
     border-color: #666666ff
 
+  Label
+    id: name
+    height: 26
+    text-align: center
+    font: verdana-11px-rounded
+    color: #dfdfdfff
+    text-wrap: true
+    anchors.top: parent.top
+    anchors.left: parent.left
+    anchors.right: parent.right
+    margin-top: 2
+    margin-left: 2
+    margin-right: 2
+
+  Label
+    id: difficulty
+    text-align: center
+    font: verdana-11px-rounded
+    text-auto-resize: true
+    anchors.top: name.bottom
+    anchors.horizontalCenter: parent.horizontalCenter
+    margin-top: 2
+    padding-left: 6
+    padding-right: 6
+    padding-top: 2
+    padding-bottom: 2
+    border: 1 #00ffccff
+    color: #00ffccff
+    background-color: #00ffcc22
+
   Panel
     id: spriteBase
-    size: 90 90
-    anchors.top: parent.top
+    size: 86 86
+    anchors.top: difficulty.bottom
     anchors.horizontalCenter: parent.horizontalCenter
-    margin-top: 5
+    margin-top: 4
     image-source: /images/ui/bestiary_base
 
   UICreature
@@ -45,45 +95,16 @@ BestiaryMonsterCard < UIWidget
     focusable: false
     old-scaling: true
 
-  Label
-    id: name
-    text-align: center
-    font: verdana-11px-rounded
-    color: #dfdfdfff
-    text-auto-resize: true
-    anchors.top: spriteBase.bottom
-    anchors.horizontalCenter: parent.horizontalCenter
-    margin-top: 6
-
-  Label
-    id: difficulty
-    text-align: center
-    font: verdana-11px-rounded
-    text-auto-resize: true
-    anchors.top: name.bottom
-    anchors.horizontalCenter: parent.horizontalCenter
-    margin-top: 4
-    padding-left: 6
-    padding-right: 6
-    padding-top: 2
-    padding-bottom: 2
-    border: 1 #00ffccff
-    color: #00ffccff
-    background-color: #00ffcc22
-
   ProgressBar
     id: progress
     height: 4
     background-color: #00ffccff
-    anchors.top: difficulty.bottom
     anchors.bottom: kills.top
-    anchors.horizontalCenter: parent.horizontalCenter
     anchors.left: parent.left
     anchors.right: parent.right
-    margin-top: 10
     margin-left: 6
     margin-right: 6
-    margin-bottom: 6
+    margin-bottom: 4
 
   Label
     id: kills
@@ -93,7 +114,7 @@ BestiaryMonsterCard < UIWidget
     text-auto-resize: true
     anchors.bottom: parent.bottom
     anchors.horizontalCenter: parent.horizontalCenter
-    margin-bottom: 6
+    margin-bottom: 4
 
 BestiaryStatChip < FlatPanel
   height: 42
@@ -301,24 +322,71 @@ MainWindow
     margin-left: 10
     padding: 10
 
-    // Top search bar
+    Panel
+      id: overviewStats
+      width: 132
+      height: 38
+      anchors.top: parent.top
+      anchors.right: parent.right
+
+      Label
+        id: totalPoints
+        !text: tr('Charm Points: 0')
+        font: verdana-11px-rounded
+        color: #ffd700ff
+        text-align: right
+        text-auto-resize: true
+        anchors.top: parent.top
+        anchors.right: parent.right
+
+      Label
+        id: totalProgress
+        !text: tr('Total Kills: 0')
+        font: verdana-11px-rounded
+        color: #00ffccff
+        text-align: right
+        text-auto-resize: true
+        anchors.top: totalPoints.bottom
+        anchors.right: parent.right
+        margin-top: 2
+
     TextEdit
       id: searchEdit
-      width: 250
       height: 22
       anchors.top: parent.top
       anchors.left: parent.left
+      anchors.right: overviewStats.left
+      margin-right: 10
       !placeholder: tr('Search creature...')
       font: verdana-11px-rounded
+      color: #ffffffff
+      selection-color: #ffffffff
+      selection-background-color: #444444ff
+      placeholder-color: #888888ff
 
-    Label
-      id: totalProgress
-      !text: tr('Total Kills: 0')
-      font: verdana-11px-rounded
-      color: #00ffccff
-      anchors.top: parent.top
-      anchors.right: parent.right
-      margin-top: 4
+    Panel
+      id: filterBar
+      height: 26
+      anchors.top: searchEdit.bottom
+      anchors.left: parent.left
+      anchors.right: overviewStats.left
+      margin-top: 6
+      margin-right: 10
+      layout:
+        type: horizontalBox
+        fit-children: true
+
+      BestiaryFilterButton
+        id: filterAll
+        !text: tr('Todos')
+
+      BestiaryFilterButton
+        id: filterCompleted
+        !text: tr('Completados')
+
+      BestiaryFilterButton
+        id: filterProgress
+        !text: tr('Em progresso')
 
     Label
       id: gridStatus
@@ -326,7 +394,7 @@ MainWindow
       font: verdana-11px-rounded
       color: #ccccccff
       text-wrap: true
-      anchors.top: searchEdit.bottom
+      anchors.top: filterBar.bottom
       anchors.left: parent.left
       anchors.right: parent.right
       margin-top: 4

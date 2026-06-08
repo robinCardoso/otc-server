@@ -398,11 +398,18 @@ function Otcv8Bestiary.sendKills(player)
     monstersWithKills
   ))
 
-  return Otcv8Bestiary.sendJSON(player, "sync", killsTable)
+  return Otcv8Bestiary.sendJSON(player, "sync", {
+    kills = killsTable,
+    totalPoints = Otcv8Bestiary.getPoints(player),
+  })
 end
 
 function Otcv8Bestiary.sendSingleKillUpdate(player, name, kills)
-  local ok = Otcv8Bestiary.sendJSON(player, "update", { name = name, kills = kills })
+  local ok = Otcv8Bestiary.sendJSON(player, "update", {
+    name = name,
+    kills = kills,
+    totalPoints = Otcv8Bestiary.getPoints(player),
+  })
   if ok then
     print(string.format("[Otcv8Bestiary] sendUpdate %s: %s = %d", player:getName(), name, kills))
   end

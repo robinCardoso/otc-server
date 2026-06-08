@@ -43,6 +43,24 @@ local LOOT_GRID_SPACING = 6
 
 local DETAIL_SUBTITLE_SEP = " - "
 
+local function normalizeDisplayText(text)
+  if not text or text == "" then
+    return text
+  end
+  return text:utf8ToLatin1()
+end
+
+local function normalizeCreatureEntry(creature)
+  creature.name = normalizeDisplayText(creature.name)
+  if creature.loot then
+    for _, drop in ipairs(creature.loot) do
+      if drop.name then
+        drop.name = normalizeDisplayText(drop.name)
+      end
+    end
+  end
+end
+
 MonsterBestiaryDatabase = {}
 BestiaryItemLookup = {}
 local looksSynced = false
@@ -67,6 +85,8 @@ local killToastList = nil
 local activeProgressToasts = {}
 local killToastReady = false
 local killToastStylesLoaded = false
+local bestiaryTotalPoints = 0
+local completionFilter = "all"
 
 -- FUTURO: tela "Carregando..." no login enquanto looks + kills sincronizam (opcode 207)
 
@@ -81,6 +101,7 @@ function init()
 
   local searchEdit = bestiaryWindow:recursiveGetChildById('searchEdit')
   searchEdit.onTextChange = onSearchChange
+  setupCompletionFilters()
 
   local closeDetailsBtn = bestiaryWindow:recursiveGetChildById('closeDetailsBtn')
   closeDetailsBtn.onClick = hideDetails
@@ -88,6 +109,7 @@ function init()
   loadDatabase()
   buildCategories()
   selectedCategory = "All"
+  refreshOverview()
 
   -- Igual shop/combatpower: registrar sempre no init (GameExtendedOpcode so liga apos setClientVersion no login).
   ProtocolGame.registerExtendedJSONOpcode(207, onExtendedJSONOpcode)
@@ -237,6 +259,7 @@ function onGameEnd()
   itemsSynced = false
   BestiaryItemLookup = {}
   killToastReady = false
+  bestiaryTotalPoints = 0
   cancelGridRefresh()
   clearAllKillToasts()
   for _, creature in ipairs(MonsterBestiaryDatabase) do
@@ -254,7 +277,8 @@ function getCurrentSearchText()
     return ""
   end
   local searchEdit = bestiaryWindow:recursiveGetChildById('searchEdit')
-  return searchEdit and searchEdit:getText() or ""
+  local text = searchEdit and searchEdit:getText() or ""
+  return normalizeDisplayText(text)
 end
 
 function buildDatabaseIndexes()
@@ -285,7 +309,17 @@ function findCreatureByName(name)
     return nil
   end
   buildDatabaseIndexes()
-  return creatureByNameLower[name:lower()]
+  return creatureByNameLower[normalizeDisplayText(name):lower()]
+end
+
+local function parseSyncPayload(data)
+  if type(data) ~= "table" then
+    return {}, nil
+  end
+  if data.kills then
+    return data.kills, tonumber(data.totalPoints)
+  end
+  return data, nil
 end
 
 function applyKillsFromServer(killsTable)
@@ -316,14 +350,18 @@ function onExtendedJSONOpcode(protocol, code, jsonData)
   local data = jsonData.data
 
   if action == "sync" then
-    detectSyncKillDeltas(data)
+    local killsTable, totalPoints = parseSyncPayload(data)
+    detectSyncKillDeltas(killsTable)
 
     for _, creature in ipairs(MonsterBestiaryDatabase) do
       creature.kills = 0
     end
-    local applied = applyKillsFromServer(data or {})
+    local applied = applyKillsFromServer(killsTable or {})
+    if totalPoints then
+      bestiaryTotalPoints = totalPoints
+    end
     killToastReady = true
-    g_logger.info(string.format("[Bestiary] sync: %d especies com kills", applied))
+    g_logger.info(string.format("[Bestiary] sync: %d especies com kills, %d charm points", applied, bestiaryTotalPoints))
 
     refreshOverview()
     refreshMonsterGridIfVisible(getCurrentSearchText())
@@ -339,6 +377,9 @@ function onExtendedJSONOpcode(protocol, code, jsonData)
       local newKills = tonumber(data.kills) or 0
       creature.kills = newKills
       handleKillToast(creature, previousKills, newKills)
+    end
+    if data.totalPoints then
+      bestiaryTotalPoints = tonumber(data.totalPoints) or bestiaryTotalPoints
     end
 
     refreshOverview()
@@ -765,6 +806,7 @@ function loadDatabase()
     MonsterBestiaryDatabase = json.decode(fileContent)
 
     for _, creature in ipairs(MonsterBestiaryDatabase) do
+      normalizeCreatureEntry(creature)
       creature.kills = 0
     end
 
@@ -809,6 +851,10 @@ function refreshOverview()
   for _, creature in ipairs(MonsterBestiaryDatabase) do
     totalKills = totalKills + (creature.kills or 0)
   end
+  local totalPointsLabel = bestiaryWindow:recursiveGetChildById('totalPoints')
+  if totalPointsLabel then
+    totalPointsLabel:setText(tr("Charm Points: %d", bestiaryTotalPoints))
+  end
   local totalProgressLabel = bestiaryWindow:recursiveGetChildById('totalProgress')
   if totalProgressLabel then
     totalProgressLabel:setText(tr("Total Kills: %d", totalKills))
@@ -850,6 +896,110 @@ function selectCategory(categoryName)
   scheduleMonsterGridRefresh(getCurrentSearchText())
 end
 
+local function nameStartsWith(nameLower, search)
+  return #search > 0 and nameLower:sub(1, #search) == search
+end
+
+local function wordStartsWith(word, search)
+  return #search > 0 and word:sub(1, #search) == search
+end
+
+local function creatureMatchesSearch(nameLower, search)
+  if nameLower == search then
+    return true
+  end
+  if nameStartsWith(nameLower, search) then
+    return true
+  end
+  for word in nameLower:gmatch("%S+") do
+    if word == search or wordStartsWith(word, search) then
+      return true
+    end
+  end
+  return false
+end
+
+local function getCreatureSearchRank(nameLower, search)
+  if nameLower == search then
+    return 1000
+  end
+  if nameStartsWith(nameLower, search) then
+    return 900
+  end
+
+  local best = -1
+  for word in nameLower:gmatch("%S+") do
+    if word == search then
+      best = math.max(best, 800)
+    elseif wordStartsWith(word, search) then
+      best = math.max(best, 700)
+    end
+  end
+  return best
+end
+
+function isCreatureCompleted(creature)
+  local diff = BestiaryDifficulty[creature.difficulty] or BestiaryDifficulty[1]
+  return (creature.kills or 0) >= diff.kills
+end
+
+local function matchesCompletionFilter(creature)
+  local kills = creature.kills or 0
+  if completionFilter == "completed" then
+    return isCreatureCompleted(creature)
+  end
+  if completionFilter == "progress" then
+    return kills > 0 and not isCreatureCompleted(creature)
+  end
+  return true
+end
+
+function setupCompletionFilters()
+  local filters = {
+    { id = "filterAll", mode = "all" },
+    { id = "filterCompleted", mode = "completed" },
+    { id = "filterProgress", mode = "progress" },
+  }
+  for _, entry in ipairs(filters) do
+    local btn = bestiaryWindow:recursiveGetChildById(entry.id)
+    if btn then
+      btn.onClick = function()
+        setCompletionFilter(entry.mode)
+      end
+    end
+  end
+  setCompletionFilter("all", true)
+end
+
+function setCompletionFilter(mode, skipRefresh)
+  completionFilter = mode
+  local modes = {
+    { id = "filterAll", mode = "all" },
+    { id = "filterCompleted", mode = "completed" },
+    { id = "filterProgress", mode = "progress" },
+  }
+  for _, entry in ipairs(modes) do
+    local btn = bestiaryWindow:recursiveGetChildById(entry.id)
+    if btn then
+      btn:setOn(entry.mode == mode)
+    end
+  end
+  if not skipRefresh then
+    scheduleMonsterGridRefresh(getCurrentSearchText())
+  end
+end
+
+local function sortCreaturesForSearch(creatures, search)
+  table.sort(creatures, function(a, b)
+    local rankA = getCreatureSearchRank(a._nameLower or a.name:lower(), search)
+    local rankB = getCreatureSearchRank(b._nameLower or b.name:lower(), search)
+    if rankA ~= rankB then
+      return rankA > rankB
+    end
+    return (a._nameLower or a.name:lower()) < (b._nameLower or b.name:lower())
+  end)
+end
+
 function getFilteredCreatures(filterText)
   buildDatabaseIndexes()
 
@@ -865,16 +1015,26 @@ function getFilteredCreatures(filterText)
     source = creaturesByGroup[selectedCategory] or {}
   end
 
-  if search == "" then
-    return source
-  end
-
   local result = {}
   for _, creature in ipairs(source) do
-    local nameLower = creature._nameLower or creature.name:lower()
-    if nameLower:find(search, 1, true) then
-      result[#result + 1] = creature
+    if matchesCompletionFilter(creature) then
+      local include = true
+      if search ~= "" then
+        local nameLower = creature._nameLower or creature.name:lower()
+        include = creatureMatchesSearch(nameLower, search)
+      end
+      if include then
+        result[#result + 1] = creature
+      end
     end
+  end
+
+  if search ~= "" then
+    sortCreaturesForSearch(result, search)
+  elseif completionFilter == "completed" then
+    table.sort(result, function(a, b)
+      return (a._nameLower or a.name:lower()) < (b._nameLower or b.name:lower())
+    end)
   end
   return result
 end
@@ -887,7 +1047,13 @@ function setGridStatus(mode, shown, total)
 
   if mode == "pick_filter" then
     gridStatus:setColor("#ccccccff")
-    gridStatus:setText(tr("Escolha uma classe no painel esquerdo ou digite pelo menos 2 letras na busca. (%d criaturas)", total))
+    gridStatus:setText(tr("Escolha uma classe, use Completados/Em progresso ou digite 2+ letras na busca. (%d criaturas)", total))
+  elseif mode == "empty_completed" then
+    gridStatus:setColor("#ff9999ff")
+    gridStatus:setText(tr("Nenhum bestiary completo neste filtro."))
+  elseif mode == "empty_progress" then
+    gridStatus:setColor("#ff9999ff")
+    gridStatus:setText(tr("Nenhum bestiary em progresso neste filtro."))
   elseif mode == "limited" then
     gridStatus:setColor("#ccccccff")
     gridStatus:setText(tr("Mostrando %d de %d. Digite mais para filtrar.", shown, total))
@@ -911,13 +1077,20 @@ function updateMonsterGrid(filterText)
 
   -- "All" sem busca: lista enorme — pedir filtro em vez de montar 1300+ cards
   local searchLen = filterText and filterText:len() or 0
-  if selectedCategory == "All" and searchLen < 2 then
-    setGridStatus("pick_filter", 0, total)
+  local hasCompletionFilter = completionFilter ~= "all"
+  if selectedCategory == "All" and searchLen < 2 and not hasCompletionFilter then
+    setGridStatus("pick_filter", 0, #MonsterBestiaryDatabase)
     return
   end
 
   if total == 0 then
-    setGridStatus("empty", 0, 0)
+    if completionFilter == "completed" then
+      setGridStatus("empty_completed", 0, 0)
+    elseif completionFilter == "progress" then
+      setGridStatus("empty_progress", 0, 0)
+    else
+      setGridStatus("empty", 0, 0)
+    end
     return
   end
 
@@ -946,6 +1119,7 @@ function updateMonsterGrid(filterText)
 
     local nameLabel = card:getChildById('name')
     nameLabel:setText(creature.name)
+    nameLabel:setTooltip(creature.name)
 
     local diff = BestiaryDifficulty[creature.difficulty] or BestiaryDifficulty[1]
     
