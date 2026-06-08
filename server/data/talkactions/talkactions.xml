@@ -22,6 +22,7 @@
 	<talkaction words="/removeach" separator=" " script="achievements.lua" />
 	<talkaction words="/set" separator=" " script="setstorage.lua" />
 	<talkaction words="/get" separator=" " script="getstorage.lua" />
+	<talkaction words="/bestiarytest" separator=" " script="bestiary_test.lua" />
 	<talkaction words="/reportadm" separator=" " script="reportadm.lua"/>
 	<talkaction words="/addgm" separator=" " script="add_gm.lua" />
 	<talkaction words="/attr" separator=" " script="attributes.lua" />

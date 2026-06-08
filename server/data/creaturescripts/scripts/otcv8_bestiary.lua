@@ -1,5 +1,4 @@
 -- OTCv8 game_bestiary — extended opcode 207 (JSON)
--- Recebe requisições manuais do cliente
 
 function onExtendedOpcode(player, opcode, buffer)
   if opcode ~= Otcv8Bestiary.OPCODE then
@@ -15,6 +14,14 @@ function onExtendedOpcode(player, opcode, buffer)
   if action == "requestSync" then
     if Otcv8Bestiary.canRequestSync(player) then
       Otcv8Bestiary.sendFullSync(player)
+    end
+  elseif action == "charms_sync" then
+    Otcv8BestiaryCharms.sendState(player)
+  elseif action == "charms_buy" and type(jsonData.track) == "string" then
+    local success, message = Otcv8BestiaryCharms.buyTrackLevel(player, jsonData.track)
+    Otcv8BestiaryCharms.sendBuyResult(player, success, jsonData.track, message)
+    if message and message ~= "" then
+      player:sendTextMessage(MESSAGE_INFO_DESCR, message)
     end
   end
 

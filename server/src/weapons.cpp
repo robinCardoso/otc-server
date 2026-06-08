@@ -22,6 +22,7 @@
 #include "combat.h"
 #include "configmanager.h"
 #include "game.h"
+#include "otcv8charms.h"
 #include "pugicast.h"
 #include "weapons.h"
 
@@ -379,6 +380,11 @@ void Weapon::internalUseWeapon(Player* player, Item* item, Creature* target, int
 		damage.primary.value = (getWeaponDamage(player, target, item) * damageModifier) / 100;
 		damage.secondary.type = getElementType();
 		damage.secondary.value = getElementDamage(player, target, item);
+		const bool isDistance = (weaponType == WEAPON_AMMO || weaponType == WEAPON_DISTANCE);
+		damage.primary.value = Otcv8Charms::applyOutgoingDamage(player, damage.primary.value, damage.primary.type, isDistance);
+		if (damage.secondary.value < 0) {
+			damage.secondary.value = Otcv8Charms::applyOutgoingDamage(player, damage.secondary.value, damage.secondary.type, isDistance);
+		}
 		Combat::doCombatHealth(player, target, damage, params);
 	}
 

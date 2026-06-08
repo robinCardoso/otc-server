@@ -64,6 +64,11 @@ sequenceDiagram
 | **207** | Servidor → cliente | `{ "action": "items", "data": { "2148": { "c": 3031, "n": "gold coin" }, ... } }` (lotes) |
 | **207** | Servidor → cliente | `{ "action": "itemsDone", "data": { "total": 1234 } }` |
 | **207** | Servidor → cliente | `{ "action": "looks", "data": { "v": 1, "names": [], "types": [], "aux": [] } }` |
+| **207** | Cliente → servidor | `{ "action": "charms_sync" }` |
+| **207** | Cliente → servidor | `{ "action": "charms_buy", "track": "melee" }` |
+| **207** | Servidor → cliente | `{ "action": "charms_state", "data": { "totalPoints": 42, "tracks": { "melee": 8, ... } } }` |
+| **207** | Servidor → cliente | `{ "action": "charms_buy_result", "data": { "ok": true, "track": "melee", "level": 9, "totalPoints": 33, "tracks": {...}, "message": "..." } }` |
+| **207** | Servidor → cliente | `sync` / `update` incluem `totalPoints` e `charms` (mapa de níveis por trilha) quando disponível |
 
 **Requisitos:**
 
@@ -203,7 +208,7 @@ Log saudável após kill: `[Bestiary] toast: Rotworm 5/25` + sprite visível no 
 | Arquivo | Função |
 |---------|--------|
 | `modules/game_bestiary/bestiary.lua` | UI, opcode 207, índices, grid, detalhes, sync, **kill toasts** |
-| `modules/game_bestiary/bestiary.otui` | Layout modal 780×480, cards, painel detalhes |
+| `modules/game_bestiary/bestiary.otui` | Layout modal 800×520, abas, Charms, cards, painel detalhes |
 | `modules/game_bestiary/bestiary_killtoast.otui` | Overlay de toasts no mapa |
 | `modules/game_bestiary/bestiary.otmod` | `autoload: true`, depende de `game_interface` |
 | `modules/game_bestiary/bestiary_database.json` | Catálogo estático (**não deletar**) |
@@ -216,14 +221,71 @@ Log saudável após kill: `[Bestiary] toast: Rotworm 5/25` + sprite visível no 
 
 ---
 
+## Charms — upgrades permanentes (opcode 207)
+
+Compra de bônus de **ataque** com **Charm Points** (storage `149999` no servidor). UI na aba **Charms**; combate aplica bônus no TFS (C++ — ver doc servidor).
+
+### Trilhas (Fase 1 — ataque)
+
+| ID `track` | Efeito | Cap |
+|------------|--------|-----|
+| `melee` | +1% dano físico melee (sword, axe, club) por nível | 20% |
+| `distance` | +1% dano distance (bow, crossbow, throw) | 20% |
+| `magic_fire` … `magic_death` | +1% dano da magia do elemento | 20% / elem |
+
+Elementos mágicos: `magic_physical`, `magic_earth`, `magic_fire`, `magic_ice`, `magic_energy`, `magic_holy`, `magic_death`.
+
+### Custo por nível (espelhado em `CHARM_COST_TIERS` no Lua)
+
+| Próximo nível | Custo (pts) |
+|---------------|-------------|
+| 1–5 | 25 |
+| 6–10 | 50 |
+| 11–15 | 100 |
+| 16–20 | 200 |
+
+Maxar uma trilha: **1.875 pts**. Ver tabela completa em [`ideias para BESTIARY.md`](ideias%20para%20BESTIARY.md).
+
+### Fluxo cliente
+
+```mermaid
+sequenceDiagram
+  participant UI as bestiary.lua
+  participant TFS as otcv8_bestiary.lua
+  UI->>TFS: charms_sync (aba Charms / login)
+  TFS->>UI: charms_state ou sync.charms
+  UI->>TFS: charms_buy track=melee
+  TFS->>UI: charms_buy_result + totalPoints
+```
+
+| Função Lua | Papel |
+|------------|-------|
+| `setMainTab` | Alterna Catálogo / Charms / Conquistas |
+| `initCharmsUI` / `refreshCharmsUI` | Monta cards e barra de progresso |
+| `buyCharmTrack(trackId)` | Envia `charms_buy` |
+| `requestCharmsSync` | Envia `charms_sync` |
+| `applyCharmsState` | Atualiza `charmTrackLevels` + labels |
+| `handleCharmsBuyResult` | Feedback + refresh após compra |
+
+Widgets OTUI: `BestiaryCharmRow`, `BestiaryCharmRowSmall`, `charmsPanel`, `charmCategoryList`.
+
+Sidebar Charms: **Ataque** (ativo), Resistência / Loot / Cap desabilitados ("Em breve").
+
+---
+
 ## Layout da UI
 
-### Janela principal (`MainWindow` 780×480)
+### Janela principal (`MainWindow` 800×520)
 
 | Área | Widget OTUI | Descrição |
 |------|-------------|-----------|
-| Sidebar | `categoryList` | Botões `BestiaryCategoryButton` por `creature.group` |
-| Topo direito | `totalProgress` | **Total Kills:** soma de todos os abates |
+| Topo | `topTabBar` | Abas **Catálogo** \| **Charms** \| **Conquistas** (última desabilitada) |
+| Topo direito | `overviewStats` | **Charm Points** + **Total Kills** (fixos em todas as abas) |
+| Corpo | `bodyPanel` | Sidebar 180 px + conteúdo principal |
+| Catálogo — sidebar | `categoryList` | Botões `BestiaryCategoryButton` por `creature.group` |
+| Charms — sidebar | `charmCategoryList` | Categorias de upgrade (Ataque default) |
+| Catálogo — main | `catalogPanel` | Busca, filtros, grid |
+| Charms — main | `charmsPanel` | Melee, Distance, grid elemental |
 | Busca | `searchEdit` | Filtro por nome (debounce 200 ms) |
 | Status | `gridStatus` | Mensagens de filtro / limite / vazio |
 | Grid | `monsterGrid` | Cards `BestiaryMonsterCard` (grid 140×175, max **96** visíveis) |
@@ -324,7 +386,8 @@ Log esperado após login: `[Bestiary] Mapa de itens sincronizado: N entradas` (a
 |--------|-------|
 | `loadDatabase()` | `json.decode` do arquivo local; zera kills |
 | `buildDatabaseIndexes()` | `creatureByNameLower`, `creaturesByGroup` (lazy, uma vez) |
-| `onExtendedJSONOpcode` | Dispatch `sync` / `update` / `looks` / `items` / `itemsDone` |
+| `onExtendedJSONOpcode` | Dispatch `sync` / `update` / `looks` / `items` / `itemsDone` / `charms_state` / `charms_buy_result` |
+| `setMainTab` / `refreshCharmsUI` / `buyCharmTrack` | Aba Charms e compra de upgrades |
 | `mergeItemsFromServer` | Mescla lote em `BestiaryItemLookup` |
 | `finalizeItemsFromServer` | Após `itemsDone`; log + re-render loot |
 | `resolveDropItem` | serverId/nome → `{ clientId, name }` via mapa do servidor |
@@ -441,7 +504,7 @@ Itens já anotados no código ou identificados em testes:
 
 4. **Opcode separado para looks (208?)** — evita corrida S/P/E no mesmo 207 que `sync`/`update`.
 5. **Enviar looks só ao abrir Bestiary** — reduz tráfego no login.
-6. **Bestiary points / charm** — usar campo `points` em `BestiaryDifficulty` (gameplay Tibia oficial).
+6. ~~**Bestiary points / charm**~~ — **Fase 1 ataque** implementada (aba Charms + opcode 207); resist/loot/cap pendentes.
 7. **Sync parcial de kills** — enviar só espécies com kills &gt; 0 (já feito no `sendKills`; manter ao escalar).
 8. **Atualizar JSON a partir do TFS** — script export HP/loot/resist do `MonsterType` para manter JSON alinhado.
 
@@ -476,6 +539,8 @@ Itens já anotados no código ou identificados em testes:
 8. Completar 25/25 → toast dourado *Bestiary completo!*
 9. Opções → Game → desligar **Bestiary kill notifications** → sem toasts.
 10. Opções → Game → **Bestiary toast lines** (1–10) → testar 6ª espécie expulsando a mais antiga.
+11. Aba **Charms** → ver Melee/Distance/elementos → **Comprar +1%** (requer Charm Points e TFS recompilado para dano).
+12. Após compra: barra sobe, pontos descontam, mensagem no chat (servidor).
 
 ---
 

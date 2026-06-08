@@ -22,6 +22,7 @@
 #include "combat.h"
 
 #include "game.h"
+#include "otcv8charms.h"
 #include "weapons.h"
 #include "configmanager.h"
 #include "events.h"
@@ -78,6 +79,12 @@ CombatDamage Combat::getCombatDamage(Creature* creature, Creature* target) const
 					);
 				}
 			}
+		}
+	}
+
+	if (Player* player = creature ? creature->getPlayer() : nullptr) {
+		if (formulaType == COMBAT_FORMULA_LEVELMAGIC && damage.primary.value < 0) {
+			damage.primary.value = Otcv8Charms::applyOutgoingDamage(player, damage.primary.value, damage.primary.type, false);
 		}
 	}
 	return damage;

@@ -39,6 +39,90 @@ BestiaryFilterButton < UIButton
     color: #ffd700ff
     border-color: #ffd700ff
 
+BestiaryMainTab < BestiaryFilterButton
+  width: 110
+  height: 26
+  margin-right: 6
+
+BestiaryCharmBuyButton < BestiaryFilterButton
+  width: 96
+  height: 24
+  text-align: center
+
+BestiaryCharmRow < FlatPanel
+  height: 92
+  background-color: #111111ee
+  border: 1 #444444ff
+  padding: 8
+
+  Panel
+    id: trackHeader
+    height: 18
+    anchors.top: parent.top
+    anchors.left: parent.left
+    anchors.right: parent.right
+
+    UIWidget
+      id: trackIcon
+      size: 18 18
+      visible: false
+      anchors.left: parent.left
+      anchors.verticalCenter: parent.verticalCenter
+      image-source: /images/ui/bestiary_elements
+      image-smooth: false
+
+    Label
+      id: trackTitle
+      font: verdana-11px-rounded
+      color: #ffd700ff
+      text-auto-resize: true
+      anchors.left: parent.left
+      anchors.right: trackLevel.left
+      anchors.verticalCenter: parent.verticalCenter
+      margin-right: 8
+
+    Label
+      id: trackLevel
+      font: verdana-11px-rounded
+      color: #dfdfdfff
+      text-auto-resize: true
+      anchors.right: parent.right
+      anchors.verticalCenter: parent.verticalCenter
+
+  ProgressBar
+    id: trackProgress
+    height: 8
+    background-color: #ffd700ff
+    border: 1 #333333ff
+    anchors.top: trackHeader.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    margin-top: 6
+
+  Panel
+    id: trackFooter
+    height: 26
+    anchors.top: trackProgress.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    margin-top: 8
+
+    BestiaryCharmBuyButton
+      id: trackBuy
+      !text: tr('Comprar +1%')
+      anchors.right: parent.right
+      anchors.verticalCenter: parent.verticalCenter
+
+    Label
+      id: trackCost
+      font: verdana-11px-rounded
+      color: #aaaaaaff
+      text-auto-resize: true
+      anchors.left: parent.left
+      anchors.right: parent.right
+      anchors.verticalCenter: parent.verticalCenter
+      margin-right: 102
+
 BestiaryMonsterCard < UIWidget
   size: 140 180
   background-color: #111111ee
@@ -250,7 +334,7 @@ BestiaryLootSlot < FlatPanel
 MainWindow
   id: bestiaryWindow
   !text: tr('Bestiary')
-  size: 780 480
+  size: 800 520
   anchors.centerIn: parent
   @onEscape: modules.game_bestiary.hide()
 
@@ -273,15 +357,83 @@ MainWindow
 
     @onClick: modules.game_bestiary.hide()
 
+  Panel
+    id: overviewStats
+    width: 148
+    height: 38
+    anchors.top: parent.top
+    anchors.right: parent.right
+    margin-top: 26
+    margin-right: 10
+
+    Label
+      id: totalPoints
+      !text: tr('Charm Points: 0')
+      font: verdana-11px-rounded
+      color: #ffd700ff
+      text-align: right
+      text-auto-resize: true
+      anchors.top: parent.top
+      anchors.right: parent.right
+
+    Label
+      id: totalProgress
+      !text: tr('Total Kills: 0')
+      font: verdana-11px-rounded
+      color: #00ffccff
+      text-align: right
+      text-auto-resize: true
+      anchors.top: totalPoints.bottom
+      anchors.right: parent.right
+      margin-top: 2
+
+  Panel
+    id: topTabBar
+    height: 28
+    anchors.top: parent.top
+    anchors.left: parent.left
+    anchors.right: overviewStats.left
+    margin-top: 24
+    margin-left: 8
+    margin-right: 8
+    layout:
+      type: horizontalBox
+      fit-children: true
+
+    BestiaryMainTab
+      id: tabCatalog
+      !text: tr('Catalogo')
+      tooltip: tr('Catalogo de criaturas')
+
+    BestiaryMainTab
+      id: tabCharms
+      !text: tr('Charms')
+
+    BestiaryMainTab
+      id: tabAchievements
+      !text: tr('Conquistas')
+      enabled: false
+      opacity: 0.5
+
+  Panel
+    id: bodyPanel
+    anchors.top: topTabBar.bottom
+    anchors.bottom: parent.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    margin-top: 6
+    margin-left: 8
+    margin-right: 8
+    margin-bottom: 8
+
   FlatPanel
     id: sidebar
     width: 180
     background-color: #0a0a0acc
     border: 1 #1e1e1eff
-    anchors.top: parent.top
-    anchors.bottom: parent.bottom
-    anchors.left: parent.left
-    margin-right: 10
+    anchors.top: bodyPanel.top
+    anchors.bottom: bodyPanel.bottom
+    anchors.left: bodyPanel.left
     padding: 8
 
     Label
@@ -311,52 +463,53 @@ MainWindow
       step: 14
       pixels-scroll: true
 
+    Label
+      id: charmsSidebarTitle
+      !text: tr('CHARM UPGRADES')
+      font: verdana-11px-rounded
+      color: #ffd700ff
+      visible: false
+      anchors.top: parent.top
+      anchors.horizontalCenter: parent.horizontalCenter
+
+    TextList
+      id: charmCategoryList
+      visible: false
+      anchors.top: charmsSidebarTitle.bottom
+      anchors.bottom: parent.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      margin-top: 8
+      vertical-scrollbar: charmCategoryScrollBar
+      focusable: false
+      border-width: 0
+
+    VerticalScrollBar
+      id: charmCategoryScrollBar
+      visible: false
+      anchors.top: charmCategoryList.top
+      anchors.bottom: charmCategoryList.bottom
+      anchors.right: parent.right
+      step: 14
+      pixels-scroll: true
+
   FlatPanel
-    id: mainContent
+    id: catalogPanel
     background-color: #0a0a0acc
     border: 1 #1e1e1eff
-    anchors.top: parent.top
-    anchors.bottom: parent.bottom
+    anchors.top: bodyPanel.top
+    anchors.bottom: bodyPanel.bottom
     anchors.left: sidebar.right
-    anchors.right: parent.right
+    anchors.right: bodyPanel.right
     margin-left: 10
     padding: 10
-
-    Panel
-      id: overviewStats
-      width: 132
-      height: 38
-      anchors.top: parent.top
-      anchors.right: parent.right
-
-      Label
-        id: totalPoints
-        !text: tr('Charm Points: 0')
-        font: verdana-11px-rounded
-        color: #ffd700ff
-        text-align: right
-        text-auto-resize: true
-        anchors.top: parent.top
-        anchors.right: parent.right
-
-      Label
-        id: totalProgress
-        !text: tr('Total Kills: 0')
-        font: verdana-11px-rounded
-        color: #00ffccff
-        text-align: right
-        text-auto-resize: true
-        anchors.top: totalPoints.bottom
-        anchors.right: parent.right
-        margin-top: 2
 
     TextEdit
       id: searchEdit
       height: 22
       anchors.top: parent.top
       anchors.left: parent.left
-      anchors.right: overviewStats.left
-      margin-right: 10
+      anchors.right: parent.right
       !placeholder: tr('Search creature...')
       font: verdana-11px-rounded
       color: #ffffffff
@@ -369,9 +522,8 @@ MainWindow
       height: 26
       anchors.top: searchEdit.bottom
       anchors.left: parent.left
-      anchors.right: overviewStats.left
+      anchors.right: parent.right
       margin-top: 6
-      margin-right: 10
       layout:
         type: horizontalBox
         fit-children: true
@@ -399,7 +551,6 @@ MainWindow
       anchors.right: parent.right
       margin-top: 4
 
-    // Grid of monsters
     ScrollablePanel
       id: monsterGrid
       anchors.top: gridStatus.bottom
@@ -421,6 +572,160 @@ MainWindow
       anchors.right: parent.right
       step: 30
       pixels-scroll: true
+
+  FlatPanel
+    id: charmsPanel
+    visible: false
+    background-color: #0a0a0acc
+    border: 1 #1e1e1eff
+    anchors.top: bodyPanel.top
+    anchors.bottom: bodyPanel.bottom
+    anchors.left: sidebar.right
+    anchors.right: bodyPanel.right
+    margin-left: 10
+    padding: 10
+
+    Label
+      id: charmsSectionTitle
+      !text: tr('ATAQUE')
+      font: verdana-11px-rounded
+      color: #ffd700ff
+      anchors.top: parent.top
+      anchors.left: parent.left
+
+    Label
+      id: charmsStatus
+      !text: ''
+      font: verdana-11px-rounded
+      color: #ccccccff
+      text-wrap: true
+      anchors.top: charmsSectionTitle.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      margin-top: 4
+      margin-right: 4
+
+    ScrollablePanel
+      id: charmsScroll
+      anchors.top: charmsStatus.bottom
+      anchors.bottom: parent.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      margin-top: 8
+      margin-right: 2
+      padding-right: 6
+      vertical-scrollbar: charmsScrollBar
+
+      Panel
+        id: charmsTrackContainer
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+        height: 920
+
+        BestiaryCharmRow
+          id: charmRowMelee
+          anchors.top: parent.top
+          anchors.left: parent.left
+          anchors.right: parent.right
+
+        BestiaryCharmRow
+          id: charmRowDistance
+          anchors.top: charmRowMelee.bottom
+          anchors.left: parent.left
+          anchors.right: parent.right
+          margin-top: 8
+
+        Label
+          id: charmsMagicTitle
+          !text: tr('Magia elemental')
+          font: verdana-11px-rounded
+          color: #ffd700ff
+          anchors.top: charmRowDistance.bottom
+          anchors.left: parent.left
+          margin-top: 12
+
+        BestiaryCharmRow
+          id: charmRowMagicPhysical
+          anchors.top: charmsMagicTitle.bottom
+          anchors.left: parent.left
+          anchors.right: parent.right
+          margin-top: 8
+
+        BestiaryCharmRow
+          id: charmRowMagicEarth
+          anchors.top: charmRowMagicPhysical.bottom
+          anchors.left: parent.left
+          anchors.right: parent.right
+          margin-top: 8
+
+        BestiaryCharmRow
+          id: charmRowMagicFire
+          anchors.top: charmRowMagicEarth.bottom
+          anchors.left: parent.left
+          anchors.right: parent.right
+          margin-top: 8
+
+        BestiaryCharmRow
+          id: charmRowMagicIce
+          anchors.top: charmRowMagicFire.bottom
+          anchors.left: parent.left
+          anchors.right: parent.right
+          margin-top: 8
+
+        BestiaryCharmRow
+          id: charmRowMagicEnergy
+          anchors.top: charmRowMagicIce.bottom
+          anchors.left: parent.left
+          anchors.right: parent.right
+          margin-top: 8
+
+        BestiaryCharmRow
+          id: charmRowMagicHoly
+          anchors.top: charmRowMagicEnergy.bottom
+          anchors.left: parent.left
+          anchors.right: parent.right
+          margin-top: 8
+
+        BestiaryCharmRow
+          id: charmRowMagicDeath
+          anchors.top: charmRowMagicHoly.bottom
+          anchors.left: parent.left
+          anchors.right: parent.right
+          margin-top: 8
+
+    VerticalScrollBar
+      id: charmsScrollBar
+      anchors.top: charmsScroll.top
+      anchors.bottom: charmsScroll.bottom
+      anchors.right: parent.right
+      step: 20
+      pixels-scroll: true
+
+  FlatPanel
+    id: achievementsPanel
+    visible: false
+    background-color: #0a0a0acc
+    border: 1 #1e1e1eff
+    anchors.top: bodyPanel.top
+    anchors.bottom: bodyPanel.bottom
+    anchors.left: sidebar.right
+    anchors.right: bodyPanel.right
+    margin-left: 10
+    padding: 10
+
+    Label
+      !text: tr('Em breve — conquistas por Total Kills.')
+      font: verdana-11px-rounded
+      color: #888888ff
+      anchors.centerIn: parent
+
+  // legacy alias for enable/disable
+  UIWidget
+    id: mainContent
+    visible: false
+    size: 0 0
+    phantom: true
 
   // Bloqueia cliques na sidebar/grid enquanto detalhes estao abertos
   UIWidget

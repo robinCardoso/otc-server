@@ -87,6 +87,36 @@ local killToastReady = false
 local killToastStylesLoaded = false
 local bestiaryTotalPoints = 0
 local completionFilter = "all"
+local mainTab = "catalog"
+local selectedCharmCategory = "attack"
+local charmTrackLevels = {}
+
+local CHARM_MAX_LEVEL = 20
+local CHARM_COST_TIERS = {
+  { maxLevel = 5, cost = 25 },
+  { maxLevel = 10, cost = 50 },
+  { maxLevel = 15, cost = 100 },
+  { maxLevel = 20, cost = 200 },
+}
+
+local CHARM_ATTACK_TRACKS = {
+  { id = "melee", title = "Ataque Melee", tooltip = "+1%% de dano com sword, axe e club por nivel comprado.", otuiRow = "charmRowMelee" },
+  { id = "distance", title = "Ataque Distance", tooltip = "+1%% de dano com bow, crossbow e throw por nivel comprado.", otuiRow = "charmRowDistance" },
+  { id = "magic_physical", title = "Magia Fisico", tooltip = "+1%% de dano magico do elemento Fisico por nivel.", element = "physical", otuiRow = "charmRowMagicPhysical" },
+  { id = "magic_earth", title = "Magia Terra", tooltip = "+1%% de dano magico do elemento Terra por nivel.", element = "earth", otuiRow = "charmRowMagicEarth" },
+  { id = "magic_fire", title = "Magia Fogo", tooltip = "+1%% de dano magico do elemento Fogo por nivel.", element = "fire", otuiRow = "charmRowMagicFire" },
+  { id = "magic_ice", title = "Magia Gelo", tooltip = "+1%% de dano magico do elemento Gelo por nivel.", element = "ice", otuiRow = "charmRowMagicIce" },
+  { id = "magic_energy", title = "Magia Energy", tooltip = "+1%% de dano magico do elemento Energy por nivel.", element = "energy", otuiRow = "charmRowMagicEnergy" },
+  { id = "magic_holy", title = "Magia Sagrado", tooltip = "+1%% de dano magico do elemento Sagrado por nivel.", element = "holy", otuiRow = "charmRowMagicHoly" },
+  { id = "magic_death", title = "Magia Death", tooltip = "+1%% de dano magico do elemento Death por nivel.", element = "death", otuiRow = "charmRowMagicDeath" },
+}
+
+local CHARM_SIDEBAR_CATEGORIES = {
+  { id = "attack", label = "Ataque" },
+  { id = "resist", label = "Resistencia (Em breve)", disabled = true, tooltip = "Upgrades de resistencia — em desenvolvimento." },
+  { id = "loot", label = "Loot (Em breve)", disabled = true, tooltip = "Upgrades de chance de loot — em desenvolvimento." },
+  { id = "cap", label = "Cap (Em breve)", disabled = true, tooltip = "Upgrades de capacidade — em desenvolvimento." },
+}
 
 -- FUTURO: tela "Carregando..." no login enquanto looks + kills sincronizam (opcode 207)
 
@@ -102,6 +132,9 @@ function init()
   local searchEdit = bestiaryWindow:recursiveGetChildById('searchEdit')
   searchEdit.onTextChange = onSearchChange
   setupCompletionFilters()
+  setupMainTabs()
+  setupCharmSidebar()
+  initCharmsUI()
 
   local closeDetailsBtn = bestiaryWindow:recursiveGetChildById('closeDetailsBtn')
   closeDetailsBtn.onClick = hideDetails
@@ -110,6 +143,7 @@ function init()
   buildCategories()
   selectedCategory = "All"
   refreshOverview()
+  setMainTab("catalog", true)
 
   -- Igual shop/combatpower: registrar sempre no init (GameExtendedOpcode so liga apos setClientVersion no login).
   ProtocolGame.registerExtendedJSONOpcode(207, onExtendedJSONOpcode)
@@ -158,12 +192,16 @@ function setMainBestiaryInputEnabled(enabled)
   end
 
   local sidebar = bestiaryWindow:recursiveGetChildById('sidebar')
-  local mainContent = bestiaryWindow:recursiveGetChildById('mainContent')
+  local catalogPanel = bestiaryWindow:recursiveGetChildById('catalogPanel')
+  local charmsPanel = bestiaryWindow:recursiveGetChildById('charmsPanel')
   if sidebar then
     sidebar:setEnabled(enabled)
   end
-  if mainContent then
-    mainContent:setEnabled(enabled)
+  if catalogPanel then
+    catalogPanel:setEnabled(enabled)
+  end
+  if charmsPanel then
+    charmsPanel:setEnabled(enabled)
   end
 end
 
@@ -260,6 +298,7 @@ function onGameEnd()
   BestiaryItemLookup = {}
   killToastReady = false
   bestiaryTotalPoints = 0
+  charmTrackLevels = {}
   cancelGridRefresh()
   clearAllKillToasts()
   for _, creature in ipairs(MonsterBestiaryDatabase) do
@@ -314,12 +353,328 @@ end
 
 local function parseSyncPayload(data)
   if type(data) ~= "table" then
-    return {}, nil
+    return {}, nil, nil
   end
   if data.kills then
-    return data.kills, tonumber(data.totalPoints)
+    return data.kills, tonumber(data.totalPoints), data.charms
   end
-  return data, nil
+  return data, nil, nil
+end
+
+function getCharmCostForLevel(currentLevel)
+  local nextLevel = currentLevel + 1
+  if nextLevel > CHARM_MAX_LEVEL then
+    return nil
+  end
+  for _, tier in ipairs(CHARM_COST_TIERS) do
+    if nextLevel <= tier.maxLevel then
+      return tier.cost
+    end
+  end
+  return 200
+end
+
+function getCharmTrackLevel(trackId)
+  return charmTrackLevels[trackId] or 0
+end
+
+function applyCharmsState(data)
+  if type(data) ~= "table" then
+    return
+  end
+  if data.totalPoints then
+    bestiaryTotalPoints = tonumber(data.totalPoints) or bestiaryTotalPoints
+  end
+  if type(data.tracks) == "table" then
+    charmTrackLevels = data.tracks
+  end
+  refreshOverview()
+  refreshCharmsUI()
+end
+
+function requestCharmsSync()
+  if not g_game.getFeature(GameExtendedOpcode) then
+    return
+  end
+  local protocolGame = g_game.getProtocolGame()
+  if protocolGame then
+    protocolGame:sendExtendedJSONOpcode(207, { action = "charms_sync" })
+  end
+end
+
+function buyCharmTrack(trackId)
+  if not g_game.isOnline() or not trackId then
+    return
+  end
+  local protocolGame = g_game.getProtocolGame()
+  if protocolGame then
+    protocolGame:sendExtendedJSONOpcode(207, { action = "charms_buy", track = trackId })
+  end
+end
+
+function handleCharmsBuyResult(data)
+  if type(data) ~= "table" then
+    return
+  end
+  if data.totalPoints then
+    bestiaryTotalPoints = tonumber(data.totalPoints) or bestiaryTotalPoints
+  end
+  if type(data.tracks) == "table" then
+    charmTrackLevels = data.tracks
+  elseif data.track and data.level then
+    charmTrackLevels[data.track] = tonumber(data.level) or 0
+  end
+  refreshOverview()
+  refreshCharmsUI()
+  local status = bestiaryWindow:recursiveGetChildById('charmsStatus')
+  if status and data.message then
+    if data.ok then
+      status:setColor("#00ffccff")
+    else
+      status:setColor("#ff9999ff")
+    end
+    status:setText(data.message)
+  end
+end
+
+function setupMainTabs()
+  local tabs = {
+    { id = "tabCatalog", mode = "catalog" },
+    { id = "tabCharms", mode = "charms" },
+  }
+  for _, entry in ipairs(tabs) do
+    local btn = bestiaryWindow:recursiveGetChildById(entry.id)
+    if btn then
+      btn.onClick = function()
+        setMainTab(entry.mode)
+      end
+    end
+  end
+end
+
+function setMainTab(mode, skipRefresh)
+  mainTab = mode or "catalog"
+
+  local tabCatalog = bestiaryWindow:recursiveGetChildById('tabCatalog')
+  local tabCharms = bestiaryWindow:recursiveGetChildById('tabCharms')
+  if tabCatalog then
+    tabCatalog:setOn(mainTab == "catalog")
+  end
+  if tabCharms then
+    tabCharms:setOn(mainTab == "charms")
+  end
+
+  local catalogPanel = bestiaryWindow:recursiveGetChildById('catalogPanel')
+  local charmsPanel = bestiaryWindow:recursiveGetChildById('charmsPanel')
+  local achievementsPanel = bestiaryWindow:recursiveGetChildById('achievementsPanel')
+  if catalogPanel then
+    catalogPanel:setVisible(mainTab == "catalog")
+  end
+  if charmsPanel then
+    charmsPanel:setVisible(mainTab == "charms")
+  end
+  if achievementsPanel then
+    achievementsPanel:setVisible(mainTab == "achievements")
+  end
+
+  updateSidebarForMainTab()
+
+  if mainTab == "charms" then
+    requestCharmsSync()
+    refreshCharmsUI()
+  elseif not skipRefresh and isBestiaryVisible() then
+    updateMonsterGrid(getCurrentSearchText())
+  end
+end
+
+function updateSidebarForMainTab()
+  local sidebarTitle = bestiaryWindow:recursiveGetChildById('sidebarTitle')
+  local categoryList = bestiaryWindow:recursiveGetChildById('categoryList')
+  local categoryScrollBar = bestiaryWindow:recursiveGetChildById('categoryScrollBar')
+  local charmsSidebarTitle = bestiaryWindow:recursiveGetChildById('charmsSidebarTitle')
+  local charmCategoryList = bestiaryWindow:recursiveGetChildById('charmCategoryList')
+  local charmCategoryScrollBar = bestiaryWindow:recursiveGetChildById('charmCategoryScrollBar')
+
+  local isCatalog = mainTab == "catalog"
+  if sidebarTitle then
+    sidebarTitle:setVisible(isCatalog)
+  end
+  if categoryList then
+    categoryList:setVisible(isCatalog)
+  end
+  if categoryScrollBar then
+    categoryScrollBar:setVisible(isCatalog)
+  end
+
+  if charmsSidebarTitle then
+    charmsSidebarTitle:setVisible(not isCatalog and mainTab == "charms")
+  end
+  if charmCategoryList then
+    charmCategoryList:setVisible(not isCatalog and mainTab == "charms")
+  end
+  if charmCategoryScrollBar then
+    charmCategoryScrollBar:setVisible(not isCatalog and mainTab == "charms")
+  end
+end
+
+function setupCharmSidebar()
+  local charmCategoryList = bestiaryWindow:recursiveGetChildById('charmCategoryList')
+  if not charmCategoryList then
+    return
+  end
+  charmCategoryList:destroyChildren()
+
+  for _, category in ipairs(CHARM_SIDEBAR_CATEGORIES) do
+    local btn = g_ui.createWidget('BestiaryCategoryButton', charmCategoryList)
+    btn:setId(category.id)
+    btn:setText(tr(category.label))
+    if category.tooltip then
+      btn:setTooltip(tr(category.tooltip))
+    end
+    if category.disabled then
+      btn:setEnabled(false)
+      btn:setOpacity(0.45)
+    else
+      btn.onClick = function()
+        setCharmCategory(category.id)
+      end
+    end
+  end
+  setCharmCategory("attack", true)
+end
+
+function setCharmCategory(categoryId, skipRefresh)
+  selectedCharmCategory = categoryId or "attack"
+  local charmCategoryList = bestiaryWindow:recursiveGetChildById('charmCategoryList')
+  if charmCategoryList then
+    for _, child in ipairs(charmCategoryList:getChildren()) do
+      child:setOn(child:getId() == selectedCharmCategory)
+    end
+  end
+  if not skipRefresh then
+    refreshCharmsUI()
+  end
+end
+
+local function bindCharmRowWidget(row, trackDef)
+  if not row or not trackDef then
+    return
+  end
+  row.trackId = trackDef.id
+  local buyBtn = row:recursiveGetChildById('trackBuy')
+  if buyBtn then
+    buyBtn.onClick = function()
+      buyCharmTrack(trackDef.id)
+    end
+  end
+  if trackDef.tooltip then
+    row:setTooltip(trackDef.tooltip)
+  end
+end
+
+function initCharmsUI()
+  for _, trackDef in ipairs(CHARM_ATTACK_TRACKS) do
+    if trackDef.otuiRow then
+      local row = bestiaryWindow:recursiveGetChildById(trackDef.otuiRow)
+      bindCharmRowWidget(row, trackDef)
+    end
+  end
+  refreshCharmsUI()
+end
+
+local function applyCharmElementIcon(widget, elementId)
+  if not widget or not elementId then
+    return
+  end
+  applyElementIcon(widget, elementId)
+  widget:setVisible(true)
+end
+
+local function updateCharmRowWidget(row, trackDef)
+  if not row or not trackDef then
+    return
+  end
+  local level = getCharmTrackLevel(trackDef.id)
+  local titleLabel = row:recursiveGetChildById('trackTitle')
+  local levelLabel = row:recursiveGetChildById('trackLevel')
+  local progress = row:recursiveGetChildById('trackProgress')
+  local costLabel = row:recursiveGetChildById('trackCost')
+  local buyBtn = row:recursiveGetChildById('trackBuy')
+  local iconWidget = row:recursiveGetChildById('trackIcon')
+
+  if iconWidget then
+    if trackDef.element then
+      applyCharmElementIcon(iconWidget, trackDef.element)
+      if titleLabel then
+        titleLabel:setMarginLeft(22)
+      end
+    else
+      iconWidget:setVisible(false)
+      if titleLabel then
+        titleLabel:setMarginLeft(0)
+      end
+    end
+  end
+
+  if titleLabel then
+    titleLabel:setText(tr(trackDef.title))
+  end
+  if levelLabel then
+    levelLabel:setText(string.format("%d%% / %d%%", level, CHARM_MAX_LEVEL))
+  end
+  if progress then
+    progress:setMinimum(0)
+    progress:setMaximum(CHARM_MAX_LEVEL)
+    progress:setValue(level)
+    progress:updateBackground()
+  end
+
+  local cost = getCharmCostForLevel(level)
+  local canBuy = false
+  local buyTooltip = tr("Comprar +1%% nesta trilha.")
+  if costLabel then
+    if cost then
+      costLabel:setColor("#aaaaaaff")
+      costLabel:setText(tr("Proximo nivel: +1%%  |  Custo: %d pts", cost))
+      if bestiaryTotalPoints >= cost and g_game.isOnline() then
+        canBuy = true
+      elseif not g_game.isOnline() then
+        buyTooltip = tr("Conecte-se ao jogo para comprar.")
+        costLabel:setColor("#ff9999ff")
+      else
+        buyTooltip = tr("Charm Points insuficientes (%d / %d).", bestiaryTotalPoints, cost)
+        costLabel:setColor("#ff9999ff")
+      end
+    else
+      costLabel:setColor("#aaaaaaff")
+      costLabel:setText(tr("Nivel maximo atingido (%d%%).", CHARM_MAX_LEVEL))
+      buyTooltip = tr("Esta trilha ja esta no limite.")
+    end
+  end
+  if buyBtn then
+    buyBtn:setVisible(true)
+    buyBtn:raise()
+    buyBtn:setEnabled(canBuy)
+    buyBtn:setTooltip(buyTooltip)
+  end
+end
+
+function refreshCharmsUI()
+  if not bestiaryWindow or mainTab ~= "charms" or selectedCharmCategory ~= "attack" then
+    return
+  end
+
+  for _, trackDef in ipairs(CHARM_ATTACK_TRACKS) do
+    if trackDef.otuiRow then
+      updateCharmRowWidget(bestiaryWindow:recursiveGetChildById(trackDef.otuiRow), trackDef)
+    end
+  end
+
+  local status = bestiaryWindow:recursiveGetChildById('charmsStatus')
+  if status then
+    status:setColor("#ccccccff")
+    status:setText(tr("Upgrades permanentes +1%% por nivel (max %d%%). Saldo: %d Charm Points.", CHARM_MAX_LEVEL, bestiaryTotalPoints))
+  end
 end
 
 function applyKillsFromServer(killsTable)
@@ -350,7 +705,7 @@ function onExtendedJSONOpcode(protocol, code, jsonData)
   local data = jsonData.data
 
   if action == "sync" then
-    local killsTable, totalPoints = parseSyncPayload(data)
+    local killsTable, totalPoints, charms = parseSyncPayload(data)
     detectSyncKillDeltas(killsTable)
 
     for _, creature in ipairs(MonsterBestiaryDatabase) do
@@ -360,11 +715,15 @@ function onExtendedJSONOpcode(protocol, code, jsonData)
     if totalPoints then
       bestiaryTotalPoints = totalPoints
     end
+    if type(charms) == "table" then
+      charmTrackLevels = charms
+    end
     killToastReady = true
     g_logger.info(string.format("[Bestiary] sync: %d especies com kills, %d charm points", applied, bestiaryTotalPoints))
 
     refreshOverview()
     refreshMonsterGridIfVisible(getCurrentSearchText())
+    refreshCharmsUI()
 
     if selectedCreature and isBestiaryVisible() then
       showCreatureDetails(selectedCreature)
@@ -388,6 +747,12 @@ function onExtendedJSONOpcode(protocol, code, jsonData)
     if selectedCreature and selectedCreature.name:lower() == data.name:lower() and isBestiaryVisible() then
       showCreatureDetails(selectedCreature)
     end
+
+  elseif action == "charms_state" then
+    applyCharmsState(data)
+
+  elseif action == "charms_buy_result" then
+    handleCharmsBuyResult(data)
 
   elseif action == "looks" then
     mergeLooksFromServer(data)
@@ -839,6 +1204,7 @@ function toggle()
     bestiaryButton:setOn(true)
     requestServerSync()
     refreshOverview()
+    setMainTab(mainTab, true)
     updateMonsterGrid(getCurrentSearchText())
   end
 end

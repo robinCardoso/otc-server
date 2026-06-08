@@ -401,6 +401,7 @@ function Otcv8Bestiary.sendKills(player)
   return Otcv8Bestiary.sendJSON(player, "sync", {
     kills = killsTable,
     totalPoints = Otcv8Bestiary.getPoints(player),
+    charms = Otcv8BestiaryCharms.buildTracksState(player),
   })
 end
 

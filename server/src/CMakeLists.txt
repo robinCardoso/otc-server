@@ -7,6 +7,7 @@ set(tfs_SRC
 	${CMAKE_CURRENT_LIST_DIR}/chat.cpp
 	${CMAKE_CURRENT_LIST_DIR}/combat.cpp
 	${CMAKE_CURRENT_LIST_DIR}/combatpreview.cpp
+	${CMAKE_CURRENT_LIST_DIR}/otcv8charms.cpp
 	${CMAKE_CURRENT_LIST_DIR}/condition.cpp
 	${CMAKE_CURRENT_LIST_DIR}/configmanager.cpp
 	${CMAKE_CURRENT_LIST_DIR}/connection.cpp

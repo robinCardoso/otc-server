@@ -26,12 +26,14 @@ Player mata monstro  -->  BestiaryKill (onKill)
 | Camada | Arquivo |
 |--------|---------|
 | Lib principal | `data/lib/otcv8_bestiary.lua` |
+| Charms (upgrades) | `data/lib/otcv8_bestiary_charms.lua` — trilhas, custos, compra |
+| Combate C++ | `src/otcv8charms.cpp` — multiplicador % em `weapons.cpp` + `combat.cpp` |
 | Lista de monstros | `data/lib/bestiary_monsters.lua` — `BestiaryMonsterNames` |
 | Handler opcode | `data/creaturescripts/scripts/otcv8_bestiary.lua` |
 | Kill tracker | `data/creaturescripts/scripts/bestiary_kill.lua` |
 | Registro XML | `data/creaturescripts/creaturescripts.xml` |
 | Login | `data/creaturescripts/scripts/others/login.lua` |
-| Load libs | `data/lib/lib.lua` — dofile bestiary + otcv8_bestiary |
+| Load libs | `data/lib/lib.lua` — dofile bestiary + otcv8_bestiary + otcv8_bestiary_charms |
 | Cliente | `client/modules/game_bestiary/` |
 
 **Não misturar** com Shop (201), Spell List (202), Combat Power (203), Stock, etc. — um creaturescript `extendedopcode` por número.
@@ -67,9 +69,11 @@ Reiniciar **tfs.exe** após alterar `data/lib/` ou `creaturescripts/`.
 
 ```json
 { "action": "requestSync" }
+{ "action": "charms_sync" }
+{ "action": "charms_buy", "track": "melee" }
 ```
 
-Handler (`otcv8_bestiary.lua`): se `canRequestSync(player)`, chama `Otcv8Bestiary.sendFullSync(player)`.
+Handler (`otcv8_bestiary.lua`): `requestSync` → `sendFullSync`; `charms_sync` → `Otcv8BestiaryCharms.sendState`; `charms_buy` → `Otcv8BestiaryCharms.buyTrackLevel` + `sendBuyResult`.
 
 **Debounce:** no máximo 1 `requestSync` processado por jogador a cada **1 s** (`SYNC_DEBOUNCE_SEC`).
 
@@ -82,10 +86,15 @@ Handler (`otcv8_bestiary.lua`): se `canRequestSync(player)`, chama `Otcv8Bestiar
 | `items` | `{ "2148": { "c": 3031, "n": "gold coin" }, ... }` | Lotes (~70 entradas/lote), sem chunk S/P/E; 1× por sessão |
 | `itemsDone` | `{ "total": 1234 }` | Após último lote `items`; cliente marca sync completo |
 | `looks` | `{ "v": 1, "names": [...], "types": [...], "aux": [...] }` | Após todos os lotes `items`; pacote grande (chunked) |
+| `charms_state` | `{ "totalPoints": 42, "tracks": { "melee": 8, "distance": 3, ... } }` | Resposta a `charms_sync` |
+| `charms_buy_result` | `{ "ok": true, "track": "melee", "level": 9, "totalPoints": 33, "tracks": {...}, "message": "..." }` | Após `charms_buy` |
+| `sync` (extra) | `totalPoints`, `charms` no payload | Junto com kills no login / `requestSync` |
 
-O pacote **`update`** também alimenta os **kill toasts** no mapa (cliente) — ver [`../../client/docs/BESTIARY-MODULE.md`](../../client/docs/BESTIARY-MODULE.md#kill-toasts-no-mapa). Nenhuma alteração extra no servidor é necessária.
+O pacote `sync` também envia **`totalPoints`** (storage `149999`) e **`charms`** (níveis por trilha) para a UI do cliente.
 
 Envelope sempre: `{ action = "...", data = ... }` via `Otcv8Bestiary.sendJSON`.
+
+O pacote **`update`** também alimenta os **kill toasts** no mapa (cliente) — ver [`../../client/docs/BESTIARY-MODULE.md`](../../client/docs/BESTIARY-MODULE.md#kill-toasts-no-mapa). Nenhuma alteração extra no servidor é necessária.
 
 ### Chunking
 
@@ -179,6 +188,75 @@ Algoritmo djb2 simplificado sobre **`name:lower()`** (fix 2026-06: antes era cas
 **Importante:** storages gravadas **antes** do fix usam chave diferente — jogadores afetados precisam rematar ou rodar script de migração manual.
 
 Não há tabela SQL dedicada; tudo em **`player_storage`** via `setStorageValue`.
+
+### Charm Points
+
+| Storage | Uso |
+|---------|-----|
+| **149999** | Saldo de Charm Points (`Otcv8Bestiary.POINTS_STORAGE`) |
+
+Ganho: ao **completar** uma entrada do bestiary (`bestiary_kill.lua` — meta de kills da dificuldade). Pontos por dificuldade: 1 / 15 / 25 / 50 (Inofensivo → Difícil).
+
+---
+
+## Charms — upgrades permanentes
+
+Lib: `data/lib/otcv8_bestiary_charms.lua`. Balanceamento **sem recompilar** (só Lua). Efeito no combate exige **rebuild TFS** (`otcv8charms.cpp`).
+
+### Storages por trilha (151xxx)
+
+| Storage | ID `track` | Categoria |
+|---------|------------|-----------|
+| 151001 | `melee` | attack |
+| 151002 | `distance` | attack |
+| 151010 | `magic_physical` | attack |
+| 151011 | `magic_earth` | attack |
+| 151012 | `magic_fire` | attack |
+| 151013 | `magic_ice` | attack |
+| 151014 | `magic_energy` | attack |
+| 151015 | `magic_holy` | attack |
+| 151016 | `magic_death` | attack |
+
+Valor = nível (0–20). Cada nível = **+1%** dano na trilha (`BONUS_PER_LEVEL = 1`, `MAX_LEVEL = 20`).
+
+### Custo escalonado (`COST_TIERS`)
+
+| Próximo nível | Custo (pts) |
+|---------------|-------------|
+| 1–5 | 25 |
+| 6–10 | 50 |
+| 11–15 | 100 |
+| 16–20 | 200 |
+
+Total maxar 1 trilha: **1.875 pts**. Teto teórico catálogo completo: **~32.061 pts** — ver [`../../client/docs/ideias para BESTIARY.md`](../../client/docs/ideias%20para%20BESTIARY.md).
+
+### API Lua (`Otcv8BestiaryCharms`)
+
+| Função | Descrição |
+|--------|-----------|
+| `getTrackLevel(player, trackId)` | Nível 0–20 |
+| `getCostForLevel(currentLevel)` | Custo do próximo +1% |
+| `buyTrackLevel(player, trackId)` | Valida, deduz pontos, incrementa storage |
+| `buildTracksState(player)` | Mapa `trackId → level` para JSON |
+| `sendState(player)` | Action `charms_state` |
+| `sendBuyResult(player, ok, trackId, message)` | Action `charms_buy_result` |
+| `getMeleeBonusPercent` / `getDistanceBonusPercent` / `getMagicBonusPercent` | Helpers Lua (espelham C++) |
+
+### Combate (C++)
+
+| Arquivo | Hook |
+|---------|------|
+| `src/otcv8charms.cpp` | Lê storages 151001–151016; `applyOutgoingDamage` |
+| `src/weapons.cpp` | Bônus melee e distance no hit |
+| `src/combat.cpp` | Bônus magia por `CombatType_t` (`COMBAT_FORMULA_LEVELMAGIC`) |
+
+Recompilar após alterar C++:
+
+```powershell
+$env:PATH = "C:\msys64\mingw64\bin;C:\msys64\usr\bin;" + $env:PATH
+Set-Location C:\8.6\otserv_860\otc-server\server\build_win
+cmake --build . -j8
+```
 
 ---
 
@@ -321,11 +399,12 @@ Ver [`../../client/docs/BESTIARY-MODULE.md`](../../client/docs/BESTIARY-MODULE.m
 ## Melhorias futuras (servidor)
 
 1. ~~**`GlobalEvent` onStartup** — `buildLooksCache()` antes de players online.~~ **Feito** (`startup.lua`).
-2. **Talkaction debug** — `!bestiary` mostrar kills locais / storage key (como `!power`).
+2. **Talkaction debug** — `/bestiarytest` (God): pontos + mob completo + trilha Charms max; ver `talkactions/scripts/bestiary_test.lua`.
+3. **Talkaction debug kills** — `!bestiary` mostrar kills locais / storage key (como `!power`).
 3. **Migrador de storage** — one-shot GM command para rehash case-insensitive.
 4. **Opcode 208 dedicado** — looks separados de kills/updates (reduz corrida S/P/E no 207).
 5. **Exportador JSON** — gerar/atualizar `bestiary_database.json` a partir de `MonsterType` + loot XML.
-6. **Bestiary charms / bonus** — gameplay além de contador (storage ou coluna custom).
+6. ~~**Bestiary charms / bonus**~~ — **Fase 1 ataque** (storages 151xxx, opcode 207, C++ damage); resist/loot/cap pendentes.
 7. ~~**Rate limit** — throttle de `requestSync` por player.~~ **Feito** (`canRequestSync`, 1 s).
 8. **Persistência SQL opcional** — tabela `player_bestiary_kills` se storages ficarem limitados.
 
@@ -340,6 +419,7 @@ Ver [`../../client/docs/BESTIARY-MODULE.md`](../../client/docs/BESTIARY-MODULE.m
 5. Matar outro → log imediato + pacote `update` (sem relog).
 6. Abrir Bestiary 1ª vez no uptime → looks já devem estar em cache (boot +5 s); senão aguardar log.
 7. Cliente: kill toast ao matar + slider **Bestiary toast lines** (Opções → Game).
+8. Bestiary → aba **Charms** → `charms_sync` → comprar Melee +1% → verificar storage 151001 e dano em combate (TFS recompilado).
 
 ---
 
