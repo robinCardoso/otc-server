@@ -20,6 +20,14 @@ lastDirTime = g_clock.millis()
 local SIDE_PANEL_WIDTH = 198
 local classicMapViewUpdating = false
 
+-- bottomSplitter: margin-bottom = altura da área inferior (action bar + chat)
+-- Arrastar PARA BAIXO → limite mínimo (mais mapa, menos chat)
+local BOTTOM_SPLITTER_MIN_CHAT_HEIGHT = 95   -- abas + pelo menos uma linha de texto
+local BOTTOM_SPLITTER_FALLBACK_ACTION_HEIGHT = 40
+-- Arrastar PARA CIMA → limite máximo (mais chat, menos mapa)
+local BOTTOM_SPLITTER_MAX_MARGIN = 250       -- teto em pixels; aumente para permitir mais chat
+local BOTTOM_SPLITTER_MIN_MAP_HEIGHT = 350   -- reserva mínima do mapa (backup se a janela for enorme)
+
 local function hudToOdd(value, fallback)
   value = math.floor(tonumber(value) or 0)
   if value < 3 then
@@ -266,18 +274,70 @@ function hide()
   end, 220)
 end
 
+local function getBottomSplitterActionHeight()
+  if not gameBottomActionPanel then
+    return BOTTOM_SPLITTER_FALLBACK_ACTION_HEIGHT
+  end
+  local height = gameBottomActionPanel:getHeight()
+  if height < BOTTOM_SPLITTER_FALLBACK_ACTION_HEIGHT then
+    return BOTTOM_SPLITTER_FALLBACK_ACTION_HEIGHT
+  end
+  return height
+end
+
+function getBottomSplitterMinMargin()
+  return getBottomSplitterActionHeight() + BOTTOM_SPLITTER_MIN_CHAT_HEIGHT
+end
+
+function getBottomSplitterMaxMargin(parent)
+  parent = parent or (bottomSplitter and bottomSplitter:getParent())
+  if not parent then
+    return getBottomSplitterMinMargin()
+  end
+  local topBarHeight = gameTopBar and gameTopBar:getHeight() or 0
+  local maxMargin = parent:getHeight() - topBarHeight - BOTTOM_SPLITTER_MIN_MAP_HEIGHT
+  if BOTTOM_SPLITTER_MAX_MARGIN and BOTTOM_SPLITTER_MAX_MARGIN > 0 then
+    maxMargin = math.min(maxMargin, BOTTOM_SPLITTER_MAX_MARGIN)
+  end
+  return math.max(getBottomSplitterMinMargin(), maxMargin)
+end
+
+function clampBottomSplitterMargin(splitter, newMargin)
+  if not splitter then
+    return newMargin
+  end
+  if modules.client_options.getOption('dontStretchShrink') then
+    return splitter:getMarginBottom()
+  end
+  local minMargin = getBottomSplitterMinMargin()
+  local maxMargin = getBottomSplitterMaxMargin(splitter:getParent())
+  return math.max(math.min(newMargin, maxMargin), minMargin)
+end
+
+function clampBottomSplitterOnResize(splitter)
+  if not splitter then
+    return
+  end
+  local margin = clampBottomSplitterMargin(splitter, splitter:getMarginBottom())
+  if margin ~= splitter:getMarginBottom() then
+    splitter:setMarginBottom(margin)
+  end
+end
+
 function save()
   local settings = {}
-  settings.splitterMarginBottom = bottomSplitter:getMarginBottom()
+  if bottomSplitter then
+    settings.splitterMarginBottom = clampBottomSplitterMargin(bottomSplitter, bottomSplitter:getMarginBottom())
+  end
   g_settings.setNode('game_interface', settings)
 end
 
 function load()
   local settings = g_settings.getNode('game_interface')
-  if settings then
-    if settings.splitterMarginBottom then
-      bottomSplitter:setMarginBottom(settings.splitterMarginBottom)
-    end
+  if settings and bottomSplitter then
+    local margin = settings.splitterMarginBottom or bottomSplitter:getMarginBottom()
+    bottomSplitter:setMarginBottom(clampBottomSplitterMargin(bottomSplitter, margin))
+    clampBottomSplitterOnResize(bottomSplitter)
   end
 end
 
@@ -367,6 +427,7 @@ function updateStretchShrink()
     -- Set gameMapPanel size to height = 11 * 32 + 2
     bottomSplitter:setMarginBottom(bottomSplitter:getMarginBottom() + (gameMapPanel:getHeight() - 32 * 11) - 10)
   end
+  clampBottomSplitterOnResize(bottomSplitter)
 end
 
 function onMouseGrabberRelease(self, mousePosition, mouseButton)
