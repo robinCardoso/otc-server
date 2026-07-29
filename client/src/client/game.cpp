@@ -237,8 +237,8 @@ void Game::processGameEnd()
     m_worldName = "";
     m_characterName = "";
 
-    // clean map creatures
-    g_map.cleanDynamicThings();
+    // full map reset so the next login never shows the previous character's tiles
+    g_map.clean();
 }
 
 void Game::processDeath(int deathType, int penality)
@@ -565,6 +565,7 @@ void Game::loginWorld(const std::string& account, const std::string& password, c
 
     // reset the new game state
     resetGameStates();
+    g_map.clean();
 
     m_localPlayer = LocalPlayerPtr(new LocalPlayer);
     m_localPlayer->setName(characterName);

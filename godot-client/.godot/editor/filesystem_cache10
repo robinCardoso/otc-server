@@ -1,0 +1,12 @@
+78098b89c88a74ebe8c20117b8754620
+::res://::1785256956
+DatReader.gd::GDScript::579435923123961115::1785254425::0::1::::TibiaDatReader<>Node<><>0<>0<><>::
+main.gd::GDScript::4639709438788545106::1785256929::0::1::::<>Node2D<><>0<>0<><>::
+main.tscn::PackedScene::7522835309399741240::1785255725::0::1::::<><><>0<>0<><>::res://main.gd<>res://SpriteReader.gd
+NetworkManager.gd::GDScript::786839397920528963::1785256000::0::1::::TibiaNetworkManager<>Node<><>0<>0<><>::
+Protocol.gd::GDScript::2516632982135348256::1785256905::0::1::::TibiaProtocol<>Node<><>0<>0<><>::
+Rsa.gd::GDScript::7337022010290557660::1785256681::0::1::::TibiaRsa<>Node<><>0<>0<><>::
+SpriteReader.gd::GDScript::2568006542573691900::1785254178::0::1::::TibiaSpriteReader<>Node<><>0<>0<><>::
+Xtea.gd::GDScript::7056140679805441108::1785255282::0::1::::TibiaXtea<>Node<><>0<>0<><>::
+::res://client/::1785252869
+::res://client/assets/::1785252873

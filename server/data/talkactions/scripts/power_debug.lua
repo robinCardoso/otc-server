@@ -69,10 +69,16 @@ function onSay(player, words, param)
 			end
 		end
 	end
+	if payload.attackRunes and #payload.attackRunes > 0 then
+		for _, rune in ipairs(payload.attackRunes) do
+			player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE,
+				string.format("  Runa ataque: %s x%d | dano %s", rune.name, rune.count, fmtRange(rune.damageMin, rune.damageMax)))
+		end
+	end
 	if payload.healingRunes and #payload.healingRunes > 0 then
 		for _, rune in ipairs(payload.healingRunes) do
 			player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE,
-				string.format("  Runa: %s x%d | cura %s", rune.name, rune.count, fmtRange(rune.healMin, rune.healMax)))
+				string.format("  Runa cura: %s x%d | cura %s", rune.name, rune.count, fmtRange(rune.healMin, rune.healMax)))
 		end
 	end
 

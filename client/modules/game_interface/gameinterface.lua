@@ -78,7 +78,6 @@ function updateClassicMapView()
     end
 
     gameMapPanel:setVisibleDimension({ width = 15, height = 11 })
-    gameMapPanel:setLimitVisibleRange(false)
 
     if classic then
       gameMapPanel:setKeepAspectRatio(true)
@@ -95,6 +94,9 @@ function updateClassicMapView()
       gameMapPanel:setKeepAspectRatio(false)
       gameMapPanel:setZoom(11)
     end
+
+    -- Apos o zoom estar definido; setLimitVisibleRange(false) chama updateVisibleDimension().
+    gameMapPanel:setLimitVisibleRange(false)
   end)
   classicMapViewUpdating = false
   if not ok then
@@ -122,6 +124,7 @@ function init()
     onGameStart = onGameStart,
     onGameEnd = onGameEnd,
     onLoginAdvice = onLoginAdvice,
+    onMapKnown = onMapKnown,
   }, true)
 
   -- Call load AFTER game window has been created and 
@@ -199,7 +202,8 @@ function terminate()
   disconnect(g_game, {
     onGameStart = onGameStart,
     onGameEnd = onGameEnd,
-    onLoginAdvice = onLoginAdvice
+    onLoginAdvice = onLoginAdvice,
+    onMapKnown = onMapKnown,
   })
 
   disconnect(gameMapPanel, { onGeometryChange = updateSize })
@@ -217,8 +221,17 @@ function onGameStart()
 end
 
 function onGameEnd()
+  if gameMapPanel then
+    gameMapPanel:setCameraPosition({ x = 65535, y = 65535, z = 0 })
+  end
   hide()
   modules.client_topmenu.getTopMenu():setImageColor('white')
+end
+
+function onMapKnown()
+  if gameMapPanel and g_game.getLocalPlayer() then
+    gameMapPanel:followCreature(g_game.getLocalPlayer())
+  end
 end
 
 function show()
@@ -228,8 +241,10 @@ function show()
   gameRootPanel:focus()
   g_effects.fadeIn(gameRootPanel, 280)
   addEvent(function() modules.client_background.hide() end, 120)
-  gameMapPanel:followCreature(g_game.getLocalPlayer())
-    
+  if g_game.getLocalPlayer() and g_game.getLocalPlayer():getPosition().x ~= 0 then
+    gameMapPanel:followCreature(g_game.getLocalPlayer())
+  end
+
   updateStretchShrink()
   logoutButton:setTooltip(tr('Logout'))
   

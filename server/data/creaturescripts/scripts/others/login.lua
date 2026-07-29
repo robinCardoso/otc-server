@@ -30,6 +30,16 @@ function onLogin(player)
 		player:setStorageValue(STORAGE_PLAYER_WAR_TYPE, 0)
 		player:setStorageValue(STORAGE_PLAYER_DISABLED_POTIONS , 0)
 	end
+
+	local playerPos = player:getPosition()
+	local tile = Tile(playerPos)
+	if not tile or not tile:getGround() or not playerPos:isWalkable() then
+		player:teleportTo(player:getTown():getTemplePosition(), true)
+		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, 'You were moved to the temple because your saved position was invalid.')
+	end
+
+	player:setStorageValue(Storage.recentShipTravel, -1)
+
 	local loginStr = 'Welcome to ' .. configManager.getString(configKeys.SERVER_NAME) .. '!'
 	if player:getLastLoginSaved() <= 0 then
 		loginStr = loginStr .. ' Please choose your outfit.'
@@ -213,11 +223,12 @@ function onLogin(player)
 	player:registerEvent("vortexSpawnCarlin")
 	player:registerEvent("PlayerDeath")
 	player:registerEvent("ExtendedOpcodeShop")
-	player:registerEvent("ExtendedOpcodeSpellList")
+	-- player:registerEvent("ExtendedOpcodeSpellList") -- disabled for testing
 	player:registerEvent("ExtendedOpcodeCombatPower")
 	player:registerEvent("ExtendedOpcodePartyMinimap")
 	player:registerEvent("ExtendedOpcodeStock")
-	player:registerEvent("ExtendedOpcodeViewport")
+	-- ExtendedOpcodeViewport disabled: otcv8_viewport.lua removed; client no longer sends opcode 206 (fixed 25x20)
+	-- player:registerEvent("ExtendedOpcodeViewport")
 	player:registerEvent("ExtendedOpcodeBestiary")
 	player:registerEvent("BestiaryKill")
 	-- if Otcv8Bestiary and Otcv8Bestiary.scheduleLoginSync then

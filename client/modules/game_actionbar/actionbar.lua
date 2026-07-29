@@ -22,6 +22,7 @@ local ACTION = {
 }
 
 -- Lista de magias do TFS (opcode 202) — docs: otserv_860/docs/SPELL-LIST-PLAN.md
+local SPELL_LIST_ENABLED = false -- disabled for testing
 local SPELL_LIST_OPCODE = 202
 local serverSpellList = nil
 local serverSpellListMeta = nil
@@ -139,7 +140,7 @@ local function clearServerSpellList()
 end
 
 local function requestServerSpellList()
-  if not g_game.getFeature(GameExtendedOpcode) then
+  if not SPELL_LIST_ENABLED or not g_game.getFeature(GameExtendedOpcode) then
     return
   end
   local protocolGame = g_game.getProtocolGame()
@@ -236,7 +237,9 @@ function init()
     onSpellCooldown = onSpellCooldown
   })
 
-  ProtocolGame.registerExtendedJSONOpcode(SPELL_LIST_OPCODE, onSpellListExtendedJSONOpcode)
+  if SPELL_LIST_ENABLED then
+    ProtocolGame.registerExtendedJSONOpcode(SPELL_LIST_OPCODE, onSpellListExtendedJSONOpcode)
+  end
 
   if g_game.isOnline() then
     online()
@@ -257,7 +260,9 @@ function terminate()
     onSpellCooldown = onSpellCooldown
   })
 
-  ProtocolGame.unregisterExtendedJSONOpcode(SPELL_LIST_OPCODE, onSpellListExtendedJSONOpcode)
+  if SPELL_LIST_ENABLED then
+    ProtocolGame.unregisterExtendedJSONOpcode(SPELL_LIST_OPCODE, onSpellListExtendedJSONOpcode)
+  end
   clearServerSpellList()
 end
 
@@ -334,7 +339,9 @@ function online()
   -- create actionbars
   createActionBars()
 
-  scheduleEvent(requestServerSpellList, 800)
+  if SPELL_LIST_ENABLED then
+    scheduleEvent(requestServerSpellList, 1200)
+  end
 
   -- show & setup actionbars
   show()
@@ -1052,6 +1059,12 @@ function assignSpell(widget)
     for _, entry in ipairs(serverSpellList) do
       local name, localData = lookupLocalSpellInfo(entry.name, entry.words)
       addSpellPreview(name or entry.name, entry, localData)
+    end
+  elseif not SPELL_LIST_ENABLED then
+    cancelAssignSpellListTimeout()
+    window.usingServerList = false
+    for spellName, localData in pairs(SpellInfo['Default']) do
+      addSpellPreview(spellName, nil, localData)
     end
   else
     assignSpellPendingWidget = widget

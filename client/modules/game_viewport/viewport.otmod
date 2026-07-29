@@ -1,6 +1,6 @@
 Module
   name: game_viewport
-  description: Fixed 18x14 map protocol (TFS 8.60); classic view is client UI only
+  description: Fixed 25x20 map protocol (TFS 8.60); classic view is client UI only
   author: localStorage
   sandboxed: true
   scripts: [ viewport ]

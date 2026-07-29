@@ -1,0 +1,470 @@
+[
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\otpch.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\otpch.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/otpch.cpp",
+  "output": "CMakeFiles/tfs.dir/src/otpch.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\actions.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\actions.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/actions.cpp",
+  "output": "CMakeFiles/tfs.dir/src/actions.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\ban.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\ban.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/ban.cpp",
+  "output": "CMakeFiles/tfs.dir/src/ban.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\baseevents.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\baseevents.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/baseevents.cpp",
+  "output": "CMakeFiles/tfs.dir/src/baseevents.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\bed.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\bed.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/bed.cpp",
+  "output": "CMakeFiles/tfs.dir/src/bed.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\chat.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\chat.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/chat.cpp",
+  "output": "CMakeFiles/tfs.dir/src/chat.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\combat.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\combat.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/combat.cpp",
+  "output": "CMakeFiles/tfs.dir/src/combat.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\combatpreview.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\combatpreview.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/combatpreview.cpp",
+  "output": "CMakeFiles/tfs.dir/src/combatpreview.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\otcv8charms.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\otcv8charms.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/otcv8charms.cpp",
+  "output": "CMakeFiles/tfs.dir/src/otcv8charms.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\condition.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\condition.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/condition.cpp",
+  "output": "CMakeFiles/tfs.dir/src/condition.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\configmanager.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\configmanager.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/configmanager.cpp",
+  "output": "CMakeFiles/tfs.dir/src/configmanager.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\connection.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\connection.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/connection.cpp",
+  "output": "CMakeFiles/tfs.dir/src/connection.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\container.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\container.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/container.cpp",
+  "output": "CMakeFiles/tfs.dir/src/container.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\creature.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\creature.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/creature.cpp",
+  "output": "CMakeFiles/tfs.dir/src/creature.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\creatureevent.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\creatureevent.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/creatureevent.cpp",
+  "output": "CMakeFiles/tfs.dir/src/creatureevent.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\cylinder.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\cylinder.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/cylinder.cpp",
+  "output": "CMakeFiles/tfs.dir/src/cylinder.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\database.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\database.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/database.cpp",
+  "output": "CMakeFiles/tfs.dir/src/database.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\databasemanager.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\databasemanager.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/databasemanager.cpp",
+  "output": "CMakeFiles/tfs.dir/src/databasemanager.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\databasetasks.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\databasetasks.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/databasetasks.cpp",
+  "output": "CMakeFiles/tfs.dir/src/databasetasks.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\depotchest.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\depotchest.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/depotchest.cpp",
+  "output": "CMakeFiles/tfs.dir/src/depotchest.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\depotlocker.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\depotlocker.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/depotlocker.cpp",
+  "output": "CMakeFiles/tfs.dir/src/depotlocker.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\events.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\events.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/events.cpp",
+  "output": "CMakeFiles/tfs.dir/src/events.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\fileloader.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\fileloader.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/fileloader.cpp",
+  "output": "CMakeFiles/tfs.dir/src/fileloader.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\game.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\game.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/game.cpp",
+  "output": "CMakeFiles/tfs.dir/src/game.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\globalevent.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\globalevent.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/globalevent.cpp",
+  "output": "CMakeFiles/tfs.dir/src/globalevent.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\guild.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\guild.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/guild.cpp",
+  "output": "CMakeFiles/tfs.dir/src/guild.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\groups.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\groups.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/groups.cpp",
+  "output": "CMakeFiles/tfs.dir/src/groups.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\house.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\house.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/house.cpp",
+  "output": "CMakeFiles/tfs.dir/src/house.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\housetile.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\housetile.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/housetile.cpp",
+  "output": "CMakeFiles/tfs.dir/src/housetile.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\inbox.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\inbox.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/inbox.cpp",
+  "output": "CMakeFiles/tfs.dir/src/inbox.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\ioguild.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\ioguild.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/ioguild.cpp",
+  "output": "CMakeFiles/tfs.dir/src/ioguild.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\iologindata.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\iologindata.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/iologindata.cpp",
+  "output": "CMakeFiles/tfs.dir/src/iologindata.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\iomap.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\iomap.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/iomap.cpp",
+  "output": "CMakeFiles/tfs.dir/src/iomap.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\iomapserialize.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\iomapserialize.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/iomapserialize.cpp",
+  "output": "CMakeFiles/tfs.dir/src/iomapserialize.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\item.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\item.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/item.cpp",
+  "output": "CMakeFiles/tfs.dir/src/item.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\items.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\items.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/items.cpp",
+  "output": "CMakeFiles/tfs.dir/src/items.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\luascript.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\luascript.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/luascript.cpp",
+  "output": "CMakeFiles/tfs.dir/src/luascript.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\mailbox.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\mailbox.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/mailbox.cpp",
+  "output": "CMakeFiles/tfs.dir/src/mailbox.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\map.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\map.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/map.cpp",
+  "output": "CMakeFiles/tfs.dir/src/map.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\monster.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\monster.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/monster.cpp",
+  "output": "CMakeFiles/tfs.dir/src/monster.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\monsters.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\monsters.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/monsters.cpp",
+  "output": "CMakeFiles/tfs.dir/src/monsters.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\movement.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\movement.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/movement.cpp",
+  "output": "CMakeFiles/tfs.dir/src/movement.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\networkmessage.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\networkmessage.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/networkmessage.cpp",
+  "output": "CMakeFiles/tfs.dir/src/networkmessage.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\npc.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\npc.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/npc.cpp",
+  "output": "CMakeFiles/tfs.dir/src/npc.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\otserv.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\otserv.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/otserv.cpp",
+  "output": "CMakeFiles/tfs.dir/src/otserv.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\outfit.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\outfit.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/outfit.cpp",
+  "output": "CMakeFiles/tfs.dir/src/outfit.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\outputmessage.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\outputmessage.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/outputmessage.cpp",
+  "output": "CMakeFiles/tfs.dir/src/outputmessage.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\party.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\party.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/party.cpp",
+  "output": "CMakeFiles/tfs.dir/src/party.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\player.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\player.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/player.cpp",
+  "output": "CMakeFiles/tfs.dir/src/player.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\position.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\position.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/position.cpp",
+  "output": "CMakeFiles/tfs.dir/src/position.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\protocol.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\protocol.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/protocol.cpp",
+  "output": "CMakeFiles/tfs.dir/src/protocol.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\protocolgame.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\protocolgame.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/protocolgame.cpp",
+  "output": "CMakeFiles/tfs.dir/src/protocolgame.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\protocollogin.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\protocollogin.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/protocollogin.cpp",
+  "output": "CMakeFiles/tfs.dir/src/protocollogin.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\protocolold.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\protocolold.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/protocolold.cpp",
+  "output": "CMakeFiles/tfs.dir/src/protocolold.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\protocolspectator.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\protocolspectator.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/protocolspectator.cpp",
+  "output": "CMakeFiles/tfs.dir/src/protocolspectator.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\protocolstatus.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\protocolstatus.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/protocolstatus.cpp",
+  "output": "CMakeFiles/tfs.dir/src/protocolstatus.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\quests.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\quests.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/quests.cpp",
+  "output": "CMakeFiles/tfs.dir/src/quests.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\raids.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\raids.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/raids.cpp",
+  "output": "CMakeFiles/tfs.dir/src/raids.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\reward.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\reward.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/reward.cpp",
+  "output": "CMakeFiles/tfs.dir/src/reward.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\rewardchest.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\rewardchest.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/rewardchest.cpp",
+  "output": "CMakeFiles/tfs.dir/src/rewardchest.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\rsa.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\rsa.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/rsa.cpp",
+  "output": "CMakeFiles/tfs.dir/src/rsa.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\scheduler.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\scheduler.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/scheduler.cpp",
+  "output": "CMakeFiles/tfs.dir/src/scheduler.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\scriptmanager.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\scriptmanager.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/scriptmanager.cpp",
+  "output": "CMakeFiles/tfs.dir/src/scriptmanager.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\server.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\server.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/server.cpp",
+  "output": "CMakeFiles/tfs.dir/src/server.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\signals.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\signals.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/signals.cpp",
+  "output": "CMakeFiles/tfs.dir/src/signals.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\spawn.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\spawn.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/spawn.cpp",
+  "output": "CMakeFiles/tfs.dir/src/spawn.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\spells.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\spells.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/spells.cpp",
+  "output": "CMakeFiles/tfs.dir/src/spells.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\talkaction.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\talkaction.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/talkaction.cpp",
+  "output": "CMakeFiles/tfs.dir/src/talkaction.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\tasks.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\tasks.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/tasks.cpp",
+  "output": "CMakeFiles/tfs.dir/src/tasks.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\teleport.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\teleport.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/teleport.cpp",
+  "output": "CMakeFiles/tfs.dir/src/teleport.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\thing.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\thing.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/thing.cpp",
+  "output": "CMakeFiles/tfs.dir/src/thing.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\tile.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\tile.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/tile.cpp",
+  "output": "CMakeFiles/tfs.dir/src/tile.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\tools.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\tools.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/tools.cpp",
+  "output": "CMakeFiles/tfs.dir/src/tools.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\trashholder.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\trashholder.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/trashholder.cpp",
+  "output": "CMakeFiles/tfs.dir/src/trashholder.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\vocation.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\vocation.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/vocation.cpp",
+  "output": "CMakeFiles/tfs.dir/src/vocation.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\waitlist.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\waitlist.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/waitlist.cpp",
+  "output": "CMakeFiles/tfs.dir/src/waitlist.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\weapons.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\weapons.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/weapons.cpp",
+  "output": "CMakeFiles/tfs.dir/src/weapons.cpp.obj"
+},
+{
+  "directory": "C:/8.6/otserv_860/otc-server/server/build_win",
+  "command": "C:\\msys64\\mingw64\\bin\\c++.exe -DBOOST_FILESYSTEM_NO_LIB -DBOOST_FILESYSTEM_STATIC_LINK=1 -DBOOST_IOSTREAMS_NO_LIB -DBOOST_IOSTREAMS_STATIC_LINK -DBOOST_RANDOM_NO_LIB -DBOOST_RANDOM_STATIC_LINK -DDBUG_OFF @CMakeFiles/tfs.dir/includes_CXX.rsp -O1 -DNDEBUG -Wall -Werror -fvisibility=hidden -fno-strict-aliasing -std=c++17 -Winvalid-pch -include C:/8.6/otserv_860/otc-server/server/build_win/cotire/tfs_CXX_prefix.hxx -o CMakeFiles\\tfs.dir\\src\\wildcardtree.cpp.obj -c C:\\8.6\\otserv_860\\otc-server\\server\\src\\wildcardtree.cpp",
+  "file": "C:/8.6/otserv_860/otc-server/server/src/wildcardtree.cpp",
+  "output": "CMakeFiles/tfs.dir/src/wildcardtree.cpp.obj"
+}
+]

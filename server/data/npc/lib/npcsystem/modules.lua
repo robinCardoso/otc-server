@@ -188,6 +188,22 @@ if Modules == nil then
 		return true
 	end
 
+	local function resolveTravelDestinations(destination)
+		local destinations = {}
+		if type(destination) == 'table' then
+			if destination.x then
+				destinations[1] = Position(destination)
+			else
+				for i = 1, #destination do
+					destinations[i] = destination[i]
+				end
+			end
+		else
+			destinations[1] = destination
+		end
+		return destinations
+	end
+
 	function StdModule.travel(cid, message, keywords, parameters, node)
 		local npcHandler = parameters.npcHandler
 		if npcHandler == nil then
@@ -212,7 +228,7 @@ if Modules == nil then
 			cost = 0
 		end
 
-		local exhausts = 0
+		local exhaustStorage = 0
 
 		if parameters.premium and not player:isPremium() then
 			npcHandler:say("I'm sorry, but you need a premium account in order to travel onboard our ships.", cid)
@@ -220,32 +236,49 @@ if Modules == nil then
 			npcHandler:say("You must reach level " .. parameters.level .. " before I can let you go there.", cid)
 		elseif player:isPzLocked() then
 			npcHandler:say("First get rid of those blood stains! You are not going to ruin my vehicle!", cid)
-		elseif not player:removeMoneyNpc(cost) then
+		elseif cost > 0 and (player:getMoney() + player:getBankBalance()) < cost then
 			npcHandler:say("You don't have enough money.", cid)
-		elseif os.time() < getPlayerStorageValue(cid, exhausts) then
+		elseif os.time() < getPlayerStorageValue(cid, exhaustStorage) then
 			npcHandler:say('Sorry, but you need to wait three seconds before travel again.', cid)
 			player:getPosition():sendMagicEffect(CONST_ME_POFF)
 		else
-			npcHandler:releaseFocus(cid)
-			npcHandler:say(parameters.text or "Set the sails!", cid)
-			player:getPosition():sendMagicEffect(CONST_ME_TELEPORT)
-
 			local destination = parameters.destination
 			if type(destination) == 'function' then
 				destination = destination(player)
 			end
 
-			player:teleportTo(destination)
-			destination:sendMagicEffect(CONST_ME_TELEPORT)
+			local destinations = resolveTravelDestinations(destination)
+			for i = #destinations, 2, -1 do
+				local j = math.random(i)
+				destinations[i], destinations[j] = destinations[j], destinations[i]
+			end
 
-			setPlayerStorageValue(cid, exhausts, 0 + os.time())
-			player:teleportTo(destination)
-			destination:sendMagicEffect(CONST_ME_TELEPORT)
+			npcHandler:releaseFocus(cid)
+			player:getPosition():sendMagicEffect(CONST_ME_TELEPORT)
 
-			-- What a foolish Quest - Mission 3
-			if player:getStorageValue(Storage.WhatAFoolishQuest.PieBoxTimer) > os.time() then
-				if destination ~= Position(32660, 31957, 15) then -- kazordoon steamboat
-					player:setStorageValue(Storage.WhatAFoolishQuest.PieBoxTimer, 1)
+			local arrivalPos = StdModule.findTravelPosition(player, destinations)
+			local teleported = arrivalPos and player:teleportTo(arrivalPos, false)
+
+			if not teleported then
+				npcHandler:say("I'm sorry, but I can't bring you there right now. The deck is too crowded.", cid)
+				player:getPosition():sendMagicEffect(CONST_ME_POFF)
+			else
+				arrivalPos:sendMagicEffect(CONST_ME_TELEPORT)
+				npcHandler:say(parameters.text or "Set the sails!", cid)
+
+				if cost > 0 and not player:removeMoneyNpc(cost) then
+					npcHandler:say("You don't have enough money.", cid)
+				else
+					setPlayerStorageValue(cid, exhaustStorage, os.time() + 3)
+					player:setStorageValue(Storage.recentShipTravel, os.time())
+					player:save()
+
+					-- What a foolish Quest - Mission 3
+					if player:getStorageValue(Storage.WhatAFoolishQuest.PieBoxTimer) > os.time() then
+						if arrivalPos ~= Position(32660, 31957, 15) then -- kazordoon steamboat
+							player:setStorageValue(Storage.WhatAFoolishQuest.PieBoxTimer, 1)
+						end
+					end
 				end
 			end
 		end

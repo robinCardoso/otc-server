@@ -23,6 +23,26 @@ function StdModule.travelDiscount(player, discounts)
 	return discountPrice
 end
 
+-- Keep search tight (±1) so ship travel stays on the deck, not the pier/dock.
+local travelSearchOffsets = {
+	{0, 0},
+	{0, 1}, {0, -1}, {1, 0}, {-1, 0},
+	{1, 1}, {-1, 1}, {1, -1}, {-1, -1},
+}
+
+function StdModule.findTravelPosition(player, destinations)
+	for _, dest in ipairs(destinations) do
+		local center = Position(dest)
+		for _, offset in ipairs(travelSearchOffsets) do
+			local tryPos = Position(center.x + offset[1], center.y + offset[2], center.z)
+			if tryPos:isValidSpawn(player) then
+				return tryPos
+			end
+		end
+	end
+	return nil
+end
+
 function StdModule.kick(cid, message, keywords, parameters, node)
 	local npcHandler = parameters.npcHandler
 	if npcHandler == nil then

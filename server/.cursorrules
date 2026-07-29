@@ -149,7 +149,7 @@ Detalhes: `docs/LOGS.md`.
 
 ```powershell
 $env:PATH = "C:\msys64\mingw64\bin;C:\msys64\usr\bin;" + $env:PATH
-cd C:\8.6\otserv_860\otserv_860-orig
+C:\8.6\otserv_860\otc-server\server\
 mkdir build_win -Force
 cd build_win
 cmake .. -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release
@@ -158,6 +158,10 @@ Copy-Item tfs.exe ..\tfs.exe -Force
 cd ..
 .\deploy-runtime-dlls.ps1
 ```
+$env:PATH = "C:\msys64\mingw64\bin;C:\msys64\usr\bin;" + $env:PATH
+cd C:\8.6\otserv_860\otc-server\server\build_win
+cmake --build . -j 4
+Copy-Item tfs.exe ..\tfs.exe -Force
 
 Atalho: `rodar-tfs-novo.bat`.
 

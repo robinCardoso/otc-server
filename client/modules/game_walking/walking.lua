@@ -248,6 +248,8 @@ function onTeleport(player, newPos, oldPos)
     walkLock = g_clock.millis() + g_settings.getNumber('walkStairsDelay')
   end
   nextWalkDir = nil -- cancel autowalk
+  player:finishServerWalking()
+  player:unlockWalk()
 end
 
 function onWalkFinish(player)

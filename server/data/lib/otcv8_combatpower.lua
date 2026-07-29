@@ -6,6 +6,8 @@
 Otcv8CombatPower = {
 	OPCODE = 203,
 	MAX_PACKET_SIZE = 60000,
+	_lastCombatPowerRequest = {},
+	DEBOUNCE_SEC = 1.0,
 }
 
 function Otcv8CombatPower.sendJSON(player, action, data)
@@ -55,6 +57,7 @@ function Otcv8CombatPower.buildPlayerCombatPower(player)
 		armor = preview.armor,
 		spells = preview.spells or spellData.spells,
 		healingRunes = preview.healingRunes or spellData.healingRunes,
+		attackRunes = preview.attackRunes or {},
 		attack = {
 			kind = attack.kind,
 			weaponName = attack.weaponName,
@@ -68,11 +71,27 @@ function Otcv8CombatPower.buildPlayerCombatPower(player)
 			elementMin = attack.elementMin,
 			elementMax = attack.elementMax,
 			elementType = attack.elementType,
+			charmBonusPercent = attack.charmBonusPercent or 0,
+			charmLabel = attack.charmLabel or "",
 			shieldName = attack.shieldName,
 			shieldDefense = attack.shieldDefense,
 		},
 		equipment = equipment,
 	}
+end
+
+function Otcv8CombatPower.canRequest(player)
+	if not player then
+		return false
+	end
+	local pid = player:getId()
+	local now = os.clock()
+	local last = Otcv8CombatPower._lastCombatPowerRequest[pid] or 0
+	if now - last < Otcv8CombatPower.DEBOUNCE_SEC then
+		return false
+	end
+	Otcv8CombatPower._lastCombatPowerRequest[pid] = now
+	return true
 end
 
 function Otcv8CombatPower.send(player)

@@ -42,6 +42,12 @@ extern Actions actions;
 extern CreatureEvents* g_creatureEvents;
 extern Chat* g_chat;
 
+namespace {
+constexpr uint32_t STORAGE_RECENT_SHIP_TRAVEL = 50725;
+constexpr int32_t FORCE_CLEAN_LOGIN_TRAVEL_SECONDS = 15;
+constexpr int32_t FORCE_CLEAN_LOGIN_LOGOUT_SECONDS = 8;
+} // namespace
+
 ProtocolGame::LiveCastsMap ProtocolGame::liveCasts;
 
 void ProtocolGame::spectatorRelease()
@@ -62,22 +68,89 @@ void ProtocolGame::release()
 
 	if (player && player->client == shared_from_this())
 	{
-		if (player->getTile() && (player->getTile()->hasFlag(TILESTATE_PROTECTIONZONE) || !player->hasCondition(CONDITION_INFIGHT)))
-			logout(true, true);
+		if (!player->isRemoved()) {
+			if (player->getTile()) {
+				logout(true, true);
+			} else {
+				player->loginPosition = player->getPosition();
+				player->lastLogout = time(nullptr);
+				IOLoginData::updateOnlineStatus(player->getGUID(), false);
+				IOLoginData::savePlayer(player);
+				disconnect();
+			}
+		}
 
-		player->client.reset();
-		player->decrementReferenceCounter();
-		player = nullptr;
+		if (player) {
+			player->client.reset();
+			player->decrementReferenceCounter();
+			player = nullptr;
+		}
 	}
 
 	OutputMessagePool::getInstance().removeProtocolFromAutosend(shared_from_this());
 	Protocol::release();
 }
 
+bool ProtocolGame::shouldForceCleanLogin(const Player* player)
+{
+	if (!player) {
+		return false;
+	}
+
+	const time_t now = time(nullptr);
+
+	int32_t travelAt = 0;
+	if (player->getStorageValue(STORAGE_RECENT_SHIP_TRAVEL, travelAt) && travelAt > 0) {
+		if (now - travelAt < FORCE_CLEAN_LOGIN_TRAVEL_SECONDS) {
+			return true;
+		}
+	}
+
+	const time_t lastLogout = player->getLastLogout();
+	if (lastLogout > 0 && now - lastLogout < FORCE_CLEAN_LOGIN_LOGOUT_SECONDS) {
+		return true;
+	}
+
+	return false;
+}
+
+void ProtocolGame::forceCleanRemovePlayer(Player* foundPlayer)
+{
+	if (!foundPlayer || foundPlayer->isRemoved()) {
+		return;
+	}
+
+	foundPlayer->isConnecting = false;
+	foundPlayer->disconnect();
+
+	if (foundPlayer->isRemoved()) {
+		return;
+	}
+
+	if (foundPlayer->getTile()) {
+		IOLoginData::savePlayer(foundPlayer);
+		g_game.removeCreature(foundPlayer, true);
+		return;
+	}
+
+	foundPlayer->loginPosition = foundPlayer->getPosition();
+	foundPlayer->lastLogout = time(nullptr);
+	IOLoginData::updateOnlineStatus(foundPlayer->getGUID(), false);
+	IOLoginData::savePlayer(foundPlayer);
+	foundPlayer->removeList();
+	foundPlayer->setRemoved();
+	g_game.ReleaseCreature(foundPlayer);
+}
+
 void ProtocolGame::login(const std::string& name, uint32_t accountId, OperatingSystem_t operatingSystem)
 {
 	//dispatcher thread
 	Player* foundPlayer = g_game.getPlayerByName(name);
+	if (foundPlayer && ProtocolGame::shouldForceCleanLogin(foundPlayer)) {
+		ProtocolGame::forceCleanRemovePlayer(foundPlayer);
+		foundPlayer = nullptr;
+	}
+
 	if (!foundPlayer || g_config.getBoolean(ConfigManager::ALLOW_CLONES)) {
 		player = new Player(getThis());
 		player->setName(name);
@@ -160,10 +233,6 @@ void ProtocolGame::login(const std::string& name, uint32_t accountId, OperatingS
 			}
 		}
 
-		if (operatingSystem >= CLIENTOS_OTCLIENT_LINUX) {
-			player->registerCreatureEvent("ExtendedOpcode");
-		}
-
 		player->lastIP = player->getIP();
 		player->lastLoginSaved = std::max<time_t>(time(nullptr), player->lastLoginSaved + 1);
 		acceptPackets = true;
@@ -193,6 +262,12 @@ void ProtocolGame::connect(uint32_t playerId, OperatingSystem_t operatingSystem)
 	Player* foundPlayer = g_game.getPlayerByID(playerId);
 	if (!foundPlayer || foundPlayer->client) {
 		disconnectClient("You are already logged in.");
+		return;
+	}
+
+	if (ProtocolGame::shouldForceCleanLogin(foundPlayer)) {
+		ProtocolGame::forceCleanRemovePlayer(foundPlayer);
+		disconnectClient("Session expired after travel. Please login again.");
 		return;
 	}
 

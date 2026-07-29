@@ -19,7 +19,9 @@ Otcv8Bestiary = {
   _itemsSent = {},
   _syncPipelinePending = {},
   _lastSyncRequest = {},
+  _lastKillsRequest = {},
   SYNC_DEBOUNCE_SEC = 1.0,
+  KILLS_DEBOUNCE_SEC = 0.5,
 }
 
 function Otcv8Bestiary.getStorageKey(name)
@@ -153,7 +155,8 @@ function Otcv8Bestiary.sendLooks(player)
   if not Otcv8Bestiary.buildLooksCache() then
     return false
   end
-  return Otcv8Bestiary.sendJSON(player, "looks", Otcv8Bestiary.looksPayload, Otcv8Bestiary.OPCODE_LOOKS)
+  -- Mesmo opcode 207 do pipeline (kills -> items -> looks); evita fragmentos orfaos no 208.
+  return Otcv8Bestiary.sendJSON(player, "looks", Otcv8Bestiary.looksPayload)
 end
 
 function Otcv8Bestiary.collectLootItemIds(lootList, seen)
@@ -453,6 +456,20 @@ function Otcv8Bestiary.canRequestSync(player)
     return false
   end
   Otcv8Bestiary._lastSyncRequest[pid] = now
+  return true
+end
+
+function Otcv8Bestiary.canRequestKills(player)
+  if not player then
+    return false
+  end
+  local pid = player:getId()
+  local now = os.clock()
+  local last = Otcv8Bestiary._lastKillsRequest[pid] or 0
+  if now - last < Otcv8Bestiary.KILLS_DEBOUNCE_SEC then
+    return false
+  end
+  Otcv8Bestiary._lastKillsRequest[pid] = now
   return true
 end
 

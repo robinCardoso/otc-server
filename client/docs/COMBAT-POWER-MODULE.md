@@ -69,6 +69,7 @@ O cliente pede preview de novo (debounce **450 ms**) quando:
 - `onLevelChange` / `onSkillChange` / `onMagicLevelChange`
 - `onFightModeChange`
 - Login (`scheduleEvent` ~900 ms após `onGameStart`)
+- Compra de Charm no Bestiary (`game_bestiary` chama `scheduleRequest` após `charms_buy_result`)
 
 ---
 
@@ -81,13 +82,13 @@ Referência: [`modal combat power.png`](../modal combat power.png).
 | Seção | Conteúdo | OTUI |
 |-------|----------|------|
 | **Cabeçalho** | Vocação, level, modo de luta, attack factor, wield % | `headerLabel` |
-| **Ataque (servidor)** | Arma, skill/atk, dano físico, elemento*, dist pvp/mob* | `attackPanel` + `statsSeparator` |
+| **Ataque (servidor)** | Arma, skill/atk, dano físico, elemento*, dist pvp/mob*, charm* | `attackPanel` + `statsSeparator` |
 | **Defesa (servidor)** | Defesa, armadura, escudo | `defensePanel` |
 | **Equipamento** | Lista com ícone + `[slot] nome, stats` | `equipmentList` |
 | **Magias (servidor)** | Instants attack/healing com status colorido | `spellsList` |
 | **Cura / runas** | Runas de cura **no inventário** | `healingList` |
 
-\* Linhas `elementRow` / `distanceRow` só aparecem quando o servidor envia dados (ex.: paladin distance).
+\* Linhas `elementRow` / `distanceRow` / `charmRow` só aparecem quando o servidor envia dados. `charmRow` mostra `+N% Label` (ex. `+5% Magia Gelo`) quando `attack.charmBonusPercent > 0`; min/max de dano e magias já incluem o bônus (C++ `Otcv8Charms`).
 
 ### Estilo visual
 
@@ -213,6 +214,21 @@ Campos consumidos por `applyCombatPower()` em `combatpower.lua`:
         "healMax": 0
       }
     ],
+    "attackRunes": [
+      {
+        "name": "Sudden Death",
+        "serverItemId": 2268,
+        "itemId": 2268,
+        "clientId": 3155,
+        "count": 8,
+        "level": 45,
+        "maglevel": 15,
+        "damageMin": 120,
+        "damageMax": 180,
+        "status": "ok",
+        "reason": ""
+      }
+    ],
     "healingRunes": [
       {
         "name": "Ultimate Healing Rune",
@@ -235,7 +251,8 @@ Campos consumidos por `applyCombatPower()` em `combatpower.lua`:
 ### Filtros (servidor — não duplicar no cliente)
 
 - **Magias:** só `group="attack"` ou `group="healing"`; exclui `House *` e support (Light, exiva, Haste…).
-- **Runas:** só `group="healing"` **com count > 0** no inventário.
+- **Runas:** `group="attack"` → `attackRunes[]`; `group="healing"` → `healingRunes[]`; só entram com **count > 0** no inventário (mochila e sub-containers).
+- **Refresh:** `Container.onUpdateItem` dispara `scheduleRequest()` (450 ms) além de `onInventoryChange`.
 
 ---
 

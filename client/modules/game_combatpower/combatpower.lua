@@ -67,11 +67,20 @@ local SPELL_STATUS_LABELS = {
 
 local STAT_VALUE_COLOR = "#ffcc00"
 local STAT_PENALTY_COLOR = "#ffaa44"
+local CHARM_VALUE_COLOR = "#ffd700"
 
 local window = nil
 local powerButton = nil
 local serverCombatPower = nil
 local requestEvent = nil
+local loginRequestEvent = nil
+local loginRequestPending = false
+local loginPreviewRequested = false
+local loginPreviewFetched = false
+local loginQuietUntil = 0
+local REQUEST_DEBOUNCE_MS = 600
+local LOGIN_QUIET_MS = 3000
+local LOGIN_REQUEST_DELAY_MS = 2400
 
 -- refs OTUI (ids aninhados nao ficam em window.id no OTCv8)
 local ui = {}
@@ -96,7 +105,7 @@ local function getVocationName(id)
   return VOCATION_NAMES[id] or ("Voc " .. tostring(id))
 end
 
-local function requestCombatPower()
+local function sendCombatPowerRequest()
   if not g_game.getFeature(GameExtendedOpcode) then
     return
   end
@@ -106,14 +115,21 @@ local function requestCombatPower()
   end
 end
 
+local function requestCombatPower()
+  sendCombatPowerRequest()
+end
+
 function scheduleRequest()
+  if loginPreviewRequested and not loginPreviewFetched then
+    return
+  end
   if requestEvent then
     removeEvent(requestEvent)
   end
   requestEvent = scheduleEvent(function()
     requestEvent = nil
-    requestCombatPower()
-  end, 450)
+    sendCombatPowerRequest()
+  end, REQUEST_DEBOUNCE_MS)
 end
 
 local function bindWindowWidgets()
@@ -128,6 +144,8 @@ local function bindWindowWidgets()
   ui.elementValue = window:recursiveGetChildById("elementValue")
   ui.distanceRow = window:recursiveGetChildById("distanceRow")
   ui.distanceValue = window:recursiveGetChildById("distanceValue")
+  ui.charmRow = window:recursiveGetChildById("charmRow")
+  ui.charmValue = window:recursiveGetChildById("charmValue")
   ui.defenseValue = window:recursiveGetChildById("defenseValue")
   ui.armorValue = window:recursiveGetChildById("armorValue")
   ui.shieldValue = window:recursiveGetChildById("shieldValue")
@@ -262,48 +280,76 @@ local function rebuildSpellList(spells)
   end
 end
 
-local function rebuildHealingRunes(runes)
+local function runeStatusBadge(rune)
+  local status = rune.status or "ok"
+  local textColor = SPELL_STATUS_COLORS[status] or "#88dd99"
+  local badge = SPELL_STATUS_LABELS[status] or "OK"
+  if status == "ok" then
+    badge = tr("tem no inventario")
+    textColor = SPELL_STATUS_COLORS.ok
+  elseif status == "locked" and rune.reason == "maglevel" then
+    badge = tr("falta ML")
+  elseif status == "locked" and rune.reason == "level" then
+    badge = tr("falta level")
+  end
+  return status, textColor, badge
+end
+
+local function runeDisplayTitle(rune)
+  local runeTitle = rune.name or "?"
+  if not runeTitle:lower():find("rune") then
+    runeTitle = runeTitle .. " (rune)"
+  end
+  return runeTitle
+end
+
+local function addRuneRow(list, rune, line, textColor, okBackground)
+  local row = g_ui.createWidget("CombatPowerRuneRow", list)
+  if (rune.status or "ok") == "ok" and okBackground then
+    row:setBackgroundColor(okBackground)
+  end
+  if row.lineText then
+    row.lineText:setText(line)
+    row.lineText:setColor(textColor)
+  end
+  applyRuneIcon(row, rune.name, rune.serverItemId or rune.itemId, rune.clientId, rune.count)
+end
+
+local function rebuildInventoryRunes(attackRunes, healingRunes)
   if not ui.healingList then
     return
   end
   local list = ui.healingList
   list:destroyChildren()
 
-  if not runes or #runes == 0 then
-    addListLine(list, tr("Sem runas de cura no inventario."), "#888888")
+  local hasAttack = attackRunes and #attackRunes > 0
+  local hasHealing = healingRunes and #healingRunes > 0
+
+  if not hasAttack and not hasHealing then
+    addListLine(list, tr("Sem runas no inventario."), "#888888")
     return
   end
 
-  for _, rune in ipairs(runes) do
-    local status = rune.status or "ok"
-    local textColor = SPELL_STATUS_COLORS[status] or "#88dd99"
-    local badge = SPELL_STATUS_LABELS[status] or "OK"
-    if status == "ok" then
-      badge = tr("tem no inventario")
-      textColor = SPELL_STATUS_COLORS.ok
-    elseif status == "locked" and rune.reason == "maglevel" then
-      badge = tr("falta ML")
-    elseif status == "locked" and rune.reason == "level" then
-      badge = tr("falta level")
+  if hasAttack then
+    for _, rune in ipairs(attackRunes) do
+      local status, textColor, badge = runeStatusBadge(rune)
+      if status == "ok" then
+        textColor = "#ffaa66"
+      end
+      local line = string.format("%s | ML %d+ | dano: %s | %s",
+        runeDisplayTitle(rune), rune.maglevel or 0,
+        fmtRange(rune.damageMin, rune.damageMax), badge)
+      addRuneRow(list, rune, line, textColor, "#4d3020")
     end
+  end
 
-    local runeTitle = rune.name or "?"
-    if not runeTitle:lower():find("rune") then
-      runeTitle = runeTitle .. " (rune)"
+  if hasHealing then
+    for _, rune in ipairs(healingRunes) do
+      local status, textColor, badge = runeStatusBadge(rune)
+      local line = string.format("%s | ML %d+ | cura: %d-%d | %s",
+        runeDisplayTitle(rune), rune.maglevel or 0, rune.healMin or 0, rune.healMax or 0, badge)
+      addRuneRow(list, rune, line, textColor, "#1a4d2e")
     end
-
-    local line = string.format("%s | ML %d+ | cura: %d-%d | %s",
-      runeTitle, rune.maglevel or 0, rune.healMin or 0, rune.healMax or 0, badge)
-
-    local row = g_ui.createWidget("CombatPowerRuneRow", list)
-    if status == "ok" then
-      row:setBackgroundColor("#1a4d2e")
-    end
-    if row.lineText then
-      row.lineText:setText(line)
-      row.lineText:setColor(textColor)
-    end
-    applyRuneIcon(row, rune.name, rune.serverItemId or rune.itemId, rune.clientId, rune.count)
   end
 end
 
@@ -389,6 +435,18 @@ local function applyCombatPower(data)
     end
   end
 
+  if ui.charmRow and ui.charmValue then
+    local charmPercent = tonumber(attack.charmBonusPercent) or 0
+    if charmPercent > 0 then
+      ui.charmRow:setVisible(true)
+      local charmLabel = attack.charmLabel or ""
+      ui.charmValue:setText(string.format("+%d%% %s", charmPercent, charmLabel))
+      ui.charmValue:setColor(CHARM_VALUE_COLOR)
+    else
+      ui.charmRow:setVisible(false)
+    end
+  end
+
   setStatValue(ui.defenseValue, tostring(data.defense or 0), false)
   setStatValue(ui.armorValue, tostring(data.armor or 0), false)
 
@@ -406,12 +464,15 @@ local function applyCombatPower(data)
     if ui.distanceRow and ui.distanceRow:isVisible() then
       statsHeight = statsHeight + 21
     end
+    if ui.charmRow and ui.charmRow:isVisible() then
+      statsHeight = statsHeight + 21
+    end
     ui.statsSectionPanel:setHeight(statsHeight)
   end
 
   rebuildEquipmentList(data.equipment)
   rebuildSpellList(data.spells)
-  rebuildHealingRunes(data.healingRunes)
+  rebuildInventoryRunes(data.attackRunes, data.healingRunes)
 end
 
 local function onExtendedJSONOpcode(protocol, code, jsonData)
@@ -424,6 +485,9 @@ local function onExtendedJSONOpcode(protocol, code, jsonData)
   end
 
   serverCombatPower = jsonData.data
+  loginPreviewFetched = true
+  loginPreviewRequested = false
+  loginRequestPending = false
   if window and window:isVisible() then
     applyCombatPower(serverCombatPower)
   end
@@ -433,16 +497,53 @@ local function onPlayerStateChange()
   if not g_game.isOnline() then
     return
   end
+  if g_clock.millis() < loginQuietUntil then
+    return
+  end
+  if not loginPreviewFetched then
+    return
+  end
   scheduleRequest()
 end
 
 local function onGameStart()
   serverCombatPower = nil
-  scheduleEvent(requestCombatPower, 900)
+  loginPreviewFetched = false
+  loginPreviewRequested = false
+  loginQuietUntil = g_clock.millis() + LOGIN_QUIET_MS
+  loginRequestPending = true
+  if loginRequestEvent then
+    removeEvent(loginRequestEvent)
+  end
+  if requestEvent then
+    removeEvent(requestEvent)
+    requestEvent = nil
+  end
+  loginRequestEvent = scheduleEvent(function()
+    loginRequestEvent = nil
+    loginRequestPending = false
+    if loginPreviewFetched or loginPreviewRequested then
+      return
+    end
+    loginPreviewRequested = true
+    sendCombatPowerRequest()
+  end, LOGIN_REQUEST_DELAY_MS)
 end
 
 local function onGameEnd()
   serverCombatPower = nil
+  loginQuietUntil = 0
+  loginRequestPending = false
+  loginPreviewRequested = false
+  loginPreviewFetched = false
+  if loginRequestEvent then
+    removeEvent(loginRequestEvent)
+    loginRequestEvent = nil
+  end
+  if requestEvent then
+    removeEvent(requestEvent)
+    requestEvent = nil
+  end
   hide()
 end
 
@@ -458,6 +559,10 @@ function init()
     onLevelChange = onPlayerStateChange,
     onSkillChange = onPlayerStateChange,
     onMagicLevelChange = onPlayerStateChange,
+  })
+
+  connect(Container, {
+    onUpdateItem = onPlayerStateChange,
   })
 
   ProtocolGame.registerExtendedJSONOpcode(COMBAT_POWER_OPCODE, onExtendedJSONOpcode)
@@ -493,6 +598,10 @@ function terminate()
     onMagicLevelChange = onPlayerStateChange,
   })
 
+  disconnect(Container, {
+    onUpdateItem = onPlayerStateChange,
+  })
+
   ProtocolGame.unregisterExtendedJSONOpcode(COMBAT_POWER_OPCODE, onExtendedJSONOpcode)
 
   local gameRootPanel = modules.game_interface.getRootPanel()
@@ -504,6 +613,14 @@ function terminate()
     removeEvent(requestEvent)
     requestEvent = nil
   end
+
+  if loginRequestEvent then
+    removeEvent(loginRequestEvent)
+    loginRequestEvent = nil
+  end
+  loginRequestPending = false
+  loginPreviewRequested = false
+  loginPreviewFetched = false
 
   if powerButton then
     powerButton:destroy()
@@ -542,9 +659,12 @@ function show()
 
   if serverCombatPower then
     applyCombatPower(serverCombatPower)
+  elseif loginRequestPending or loginPreviewRequested or requestEvent or not loginPreviewFetched then
+    -- Aguarda o unico request automatico do login (ou resposta em voo).
+  else
+    scheduleRequest()
   end
 
-  requestCombatPower()
   window:show()
   window:raise()
   window:focus()

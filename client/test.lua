@@ -18,7 +18,7 @@ if not ok or not datOk or not sprOk then
   g_logger.fatal('[test] FAILED assets load')
 end
 
-if aware.width ~= 18 or aware.height ~= 14 then
+if aware.width ~= 25 or aware.height ~= 20 then
   g_logger.fatal(string.format('[test] FAILED aware %dx%d', aware.width, aware.height))
 end
 

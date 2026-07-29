@@ -11,7 +11,11 @@ function onExtendedOpcode(player, opcode, buffer)
   end
 
   local action = jsonData.action
-  if action == "requestSync" then
+  if action == "requestKills" then
+    if Otcv8Bestiary.canRequestKills(player) then
+      Otcv8Bestiary.sendKills(player)
+    end
+  elseif action == "requestSync" then
     if Otcv8Bestiary.canRequestSync(player) then
       Otcv8Bestiary.sendFullSync(player)
     end

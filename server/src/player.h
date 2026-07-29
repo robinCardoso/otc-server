@@ -380,6 +380,9 @@ class Player final : public Creature, public Cylinder
 		uint8_t getMagicLevelPercent() const {
 			return magLevelPercent;
 		}
+		uint32_t getInventoryItemCount(uint16_t itemId) const {
+			return getItemTypeCount(itemId, -1);
+		}
 		uint8_t getSoul() const {
 			return soul;
 		}
@@ -489,7 +492,7 @@ class Player final : public Creature, public Cylinder
 		bool canSee(const Position& pos) const final;
 		bool canSeeCreature(const Creature* creature) const final;
 
-		bool canWalkthrough(const Creature* creature, bool diagonalStep = false) const;
+		bool canWalkthrough(const Creature* creature) const;
 		bool canWalkthroughEx(const Creature* creature) const;
 
 		RaceType_t getRace() const final {

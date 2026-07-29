@@ -235,6 +235,14 @@ end
 
 function offline()
   if expSpeedEvent then expSpeedEvent:cancel() expSpeedEvent = nil end
+  if not skillsWindow then return end
+  for _, id in ipairs({'level', 'experience', 'health', 'mana', 'soul', 'capacity', 'speed', 'stamina', 'magiclevel'}) do
+    local w = skillsWindow:recursiveGetChildById(id)
+    if w then
+      local value = w:getChildById('value')
+      if value then value:setText('-') end
+    end
+  end
 end
 
 function toggle()

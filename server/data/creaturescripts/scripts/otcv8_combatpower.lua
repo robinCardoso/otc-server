@@ -17,6 +17,9 @@ function onExtendedOpcode(player, opcode, buffer)
 	end
 
 	if action == "request" or action == "combatPower" then
+		if not Otcv8CombatPower.canRequest(player) then
+			return true
+		end
 		local ok, err = pcall(function()
 			Otcv8CombatPower.send(player)
 		end)

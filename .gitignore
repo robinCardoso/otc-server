@@ -11,6 +11,9 @@
 *.tmp
 *~
 
+# Ignorar arquivos pesados do Tibia
+godot-client/client/
+
 # Compiled binary files (Keep repo clean and avoid GitHub 100MB limit)
 *.pdb
 *.exe

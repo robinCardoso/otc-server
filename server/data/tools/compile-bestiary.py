@@ -9,6 +9,9 @@ CLIENT_DIR = r"C:\8.6\otserv_860\otc-server\client"
 MONSTERS_XML_PATH = os.path.join(SERVER_DIR, "data", "monster", "monsters.xml")
 CLIENT_DB_PATH = os.path.join(CLIENT_DIR, "modules", "game_bestiary", "bestiary_database.json")
 SERVER_LUA_PATH = os.path.join(SERVER_DIR, "data", "lib", "bestiary_monsters.lua")
+ITEMS_XML_PATH = os.path.join(SERVER_DIR, "data", "items", "items.xml")
+ITEMS_OTB_PATH = os.path.join(SERVER_DIR, "data", "items", "items.otb")
+CLIENT_ASSETS_PATH = os.path.join(CLIENT_DIR, "modules", "game_bestiary", "bestiary_assets.json")
 
 def load_existing_db():
     if not os.path.exists(CLIENT_DB_PATH):
@@ -279,6 +282,172 @@ def main():
         print(f"Error writing server lua file: {e}")
         return
 
+    # Compile Looks and Items mapping for client assets
+    print("Compiling bestiary_assets.json (looks and item mapping)...")
+    
+    # 1. Build looks list from database entries
+    looks_names = []
+    looks_types = []
+    looks_aux = []
+    for entry in database_entries:
+        looks_names.append(entry["name"])
+        looks_types.append(entry.get("lookId", 0))
+        looks_aux.append(entry.get("lookTypeEx", 0))
+        
+    looks_payload = {
+        "v": 1,
+        "names": looks_names,
+        "types": looks_types,
+        "aux": looks_aux
+    }
+    
+    # 2. Collect item IDs from loots
+    seen_item_ids = set()
+    for entry in database_entries:
+        for drop in entry.get("loot", []):
+            item_id = drop.get("id")
+            if item_id and item_id > 0:
+                seen_item_ids.add(item_id)
+                
+    # 3. Parse items.otb
+    items_map = {}
+    if os.path.exists(ITEMS_OTB_PATH):
+        try:
+            import struct
+            with open(ITEMS_OTB_PATH, "rb") as f:
+                otb_data = f.read()
+            
+            pos = 4
+            limit = len(otb_data)
+            stack = []
+            while pos < limit:
+                b = otb_data[pos]
+                pos += 1
+                if b == 0xFE: # Node start
+                    if pos >= limit:
+                        break
+                    node_type = otb_data[pos]
+                    pos += 1
+                    stack.append({
+                        "type": node_type,
+                        "props": bytearray(),
+                        "children": []
+                    })
+                elif b == 0xFF: # Node end
+                    if not stack:
+                        break
+                    node = stack.pop()
+                    # Type 2 is item node
+                    if node["type"] == 2:
+                        props = node["props"]
+                        if len(props) >= 4:
+                            flags = struct.unpack("<I", props[0:4])[0]
+                            idx = 4
+                            server_id = 0
+                            client_id = 0
+                            props_len = len(props)
+                            while idx < props_len:
+                                attrib = props[idx]
+                                idx += 1
+                                if idx + 2 > props_len:
+                                    break
+                                datalen = struct.unpack("<H", props[idx:idx+2])[0]
+                                idx += 2
+                                if idx + datalen > props_len:
+                                    break
+                                attr_data = props[idx:idx+datalen]
+                                idx += datalen
+                                
+                                if attrib == 0x10: # ITEM_ATTR_SERVERID
+                                    if datalen == 2:
+                                        server_id = struct.unpack("<H", attr_data)[0]
+                                        if 200000 < server_id < 201000:
+                                            server_id -= 200000
+                                elif attrib == 0x11: # ITEM_ATTR_CLIENTID
+                                    if datalen == 2:
+                                        client_id = struct.unpack("<H", attr_data)[0]
+                            
+                            if server_id > 0 and client_id > 0:
+                                items_map[server_id] = client_id
+                    if stack:
+                        stack[-1]["children"].append(node)
+                elif b == 0xFD: # Escape
+                    if pos < limit:
+                        if stack:
+                            stack[-1]["props"].append(otb_data[pos])
+                        pos += 1
+                else:
+                    if stack:
+                        stack[-1]["props"].append(b)
+        except Exception as e:
+            print(f"Warning: Failed to parse items.otb: {e}")
+            
+    # 4. Parse items.xml to map item ID to name
+    item_names = {}
+    if os.path.exists(ITEMS_XML_PATH):
+        try:
+            try:
+                tree = ET.parse(ITEMS_XML_PATH)
+                root = tree.getroot()
+                for item in root.findall("item"):
+                    sid_str = item.attrib.get("id")
+                    name = item.attrib.get("name")
+                    if sid_str and name:
+                        try:
+                            item_names[int(sid_str)] = name
+                        except:
+                            pass
+                    fromid = item.attrib.get("fromid")
+                    toid = item.attrib.get("toid")
+                    if fromid and toid and name:
+                        try:
+                            for idx in range(int(fromid), int(toid) + 1):
+                                item_names[idx] = name
+                        except:
+                            pass
+            except Exception as et_err:
+                print(f"Warning: ET failed to parse items.xml: {et_err}. Falling back to line parsing...")
+                import re
+                item_re = re.compile(r'<item\s+id="(\d+)"\s+name="([^"]+)"')
+                range_re = re.compile(r'<item\s+fromid="(\d+)"\s+toid="(\d+)"\s+name="([^"]+)"')
+                with open(ITEMS_XML_PATH, "r", encoding="utf-8", errors="ignore") as f:
+                    for line in f:
+                        m = item_re.search(line)
+                        if m:
+                            item_names[int(m.group(1))] = m.group(2)
+                            continue
+                        m = range_re.search(line)
+                        if m:
+                            from_val, to_val, name_val = int(m.group(1)), int(m.group(2)), m.group(3)
+                            for idx in range(from_val, to_val + 1):
+                                item_names[idx] = name_val
+        except Exception as e:
+            print(f"Warning: could not parse items.xml: {e}")
+            
+    # Combine OTB and XML results for assets payload
+    items_payload = {}
+    for sid in sorted(seen_item_ids):
+        client_id = items_map.get(sid)
+        if client_id:
+            name = item_names.get(sid, "")
+            items_payload[str(sid)] = {
+                "c": client_id,
+                "n": name
+            }
+            
+    assets_payload = {
+        "looks": looks_payload,
+        "items": items_payload
+    }
+    
+    print(f"Writing bestiary assets to {CLIENT_ASSETS_PATH}...")
+    try:
+        with open(CLIENT_ASSETS_PATH, 'w', encoding='utf-8') as f:
+            json.dump(assets_payload, f, indent=2, ensure_ascii=False)
+    except Exception as e:
+        print(f"Error writing bestiary assets: {e}")
+        return
+        
     print("Success! Bestiary compiled successfully.")
 
 if __name__ == "__main__":

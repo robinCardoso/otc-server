@@ -80,6 +80,9 @@ class Weapon : public Event
 		virtual int32_t getWeaponDamage(const Player* player, const Creature* target, const Item* item, bool maxDamage = false) const = 0;
 		virtual int32_t getElementDamage(const Player* player, const Creature* target, const Item* item) const = 0;
 		virtual CombatType_t getElementType() const = 0;
+		CombatType_t getCombatType() const {
+			return params.combatType;
+		}
 
 		uint16_t getID() const {
 			return id;

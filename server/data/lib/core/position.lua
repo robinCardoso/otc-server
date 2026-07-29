@@ -53,6 +53,25 @@ function Position:isWalkable()
     return true
 end
 
+function Position:canHostCreature(creature)
+	local tile = Tile(self)
+	if not tile or not tile:getGround() then
+		return false
+	end
+
+	-- queryAdd counts creatures already on the tile (including self), so it always
+	-- fails for the player's current position on login. Use walkability instead.
+	if creature and creature:getPosition():compare(self) then
+		return self:isWalkable()
+	end
+
+	return tile:queryAdd(creature) == RETURNVALUE_NOERROR
+end
+
+function Position:isValidSpawn(creature)
+	return self:canHostCreature(creature)
+end
+
 function getFreePosition(from, to)
     local result, tries = Position(from.x, from.y, from.z), 0
     repeat

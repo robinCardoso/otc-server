@@ -53,7 +53,12 @@ end
 
 addTravelKeyword('carlin', 110, Position(32387, 31820, 6), function(player) if player:getStorageValue(Storage.postman.Mission01) == 1 then player:setStorageValue(Storage.postman.Mission01, 2) end end)
 addTravelKeyword('ab\'dendriel', 130, Position(32734, 31668, 6))
-addTravelKeyword('edron', 160, Position(33175, 31764, 6))
+addTravelKeyword('edron', 160, {
+	Position(33175, 31764, 6),
+	Position(33175, 31765, 6),
+	Position(33173, 31764, 6),
+	Position(33176, 31764, 6)
+})
 addTravelKeyword('venore', 170, Position(32954, 32022, 6))
 addTravelKeyword('port hope', 160, Position(32527, 32784, 6))
 addTravelKeyword('roshamuul', 210, Position(33494, 32567, 7))

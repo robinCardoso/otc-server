@@ -527,14 +527,8 @@ ReturnValue Tile::queryAdd(int32_t, const Thing& thing, uint32_t, uint32_t flags
 		const CreatureVector* creatures = getCreatures();
 		if (const Player* player = creature->getPlayer()) {
 			if (creatures && !creatures->empty() && !hasBitSet(FLAG_IGNOREBLOCKCREATURE, flags) && !player->isAccessPlayer()) {
-				const Position& fromPos = player->getLastPosition();
-				const Position& destPos = getPosition();
-				const int32_t dx = std::abs(destPos.x - fromPos.x);
-				const int32_t dy = std::abs(destPos.y - fromPos.y);
-				const bool diagonalStep = (dx == 1 && dy == 1 && destPos.z == fromPos.z);
-
 				for (const Creature* tileCreature : *creatures) {
-					if (!player->canWalkthrough(tileCreature, diagonalStep)) {
+					if (!player->canWalkthrough(tileCreature)) {
 						return RETURNVALUE_NOTPOSSIBLE;
 					}
 				}

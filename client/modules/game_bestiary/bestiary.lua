@@ -118,6 +118,30 @@ local CHARM_SIDEBAR_CATEGORIES = {
   { id = "cap", label = "Cap (Em breve)", disabled = true, tooltip = "Upgrades de capacidade — em desenvolvimento." },
 }
 
+local function getCharmRowFooter(row)
+  if not row then
+    return nil
+  end
+  return row:recursiveGetChildById('trackFooter')
+end
+
+local function getCharmBuyButton(row)
+  local footer = getCharmRowFooter(row)
+  if not footer then
+    return nil
+  end
+  local btn = footer:recursiveGetChildById('trackBuy')
+  if btn then
+    return btn
+  end
+  for _, child in ipairs(footer:getChildren()) do
+    if child:getClassName() == 'UIButton' then
+      return child
+    end
+  end
+  return nil
+end
+
 -- FUTURO: tela "Carregando..." no login enquanto looks + kills sincronizam (opcode 207)
 
 function init()
@@ -147,7 +171,6 @@ function init()
 
   -- Igual shop/combatpower: registrar sempre no init (GameExtendedOpcode so liga apos setClientVersion no login).
   ProtocolGame.registerExtendedJSONOpcode(207, onExtendedJSONOpcode)
-  ProtocolGame.registerExtendedJSONOpcode(208, onExtendedJSONOpcode)
 
   connect(g_game, {
     onGameStart = onGameStart,
@@ -232,7 +255,6 @@ function terminate()
   bestiaryButton:destroy()
 
   ProtocolGame.unregisterExtendedJSONOpcode(207)
-  ProtocolGame.unregisterExtendedJSONOpcode(208)
 
   disconnect(g_game, {
     onGameStart = onGameStart,
@@ -268,13 +290,31 @@ function refreshMonsterGridIfVisible(filterText)
   end
 end
 
+local fullSyncPending = false
+
 function requestServerSync()
+  if not g_game.getFeature(GameExtendedOpcode) then
+    return
+  end
+  if fullSyncPending then
+    return
+  end
+  fullSyncPending = true
+  local protocolGame = g_game.getProtocolGame()
+  if protocolGame then
+    protocolGame:sendExtendedJSONOpcode(207, { action = "requestSync" })
+  else
+    fullSyncPending = false
+  end
+end
+
+function requestServerKills()
   if not g_game.getFeature(GameExtendedOpcode) then
     return
   end
   local protocolGame = g_game.getProtocolGame()
   if protocolGame then
-    protocolGame:sendExtendedJSONOpcode(207, { action = "requestSync" })
+    protocolGame:sendExtendedJSONOpcode(207, { action = "requestKills" })
   end
 end
 
@@ -286,13 +326,22 @@ function scheduleServerSync(delayMs)
   end, delayMs or 0)
 end
 
+function scheduleServerKills(delayMs)
+  scheduleEvent(function()
+    if g_game.isOnline() then
+      requestServerKills()
+    end
+  end, delayMs or 0)
+end
+
 function onGameStart()
   killToastReady = false
   ensureKillToastsPanel()
-  scheduleServerSync(800)
+  scheduleServerKills(1800)
 end
 
 function onGameEnd()
+  fullSyncPending = false
   looksSynced = false
   itemsSynced = false
   BestiaryItemLookup = {}
@@ -426,6 +475,9 @@ function handleCharmsBuyResult(data)
   end
   refreshOverview()
   refreshCharmsUI()
+  if modules.game_combatpower and modules.game_combatpower.scheduleRequest then
+    modules.game_combatpower.scheduleRequest()
+  end
   local status = bestiaryWindow:recursiveGetChildById('charmsStatus')
   if status and data.message then
     if data.ok then
@@ -556,12 +608,26 @@ function setCharmCategory(categoryId, skipRefresh)
   end
 end
 
+local function styleCharmBuyButton(buyBtn)
+  if not buyBtn then
+    return
+  end
+  buyBtn:setSize({ width = 96, height = 24 })
+  buyBtn:setText(tr('Comprar +1%%'))
+  buyBtn:setVisible(true)
+end
+
 local function bindCharmRowWidget(row, trackDef)
   if not row or not trackDef then
     return
   end
   row.trackId = trackDef.id
-  local buyBtn = row:recursiveGetChildById('trackBuy')
+  local buyBtn = getCharmBuyButton(row)
+  row.charmBuyBtn = buyBtn
+  if buyBtn and trackDef.otuiRow then
+    buyBtn:setId(trackDef.otuiRow .. '_buy')
+  end
+  styleCharmBuyButton(buyBtn)
   if buyBtn then
     buyBtn.onClick = function()
       buyCharmTrack(trackDef.id)
@@ -599,7 +665,7 @@ local function updateCharmRowWidget(row, trackDef)
   local levelLabel = row:recursiveGetChildById('trackLevel')
   local progress = row:recursiveGetChildById('trackProgress')
   local costLabel = row:recursiveGetChildById('trackCost')
-  local buyBtn = row:recursiveGetChildById('trackBuy')
+  local buyBtn = row.charmBuyBtn or getCharmBuyButton(row)
   local iconWidget = row:recursiveGetChildById('trackIcon')
 
   if iconWidget then
@@ -635,7 +701,7 @@ local function updateCharmRowWidget(row, trackDef)
   if costLabel then
     if cost then
       costLabel:setColor("#aaaaaaff")
-      costLabel:setText(tr("Proximo nivel: +1%%  |  Custo: %d pts", cost))
+      costLabel:setText(tr("Proximo: +1%%  |  %d pts", cost))
       if bestiaryTotalPoints >= cost and g_game.isOnline() then
         canBuy = true
       elseif not g_game.isOnline() then
@@ -652,7 +718,7 @@ local function updateCharmRowWidget(row, trackDef)
     end
   end
   if buyBtn then
-    buyBtn:setVisible(true)
+    styleCharmBuyButton(buyBtn)
     buyBtn:raise()
     buyBtn:setEnabled(canBuy)
     buyBtn:setTooltip(buyTooltip)
@@ -775,6 +841,7 @@ function mergeItemsFromServer(data)
 end
 
 function finalizeItemsFromServer(data)
+  fullSyncPending = false
   itemsSynced = true
   local count = 0
   for _ in pairs(BestiaryItemLookup) do
@@ -814,6 +881,9 @@ function mergeLooksFromServer(data)
   end
 
   looksSynced = true
+  if itemsSynced then
+    fullSyncPending = false
+  end
   g_logger.info(string.format("[Bestiary] Looks oficiais sincronizados: %d monstros", merged))
 
   refreshMonsterGridIfVisible(getCurrentSearchText())
@@ -1182,6 +1252,22 @@ function loadDatabase()
   else
     g_logger.error("[Bestiary] Arquivo bestiary_database.json nao encontrado!")
   end
+
+  local assetsPath = "/modules/game_bestiary/bestiary_assets.json"
+  if g_resources.fileExists(assetsPath) then
+    local assetsContent = g_resources.readFileContents(assetsPath)
+    local assets = json.decode(assetsContent)
+    if assets then
+      if assets.looks then
+        mergeLooksFromServer(assets.looks)
+      end
+      if assets.items then
+        BestiaryItemLookup = assets.items
+        itemsSynced = true
+      end
+      g_logger.info("[Bestiary] Looks e itens locais carregados com sucesso de bestiary_assets.json!")
+    end
+  end
 end
 
 function hide()
@@ -1202,7 +1288,9 @@ function toggle()
     bestiaryWindow:raise()
     bestiaryWindow:focus()
     bestiaryButton:setOn(true)
-    requestServerSync()
+    if not looksSynced or not itemsSynced then
+      requestServerSync()
+    end
     refreshOverview()
     setMainTab(mainTab, true)
     updateMonsterGrid(getCurrentSearchText())

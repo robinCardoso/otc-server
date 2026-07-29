@@ -37,6 +37,7 @@
 #include "scheduler.h"
 #include "databasetasks.h"
 #include "weapons.h"
+#include "otcv8charms.h"
 
 extern Chat* g_chat;
 extern Weapons* g_weapons;
@@ -9404,6 +9405,8 @@ int LuaScriptInterface::luaPlayerGetCombatPreview(lua_State* L)
 	int32_t elementMin = 0;
 	int32_t elementMax = 0;
 	std::string elementType;
+	int32_t charmBonusPercent = 0;
+	const char* charmLabel = "Melee";
 
 	if (weaponItem && weaponTool) {
 		// #region agent log
@@ -9451,12 +9454,28 @@ int LuaScriptInterface::luaPlayerGetCombatPreview(lua_State* L)
 		CombatPreview::agentDebugLog1ecf01("H-C", "luascript.cpp:after_getElementDamage", "post_element", static_cast<uint32_t>(elementMax), 0);
 		// #endregion
 		elementMin = 0;
+
+		const CombatType_t elementCombatType = weaponTool->getElementType();
+		if (elementCombatType != COMBAT_NONE && elementMax != 0) {
+			elementMax = Otcv8Charms::applyOutgoingDamage(player, elementMax, elementCombatType, false);
+		}
+
+		const bool isDistanceWeapon = (weaponType == WEAPON_DISTANCE);
+		CombatType_t primaryCombatType = COMBAT_PHYSICALDAMAGE;
+		if (weaponType == WEAPON_WAND) {
+			primaryCombatType = weaponTool->getCombatType();
+		}
+		charmBonusPercent = Otcv8Charms::getBonusPercent(player, primaryCombatType, isDistanceWeapon);
+		charmLabel = Otcv8Charms::getCharmLabel(primaryCombatType, isDistanceWeapon);
 	} else {
 		// #region agent log
 		CombatPreview::agentDebugLog1ecf01("H-E", "luascript.cpp:fist_branch", "enter_fist", attackSkill, attackValue);
 		// #endregion
 		const float attackFactor = player->getAttackFactor();
-		maxDamage = Weapons::getMaxWeaponDamage(player->getLevel(), attackSkill, attackValue, attackFactor);
+		maxDamage = -static_cast<int32_t>(Weapons::getMaxWeaponDamage(player->getLevel(), attackSkill, attackValue, attackFactor));
+		maxDamage = Otcv8Charms::applyOutgoingDamage(player, maxDamage, COMBAT_PHYSICALDAMAGE, false);
+		charmBonusPercent = Otcv8Charms::getBonusPercent(player, COMBAT_PHYSICALDAMAGE, false);
+		charmLabel = Otcv8Charms::getCharmLabel(COMBAT_PHYSICALDAMAGE, false);
 		// #region agent log
 		CombatPreview::agentDebugLog1ecf01("H-E", "luascript.cpp:after_getMaxWeaponDamage", "post_fist", static_cast<uint32_t>(maxDamage), 0);
 		// #endregion
@@ -9481,7 +9500,7 @@ int LuaScriptInterface::luaPlayerGetCombatPreview(lua_State* L)
 	setField(L, "defense", player->getDefense());
 	setField(L, "armor", player->getArmor());
 
-	lua_createtable(L, 0, 14);
+	lua_createtable(L, 0, 16);
 	setField(L, "kind", attackKind);
 	setField(L, "weaponName", weaponName);
 	if (weaponTypeName) {
@@ -9496,6 +9515,8 @@ int LuaScriptInterface::luaPlayerGetCombatPreview(lua_State* L)
 	setField(L, "elementMin", elementMin);
 	setField(L, "elementMax", elementMax);
 	setField(L, "elementType", elementType);
+	setField(L, "charmBonusPercent", charmBonusPercent);
+	setField(L, "charmLabel", charmLabel);
 	if (shieldItem) {
 		setField(L, "shieldName", shieldItem->getName());
 		setField(L, "shieldDefense", shieldItem->getDefense());
@@ -9555,7 +9576,8 @@ int LuaScriptInterface::luaPlayerGetCombatPreview(lua_State* L)
 		std::cout << "> [combatpreview] " << player->getName() << " getCombatPreview: spells done" << std::endl;
 	}
 
-	CombatPreview::pushHealingRunePreviews(L, player);
+	CombatPreview::pushRunePreviews(L, player);
+	lua_setfield(L, -3, "attackRunes");
 	lua_setfield(L, -2, "healingRunes");
 
 	if (diagnosticLog) {

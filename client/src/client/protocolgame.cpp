@@ -23,6 +23,7 @@
 
 #include "protocolgame.h"
 #include "game.h"
+#include "map.h"
 #include "player.h"
 #include "item.h"
 #include "localplayer.h"
@@ -42,7 +43,11 @@ void ProtocolGame::login(const std::string& accountName, const std::string& acco
 void ProtocolGame::onConnect()
 {
     m_firstRecv = true;
+    m_mapKnown = false;
+    m_gameInitialized = false;
     Protocol::onConnect();
+
+    g_map.resetAwareRange();
 
     m_localPlayer = g_game.getLocalPlayer();
 

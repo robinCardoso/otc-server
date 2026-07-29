@@ -110,6 +110,8 @@ function init()
     onRuleViolationLock = onRuleViolationLock,
     onGameStart = online,
     onGameEnd = offline,
+    onMapKnown = ensureOnlineTabs,
+    onEnterGame = ensureOnlineTabs,
   })
 
   consolePanel = g_ui.loadUI('console', modules.game_interface.getBottomPanel())
@@ -220,12 +222,28 @@ function enableChat(temporarily)
   if temporarily then
     local quickFunc = function()
       if not g_game.isOnline() then return end
+      if not consoleTextEdit:isFocused() then
+        consoleTextEdit:focus()
+        return
+      end
       g_keyboard.unbindKeyDown("Enter", gameRootPanel)
       g_keyboard.unbindKeyDown("Escape", gameRootPanel)
       disableChat(temporarily)
     end
     g_keyboard.bindKeyDown("Enter", quickFunc, gameRootPanel)
-    g_keyboard.bindKeyDown("Escape", quickFunc, gameRootPanel)  
+    g_keyboard.bindKeyDown("Escape", function()
+      if not g_game.isOnline() then return end
+      g_keyboard.unbindKeyDown("Enter", gameRootPanel)
+      g_keyboard.unbindKeyDown("Escape", gameRootPanel)
+      disableChat(temporarily)
+    end, gameRootPanel)
+  else
+    g_keyboard.bindKeyDown("Enter", function()
+      if not g_game.isOnline() then return end
+      if not consoleTextEdit:isFocused() then
+        consoleTextEdit:focus()
+      end
+    end, gameRootPanel)
   end
 
   modules.game_walking.disableWSAD()
@@ -284,6 +302,8 @@ function terminate()
     onRuleViolationLock = onRuleViolationLock,
     onGameStart = online,
     onGameEnd = offline,
+    onMapKnown = ensureOnlineTabs,
+    onEnterGame = ensureOnlineTabs,
     onChannelEvent = onChannelEvent,
   })
 
@@ -1478,7 +1498,18 @@ function onClickIgnoreButton()
   end
 end
 
+function ensureOnlineTabs()
+  if defaultTab then
+    return
+  end
+  online()
+end
+
 function online()
+  if defaultTab then
+    return
+  end
+
   defaultTab = addTab(tr('Default'), true)
   serverTab = addTab(tr('Server Log'), false)
 

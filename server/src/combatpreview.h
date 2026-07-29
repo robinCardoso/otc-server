@@ -18,7 +18,7 @@ struct WeaponDamagePreview {
 
 namespace CombatPreview {
 	void pushSpellPreviews(lua_State* L, Player* player);
-	void pushHealingRunePreviews(lua_State* L, Player* player);
+	void pushRunePreviews(lua_State* L, Player* player);
 	std::string resolveAttackDisplayKind(WeaponType_t weaponType, const Item* item);
 	bool computeWeaponDamagePreview(Player* player, const Weapon* weaponTool, const Item* weaponItem,
 		WeaponType_t weaponType, int32_t damageModifier, WeaponDamagePreview& out);

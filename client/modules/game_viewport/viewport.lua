@@ -14,15 +14,24 @@ end
 
 function init()
   applyProtocolRange()
-  connect(g_game, { onGameEnd = onGameEnd })
+  connect(g_game, {
+    onLogin = applyProtocolRange,
+    onGameStart = applyProtocolRange,
+    onGameEnd = onGameEnd,
+  })
 end
 
 function terminate()
-  disconnect(g_game, { onGameEnd = onGameEnd })
+  disconnect(g_game, {
+    onLogin = applyProtocolRange,
+    onGameStart = applyProtocolRange,
+    onGameEnd = onGameEnd,
+  })
 end
 
 function onGameEnd()
-  applyProtocolRange()
+  -- resetGameStates() runs after onGameEnd and may reset C++ aware range (18x14 on old binaries).
+  addEvent(applyProtocolRange)
 end
 
 function getMode()

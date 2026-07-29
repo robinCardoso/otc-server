@@ -663,6 +663,11 @@ bool IOLoginData::getPlayerSaveQueries(Player* player, std::vector<std::string>&
 		player->changeHealth(1);
 	}
 
+	// Always persist the current in-game position for online players.
+	if (!player->isOffline()) {
+		player->loginPosition = player->getPosition();
+	}
+
 	Database& db = Database::getInstance();
 
 	std::ostringstream query;

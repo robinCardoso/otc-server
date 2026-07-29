@@ -276,6 +276,28 @@ MainWindow
             color: #ffcc00
             text-wrap: false
 
+        Panel
+          id: charmRow
+          height: 18
+          visible: false
+          Label
+            anchors.left: parent.left
+            anchors.verticalCenter: parent.verticalCenter
+            font: verdana-11px-antialised
+            color: #cccccc
+            text-auto-resize: true
+            !text: tr('Charm:')
+          Label
+            id: charmValue
+            anchors.right: parent.right
+            anchors.left: prev.right
+            margin-left: 6
+            anchors.verticalCenter: parent.verticalCenter
+            text-align: right
+            font: verdana-11px-antialised
+            color: #ffd700
+            text-wrap: false
+
       VerticalSeparator
         id: statsSeparator
         anchors.horizontalCenter: parent.horizontalCenter
@@ -438,7 +460,7 @@ MainWindow
     height: 16
     font: verdana-11px-rounded
     color: #88dd99
-    !text: tr('Cura / runas')
+    !text: tr('Runas (inventario)')
 
   CombatPowerSectionPanel
     id: healingSectionPanel

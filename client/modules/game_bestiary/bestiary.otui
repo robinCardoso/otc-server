@@ -75,7 +75,7 @@ BestiaryCharmRow < FlatPanel
       id: trackTitle
       font: verdana-11px-rounded
       color: #ffd700ff
-      text-auto-resize: true
+      text-align: left
       anchors.left: parent.left
       anchors.right: trackLevel.left
       anchors.verticalCenter: parent.verticalCenter
@@ -106,10 +106,12 @@ BestiaryCharmRow < FlatPanel
     anchors.left: parent.left
     anchors.right: parent.right
     margin-top: 8
+    phantom: false
 
     BestiaryCharmBuyButton
       id: trackBuy
-      !text: tr('Comprar +1%')
+      size: 96 24
+      !text: tr('Comprar +1%%')
       anchors.right: parent.right
       anchors.verticalCenter: parent.verticalCenter
 
@@ -117,10 +119,11 @@ BestiaryCharmRow < FlatPanel
       id: trackCost
       font: verdana-11px-rounded
       color: #aaaaaaff
-      text-auto-resize: true
+      text-align: left
+      anchors.top: parent.top
+      anchors.bottom: parent.bottom
       anchors.left: parent.left
       anchors.right: parent.right
-      anchors.verticalCenter: parent.verticalCenter
       margin-right: 102
 
 BestiaryMonsterCard < UIWidget
@@ -372,8 +375,8 @@ MainWindow
       font: verdana-11px-rounded
       color: #ffd700ff
       text-align: right
-      text-auto-resize: true
       anchors.top: parent.top
+      anchors.left: parent.left
       anchors.right: parent.right
 
     Label
@@ -382,8 +385,8 @@ MainWindow
       font: verdana-11px-rounded
       color: #00ffccff
       text-align: right
-      text-auto-resize: true
       anchors.top: totalPoints.bottom
+      anchors.left: parent.left
       anchors.right: parent.right
       margin-top: 2
 
@@ -398,7 +401,6 @@ MainWindow
     margin-right: 8
     layout:
       type: horizontalBox
-      fit-children: true
 
     BestiaryMainTab
       id: tabCatalog
@@ -526,7 +528,6 @@ MainWindow
       margin-top: 6
       layout:
         type: horizontalBox
-        fit-children: true
 
       BestiaryFilterButton
         id: filterAll

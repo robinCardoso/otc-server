@@ -1,0 +1,1 @@
+-- Deprecated. Bestiary assets are compiled using compile-bestiary.py now.

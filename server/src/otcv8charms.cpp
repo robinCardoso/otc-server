@@ -72,21 +72,52 @@ int32_t Otcv8Charms::getMagicBonusPercent(const Player* player, CombatType_t com
 	return readLevel(player, storageKey) * BONUS_PER_LEVEL;
 }
 
+int32_t Otcv8Charms::getBonusPercent(const Player* player, CombatType_t combatType, bool isDistanceWeapon)
+{
+	if (!player) {
+		return 0;
+	}
+	if (isDistanceWeapon) {
+		return getDistanceBonusPercent(player);
+	}
+	if (combatType != COMBAT_NONE && combatType != COMBAT_PHYSICALDAMAGE) {
+		return getMagicBonusPercent(player, combatType);
+	}
+	return getMeleeBonusPercent(player);
+}
+
+const char* Otcv8Charms::getCharmLabel(CombatType_t combatType, bool isDistanceWeapon)
+{
+	if (isDistanceWeapon) {
+		return "Distance";
+	}
+	switch (combatType) {
+		case COMBAT_PHYSICALDAMAGE:
+			return "Melee";
+		case COMBAT_EARTHDAMAGE:
+			return "Magia Terra";
+		case COMBAT_FIREDAMAGE:
+			return "Magia Fogo";
+		case COMBAT_ICEDAMAGE:
+			return "Magia Gelo";
+		case COMBAT_ENERGYDAMAGE:
+			return "Magia Energy";
+		case COMBAT_HOLYDAMAGE:
+			return "Magia Holy";
+		case COMBAT_DEATHDAMAGE:
+			return "Magia Death";
+		default:
+			return "Melee";
+	}
+}
+
 int32_t Otcv8Charms::applyOutgoingDamage(Player* player, int32_t damage, CombatType_t combatType, bool isDistanceWeapon)
 {
 	if (!player || damage >= 0) {
 		return damage;
 	}
 
-	int32_t bonus = 0;
-	if (isDistanceWeapon) {
-		bonus = getDistanceBonusPercent(player);
-	} else if (combatType != COMBAT_NONE && combatType != COMBAT_PHYSICALDAMAGE) {
-		bonus = getMagicBonusPercent(player, combatType);
-	} else {
-		bonus = getMeleeBonusPercent(player);
-	}
-
+	const int32_t bonus = getBonusPercent(player, combatType, isDistanceWeapon);
 	if (bonus <= 0) {
 		return damage;
 	}

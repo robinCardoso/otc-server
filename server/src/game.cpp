@@ -1639,12 +1639,41 @@ ReturnValue Game::internalTeleport(Thing* thing, const Position& newPos, bool pu
 	}
 
 	if (Creature* creature = thing->getCreature()) {
-		ReturnValue ret = toTile->queryAdd(0, *creature, 1, FLAG_NOLIMIT);
+		Player* player = creature->getPlayer();
+		const uint32_t flags = player ? 0 : FLAG_NOLIMIT;
+
+		ReturnValue ret = toTile->queryAdd(0, *creature, 1, flags);
+		if (ret != RETURNVALUE_NOERROR && player) {
+			static const std::pair<int32_t, int32_t> searchOffsets[] = {
+				{0, 1}, {0, -1}, {1, 0}, {-1, 0},
+				{1, 1}, {-1, 1}, {1, -1}, {-1, -1},
+			};
+
+			for (const auto& offset : searchOffsets) {
+				Position tryPos(newPos.x + offset.first, newPos.y + offset.second, newPos.z);
+				Tile* tryTile = map.getTile(tryPos);
+				if (!tryTile) {
+					continue;
+				}
+
+				ret = tryTile->queryAdd(0, *creature, 1, 0);
+				if (ret == RETURNVALUE_NOERROR) {
+					toTile = tryTile;
+					break;
+				}
+			}
+		}
+
 		if (ret != RETURNVALUE_NOERROR) {
 			return ret;
 		}
 
 		map.moveCreature(*creature, *toTile, !pushMove);
+
+		if (player) {
+			player->loginPosition = toTile->getPosition();
+		}
+
 		return RETURNVALUE_NOERROR;
 	} else if (Item* item = thing->getItem()) {
 		return internalMoveItem(item->getParent(), toTile, INDEX_WHEREEVER, item, item->getItemCount(), nullptr, flags);
@@ -4785,10 +4814,31 @@ void Game::playerDebugAssert(uint32_t playerId, const std::string& assertLine, c
 	}
 }
 
+namespace {
+const char* extendedOpcodeEventFor(uint8_t opcode)
+{
+	switch (opcode) {
+		case 201: return "ExtendedOpcodeShop";
+		case 202: return "ExtendedOpcodeSpellList";
+		case 203: return "ExtendedOpcodeCombatPower";
+		case 204: return "ExtendedOpcodePartyMinimap";
+		case 205: return "ExtendedOpcodeStock";
+		case 206: return "ExtendedOpcodeViewport";
+		case 207: return "ExtendedOpcodeBestiary";
+		default: return nullptr;
+	}
+}
+} // namespace
+
 void Game::parsePlayerExtendedOpcode(uint32_t playerId, uint8_t opcode, const std::string& buffer)
 {
 	Player* player = getPlayerByID(playerId);
 	if (!player) {
+		return;
+	}
+
+	const char* eventName = extendedOpcodeEventFor(opcode);
+	if (!eventName) {
 		return;
 	}
 
@@ -4799,6 +4849,9 @@ void Game::parsePlayerExtendedOpcode(uint32_t playerId, uint8_t opcode, const st
 	}
 
 	for (CreatureEvent* creatureEvent : player->getCreatureEvents(CREATURE_EVENT_EXTENDED_OPCODE)) {
+		if (creatureEvent->getName() != eventName) {
+			continue;
+		}
 		if (diagnosticLog) {
 			std::cout << "> [extopcode] handler: " << creatureEvent->getName() << std::endl;
 		}
@@ -4806,6 +4859,7 @@ void Game::parsePlayerExtendedOpcode(uint32_t playerId, uint8_t opcode, const st
 		if (diagnosticLog) {
 			std::cout << "> [extopcode] handler done: " << creatureEvent->getName() << std::endl;
 		}
+		break;
 	}
 }
 

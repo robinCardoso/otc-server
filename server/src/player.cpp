@@ -681,47 +681,10 @@ bool Player::canSeeCreature(const Creature* creature) const
 	return true;
 }
 
-namespace {
-
-bool allowWalkthroughForCreature(const Creature* creature)
-{
-	if (creature->getPlayer() || creature->getNpc()) {
-		return true;
-	}
-
-	const Monster* monster = creature->getMonster();
-	if (!monster) {
-		return true;
-	}
-
-	if (monster->isImmune(CONDITION_INVISIBLE)) {
-		return false;
-	}
-
-	if (monster->isRewardBoss()) {
-		return false;
-	}
-
-	if (monster->isHostile() && !monster->isPushable()) {
-		return false;
-	}
-
-	return true;
-}
-
-} // namespace
-
-bool Player::canWalkthrough(const Creature* creature, bool diagonalStep) const
+bool Player::canWalkthrough(const Creature* creature) const
 {
 	if (group->access || creature->isInGhostMode()) {
 		return true;
-	}
-
-	if (g_config.getBoolean(ConfigManager::ALLOW_WALKTHROUGH)) {
-		if (!diagonalStep) {
-			return false;
-		}
-		return allowWalkthroughForCreature(creature);
 	}
 
 	const Player* player = creature->getPlayer();
@@ -758,10 +721,6 @@ bool Player::canWalkthroughEx(const Creature* creature) const
 {
 	if (group->access) {
 		return true;
-	}
-
-	if (g_config.getBoolean(ConfigManager::ALLOW_WALKTHROUGH)) {
-		return allowWalkthroughForCreature(creature);
 	}
 
 	const Player* player = creature->getPlayer();

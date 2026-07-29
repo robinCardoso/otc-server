@@ -1,7 +1,12 @@
 -- OTCv8 Assign Spell — extended opcode 202
 -- Doc: docs/SPELL-LIST-MODULE.md
 
+local SPELL_LIST_ENABLED = false -- disabled for testing
+
 function onExtendedOpcode(player, opcode, buffer)
+	if not SPELL_LIST_ENABLED then
+		return false
+	end
 	if opcode ~= Otcv8SpellList.OPCODE then
 		return false
 	end

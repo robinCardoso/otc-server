@@ -165,6 +165,8 @@ class ProtocolGame final : public Protocol
 			return std::static_pointer_cast<ProtocolGame>(shared_from_this());
 		}
 		void connect(uint32_t playerId, OperatingSystem_t operatingSystem);
+		static bool shouldForceCleanLogin(const Player* player);
+		static void forceCleanRemovePlayer(Player* foundPlayer);
 		void disconnectClient(const std::string& message) const;
 		void disconnectSpectator(const std::string& message) const;
 		void writeToOutputBuffer(const NetworkMessage& msg, bool broadcast = true);

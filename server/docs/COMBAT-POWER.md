@@ -37,7 +37,23 @@ OTC game_combatpower  --JSON opcode 203-->  otcv8_combatpower.lua
 - **Response (servidor → cliente):** JSON `{ "action": "combatPower", "data": { ... } }`
 - Pacotes grandes: chunking `S` / `P` / `E` em `Otcv8CombatPower.sendJSON`
 
-Campos principais em `data`: `vocation`, `level`, `attack` (kind, min, max, …), `defense`, `armor`, `equipment[]`, `spells[]`, `healingRunes[]`.
+Campos principais em `data`: `vocation`, `level`, `attack` (kind, min, max, `charmBonusPercent`, `charmLabel`, …), `defense`, `armor`, `equipment[]`, `spells[]`, `attackRunes[]`, `healingRunes[]`.
+
+### Bestiary Charms no preview
+
+Bônus permanentes de Charms (storages `151001`–`151016`, +1%/nível) entram no **mesmo cálculo** do combate real:
+
+| Onde | Arquivo |
+|------|---------|
+| Lógica de bônus | `src/otcv8charms.cpp` — `applyOutgoingDamage`, `getBonusPercent` |
+| Dano de arma no preview | `combatpreview.cpp` — `computeWeaponDamagePreview` |
+| Magias/runas no preview | `combatpreview.cpp` — `safeApplyPreviewValues` |
+| Punho + elemento secundário | `luascript.cpp` — `luaPlayerGetCombatPreview` |
+| Wand (tipo elemental) | `Weapon::getCombatType()` em `weapons.h` |
+
+Campos extras em `attack`: `charmBonusPercent` (0–20), `charmLabel` (ex. `"Magia Gelo"`, `"Melee"`). O cliente exibe linha **Charm:** no modal Combat Power.
+
+**Rebuild obrigatório** após alterar `otcv8charms.cpp`, `combatpreview.cpp` ou `luascript.cpp`.
 
 ---
 
@@ -72,9 +88,9 @@ Após alterar `combatpreview.cpp`: **recompilar** `tfs.exe` e copiar para a raiz
 
 | Item | Detalhe |
 |------|---------|
-| `countItemsInContainer` | Profundidade máx. **16**, ignora item removido/ID inválido, só desce se `ItemType::isContainer()` |
-| `ItemCountCache` | Uma varredura de inventário por `itemId` por request (evita N× scan da backpack) |
-| `isHealingRuneForPlayer` | Runas sem vocação no XML = todas as vocações (antes só god com `IgnoreSpellCheck`) |
+| `ItemCountCache` | Usa `Player::getItemTypeCount(itemId, -1)` com cache por request (inventário + containers aninhados) |
+| `isRuneForPlayer` | Runas sem vocação no XML = todas as vocações |
+| `pushAttackRunePreviews` | Runas `group="attack"` com count > 0 no inventário |
 | `safeApplyPreviewValues` | Entrada única para preview de dano/cura por magia/runa |
 | Logs `[combatpreview]` | Com `enableTfsDiagnosticLog`: fases `weapon`, `equipment`, `spells`, `healingRunes` |
 
@@ -195,9 +211,15 @@ Cliente resolve ícones via `modules/gamelib/spells.lua` (`Spells.getSpellIcon`,
 
 ---
 
-## Próximas fases (não implementadas em -orig)
+## Runas no inventário (ataque + cura)
+
+- **`attackRunes[]`:** runas `group="attack"` (SD, GFB, HMM, …) com `count > 0` — preview `damageMin`/`damageMax` via `safeApplyPreviewValues`.
+- **`healingRunes[]`:** runas `group="healing"` (IHR, UHR, …) com `count > 0` — preview `healMin`/`healMax`.
+- Contagem: `Player::getInventoryItemCount` → `getItemTypeCount` (mochila e sub-containers).
+- Cliente: seção **Runas (inventário)**; refresh automático em `Container.onUpdateItem` (debounce 450 ms).
+
+## Próximas fases
 
 - Paladin distance UI completa (plano original fase 2).
-- Runas de ataque (SD, GFB) na lista — hoje `healingRunes` só grupo healing.
 
 Ver `otserv_860/docs/COMBAT-POWER-PLAN.md` e `otserv_860/docs/DAMAGE.md`.

@@ -36,6 +36,19 @@
 #include <framework/util/extras.h>
 #include <framework/stdext/string.h>
 
+namespace {
+// Must match TFS Map::clientMap* (25x20) and viewport.lua PROTOCOL_RANGE.
+void applyWideAwareRange()
+{
+    AwareRange range;
+    range.left = 12;
+    range.top = 9;
+    range.right = 12;
+    range.bottom = 10;
+    g_map.setAwareRange(range);
+}
+} // namespace
+
 void ProtocolGame::parseMessage(const InputMessagePtr& msg)
 {
     int opcode = -1;
@@ -1070,6 +1083,9 @@ void ProtocolGame::parseDeath(const InputMessagePtr& msg)
 
 void ProtocolGame::parseMapDescription(const InputMessagePtr& msg)
 {
+    if (!m_mapKnown)
+        applyWideAwareRange();
+
     Position pos = getPosition(msg);
     Position oldPos = m_localPlayer->getPosition();
 
@@ -1096,6 +1112,9 @@ void ProtocolGame::parseMapDescription(const InputMessagePtr& msg)
 
 void ProtocolGame::parseFloorDescription(const InputMessagePtr& msg)
 {
+    if (!m_mapKnown)
+        applyWideAwareRange();
+
     Position pos = getPosition(msg);
     Position oldPos = m_localPlayer->getPosition();
     int floor = msg->getU8();

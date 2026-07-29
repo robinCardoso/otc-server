@@ -21,6 +21,7 @@
 #include "weapons.h"
 #include "player.h"
 #include "vocation.h"
+#include "otcv8charms.h"
 
 #include <cmath>
 
@@ -199,6 +200,28 @@ bool CombatPreview::computeWeaponDamagePreview(Player* player, const Weapon* wea
 		out.minVsMonster = (out.minVsMonster * damageModifier) / 100;
 	}
 
+	const bool isDistance = (weaponType == WEAPON_DISTANCE || weaponType == WEAPON_AMMO);
+	CombatType_t combatType = COMBAT_PHYSICALDAMAGE;
+	if (weaponType == WEAPON_WAND) {
+		combatType = weaponTool->getCombatType();
+	}
+
+	auto applyCharm = [&](int32_t& damage) {
+		if (damage != 0) {
+			damage = Otcv8Charms::applyOutgoingDamage(player, damage, combatType, isDistance);
+		}
+	};
+	auto applyCharmPositive = [&](int32_t& damage) {
+		if (damage > 0) {
+			damage = std::abs(Otcv8Charms::applyOutgoingDamage(player, -damage, combatType, isDistance));
+		}
+	};
+
+	applyCharm(out.minDamage);
+	applyCharm(out.maxDamage);
+	applyCharmPositive(out.minVsPlayer);
+	applyCharmPositive(out.minVsMonster);
+
 	return true;
 }
 
@@ -249,10 +272,6 @@ void CombatPreview::agentDebugLog1ecf01(const char* hypothesisId, const char* lo
 
 
 namespace {
-
-
-
-constexpr uint8_t MAX_CONTAINER_SEARCH_DEPTH = 16;
 
 
 
@@ -338,7 +357,7 @@ bool isSpellForPlayerVocation(const Spell& spell, const Player* player)
 
 
 
-bool isHealingRuneForPlayer(const Spell& spell, const Player* player)
+bool isRuneForPlayer(const Spell& spell, const Player* player)
 
 {
 
@@ -360,7 +379,7 @@ bool isHealingRuneForPlayer(const Spell& spell, const Player* player)
 
 	const VocSpellMap& vocMap = spell.getVocMap();
 
-	// Runas de cura sem <vocation> no XML são usáveis por qualquer vocação.
+	// Runas sem <vocation> no XML são usáveis por qualquer vocação.
 
 	if (vocMap.empty()) {
 
@@ -396,7 +415,7 @@ class ItemCountCache
 
 
 
-			const uint32_t total = countPlayerItemsUncached(player, itemId);
+			const uint32_t total = player ? player->getInventoryItemCount(itemId) : 0;
 
 			cache.emplace(itemId, total);
 
@@ -408,147 +427,9 @@ class ItemCountCache
 
 	private:
 
-		uint32_t countPlayerItemsUncached(const Player* player, uint16_t itemId);
-
-
-
 		std::unordered_map<uint16_t, uint32_t> cache;
 
 };
-
-
-
-uint32_t countItemsInContainer(const Container* container, uint16_t itemId, uint8_t depth)
-
-{
-
-	if (!container || depth > MAX_CONTAINER_SEARCH_DEPTH) {
-
-		return 0;
-
-	}
-
-
-
-	uint32_t count = 0;
-
-	for (Item* item : container->getItemList()) {
-
-		if (!item || item->isRemoved()) {
-
-			continue;
-
-		}
-
-
-
-		const uint16_t currentId = item->getID();
-
-		if (currentId == 0 || currentId >= Item::items.size()) {
-
-			continue;
-
-		}
-
-
-
-		if (currentId == itemId) {
-
-			count += item->getItemCount();
-
-		}
-
-
-
-		if (!Item::items[currentId].isContainer()) {
-
-			continue;
-
-		}
-
-
-
-		const Container* sub = item->getContainer();
-
-		if (sub) {
-
-			count += countItemsInContainer(sub, itemId, depth + 1);
-
-		}
-
-	}
-
-	return count;
-
-}
-
-
-
-uint32_t ItemCountCache::countPlayerItemsUncached(const Player* player, uint16_t itemId)
-
-{
-
-	if (!player) {
-
-		return 0;
-
-	}
-
-
-
-	uint32_t count = 0;
-
-	for (int32_t slot = CONST_SLOT_FIRST; slot <= CONST_SLOT_LAST; ++slot) {
-
-		Item* item = player->getInventoryItem(static_cast<slots_t>(slot));
-
-		if (!item || item->isRemoved()) {
-
-			continue;
-
-		}
-
-
-
-		const uint16_t currentId = item->getID();
-
-		if (currentId == 0 || currentId >= Item::items.size()) {
-
-			continue;
-
-		}
-
-
-
-		if (currentId == itemId) {
-
-			count += item->getItemCount();
-
-		}
-
-
-
-		if (!Item::items[currentId].isContainer()) {
-
-			continue;
-
-		}
-
-
-
-		Container* container = item->getContainer();
-
-		if (container) {
-
-			count += countItemsInContainer(container, itemId, 1);
-
-		}
-
-	}
-
-	return count;
-
-}
 
 
 
@@ -732,9 +613,12 @@ bool safeApplyPreviewValues(lua_State* L, Player* player, Combat* combat)
 
 	} else {
 
-		const int32_t damageMin = std::min(std::abs(rawMin), std::abs(rawMax));
+		const CombatType_t combatType = combat->getCombatType();
+		const int32_t charmMin = Otcv8Charms::applyOutgoingDamage(player, rawMin, combatType, false);
+		const int32_t charmMax = Otcv8Charms::applyOutgoingDamage(player, rawMax, combatType, false);
+		const int32_t damageMin = std::min(std::abs(charmMin), std::abs(charmMax));
 
-		const int32_t damageMax = std::max(std::abs(rawMin), std::abs(rawMax));
+		const int32_t damageMax = std::max(std::abs(charmMin), std::abs(charmMax));
 
 		LuaScriptInterface::setField(L, "damageMin", damageMin);
 
@@ -888,7 +772,14 @@ void CombatPreview::pushSpellPreviews(lua_State* L, Player* player)
 
 
 
-		safeApplyPreviewValues(L, player, instant->getLinkedCombat());
+		if (status == "ok" || status == "soon") {
+			safeApplyPreviewValues(L, player, instant->getLinkedCombat());
+		} else {
+			LuaScriptInterface::setField(L, "damageMin", 0);
+			LuaScriptInterface::setField(L, "damageMax", 0);
+			LuaScriptInterface::setField(L, "healMin", 0);
+			LuaScriptInterface::setField(L, "healMax", 0);
+		}
 
 
 
@@ -908,9 +799,11 @@ void CombatPreview::pushSpellPreviews(lua_State* L, Player* player)
 
 
 
-void CombatPreview::pushHealingRunePreviews(lua_State* L, Player* player)
+void CombatPreview::pushRunePreviews(lua_State* L, Player* player)
 
 {
+
+	lua_createtable(L, 0, 0);
 
 	lua_createtable(L, 0, 0);
 
@@ -924,7 +817,7 @@ void CombatPreview::pushHealingRunePreviews(lua_State* L, Player* player)
 
 
 
-	logCombatPreviewPhase(player, "healingRunes: begin");
+	logCombatPreviewPhase(player, "runes: begin");
 
 
 
@@ -932,13 +825,15 @@ void CombatPreview::pushHealingRunePreviews(lua_State* L, Player* player)
 
 
 
-	int index = 0;
+	int healingIndex = 0;
+
+	int attackIndex = 0;
 
 	for (const auto& it : g_spells->getRunes()) {
 
 		RuneSpell* rune = it.second;
 
-		if (!rune || rune->getGroup() != Spell::SpellGroup::Healing) {
+		if (!rune) {
 
 			continue;
 
@@ -946,7 +841,17 @@ void CombatPreview::pushHealingRunePreviews(lua_State* L, Player* player)
 
 
 
-		if (!isHealingRuneForPlayer(*rune, player)) {
+		const Spell::SpellGroup group = rune->getGroup();
+
+		if (group != Spell::SpellGroup::Healing && group != Spell::SpellGroup::Attack) {
+
+			continue;
+
+		}
+
+
+
+		if (!isRuneForPlayer(*rune, player)) {
 
 			continue;
 
@@ -1038,11 +943,33 @@ void CombatPreview::pushHealingRunePreviews(lua_State* L, Player* player)
 
 
 
-		safeApplyPreviewValues(L, player, rune->getLinkedCombat());
+		if (status == "ok" || status == "soon") {
+
+			safeApplyPreviewValues(L, player, rune->getLinkedCombat());
+
+		} else {
+
+			LuaScriptInterface::setField(L, "damageMin", 0);
+
+			LuaScriptInterface::setField(L, "damageMax", 0);
+
+			LuaScriptInterface::setField(L, "healMin", 0);
+
+			LuaScriptInterface::setField(L, "healMax", 0);
+
+		}
 
 
 
-		lua_rawseti(L, -2, ++index);
+		if (group == Spell::SpellGroup::Healing) {
+
+			lua_rawseti(L, -3, ++healingIndex);
+
+		} else {
+
+			lua_rawseti(L, -2, ++attackIndex);
+
+		}
 
 	}
 
@@ -1050,7 +977,9 @@ void CombatPreview::pushHealingRunePreviews(lua_State* L, Player* player)
 
 	if (isDiagnosticLogEnabled()) {
 
-		std::cout << "> [combatpreview] " << player->getName() << " healingRunes: done count=" << index << std::endl;
+		std::cout << "> [combatpreview] " << player->getName() << " healingRunes: done count=" << healingIndex << std::endl;
+
+		std::cout << "> [combatpreview] " << player->getName() << " attackRunes: done count=" << attackIndex << std::endl;
 
 	}
 

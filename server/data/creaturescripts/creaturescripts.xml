@@ -263,7 +263,8 @@
 	<event type="extendedopcode" name="ExtendedOpcodeCombatPower" script="otcv8_combatpower.lua" />
 	<event type="extendedopcode" name="ExtendedOpcodePartyMinimap" script="otcv8_partyminimap.lua" />
 	<event type="extendedopcode" name="ExtendedOpcodeStock" script="otcv8_stock.lua" />
-	<event type="extendedopcode" name="ExtendedOpcodeViewport" script="otcv8_viewport.lua" />
+	<!-- otcv8_viewport.lua removed; opcode 206 unused; viewport fixed 25x20 in C++ -->
+	<!-- <event type="extendedopcode" name="ExtendedOpcodeViewport" script="otcv8_viewport.lua" /> -->
 	<event type="extendedopcode" name="ExtendedOpcodeBestiary" script="otcv8_bestiary.lua" />
 	<event type="kill" name="BestiaryKill" script="bestiary_kill.lua" />
 </creaturescripts>

@@ -382,7 +382,13 @@ end
 
 function onGameStart()
   partyStatus = nil
-  scheduleRequest()
+  if requestEvent then
+    removeEvent(requestEvent)
+  end
+  requestEvent = scheduleEvent(function()
+    requestEvent = nil
+    requestPartyStatus()
+  end, 600)
 end
 
 function onGameEnd()

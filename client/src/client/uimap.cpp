@@ -279,6 +279,9 @@ void UIMap::updateVisibleDimension()
     if(dimensionWidth % 2 == 0)
         dimensionWidth += 1;
 
+    dimensionWidth = std::max<int>(3, dimensionWidth);
+    dimensionHeight = std::max<int>(3, dimensionHeight);
+
     m_mapView->setVisibleDimension(Size(dimensionWidth, dimensionHeight));
 
     if(m_keepAspectRatio)

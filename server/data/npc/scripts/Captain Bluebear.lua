@@ -28,11 +28,16 @@ end
 
 addTravelKeyword('carlin', 110, Position(32387, 31820, 6), function(player) if player:getStorageValue(Storage.postman.Mission01) == 1 then player:setStorageValue(Storage.postman.Mission01, 2) end end)
 addTravelKeyword('ab\'dendriel', 130, Position(32734, 31668, 6))
-addTravelKeyword('edron', 160, Position(33175, 31764, 6))
+addTravelKeyword('edron', 160, {
+	Position(33175, 31764, 6),
+	Position(33175, 31765, 6),
+	Position(33173, 31764, 6),
+	Position(33176, 31764, 6)
+})
 addTravelKeyword('venore', 170, Position(32954, 32022, 6))
 addTravelKeyword('port hope', 160, Position(32527, 32784, 6))
 addTravelKeyword('liberty bay', 180, Position(32285, 32892, 6))
-addTravelKeyword('yalahar', 200, Position(32816, 31272, 6), nil, function(player) return player:getStorageValue(Storage.SearoutesAroundYalahar.Thais) ~= 1 and player:getStorageValue(Storage.SearoutesAroundYalahar.TownsCounter) < 5 end)
+addTravelKeyword('yalahar', 200, {Position(32811, 31267, 6), Position(32811, 31270, 6), Position(32811, 31273, 6)}, nil, function(player) return player:getStorageValue(Storage.SearoutesAroundYalahar.Thais) ~= 1 and player:getStorageValue(Storage.SearoutesAroundYalahar.TownsCounter) < 5 end)
 addTravelKeyword('svargrond', 180, Position(32341, 31108, 6))
 
 local function addTravelKeyword(keyword, cost, destination, action, condition)
