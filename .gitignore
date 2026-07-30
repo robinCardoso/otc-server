@@ -11,8 +11,10 @@
 *.tmp
 *~
 
-# Ignorar arquivos pesados do Tibia
+# Ignorar arquivos pesados do Tibia (copie localmente do cliente 8.60)
 godot-client/client/
+godot-client/assets/client/Tibia.spr
+godot-client/assets/client/Tibia.dat
 
 # Compiled binary files (Keep repo clean and avoid GitHub 100MB limit)
 *.pdb

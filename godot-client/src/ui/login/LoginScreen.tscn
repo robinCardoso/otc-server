@@ -1,0 +1,105 @@
+[gd_scene load_steps=3 format=3 uid="uid://dfgd87g6dfs3a"]
+
+[ext_resource type="Script" path="res://src/ui/login/LoginScreen.gd" id="1_login"]
+[ext_resource type="PackedScene" path="res://src/ui/char_list/CharListDialog.tscn" id="2_char_list"]
+
+[node name="LoginScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_login")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Control" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ColorRect" type="ColorRect" parent="CanvasLayer/Control"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.129412, 0.14902, 0.180392, 1)
+
+[node name="LabelStatus" type="Label" parent="CanvasLayer/Control"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -200.0
+offset_top = 20.0
+offset_right = 200.0
+offset_bottom = 50.0
+grow_horizontal = 2
+text = "Pronto"
+horizontal_alignment = 1
+
+[node name="PanelLogin" type="Panel" parent="CanvasLayer/Control"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -200.0
+offset_top = -210.0
+offset_right = 200.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="LabelAcc" type="Label" parent="CanvasLayer/Control/PanelLogin"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 80.0
+offset_bottom = 46.0
+text = "Conta:"
+
+[node name="LineEditAcc" type="LineEdit" parent="CanvasLayer/Control/PanelLogin"]
+layout_mode = 0
+offset_left = 100.0
+offset_top = 16.0
+offset_right = 380.0
+offset_bottom = 47.0
+text = "1"
+
+[node name="LabelPass" type="Label" parent="CanvasLayer/Control/PanelLogin"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 65.0
+offset_right = 80.0
+offset_bottom = 91.0
+text = "Senha:"
+
+[node name="LineEditPass" type="LineEdit" parent="CanvasLayer/Control/PanelLogin"]
+layout_mode = 0
+offset_left = 100.0
+offset_top = 61.0
+offset_right = 380.0
+offset_bottom = 92.0
+secret = true
+text = "1"
+
+[node name="ButtonLogin" type="Button" parent="CanvasLayer/Control/PanelLogin"]
+layout_mode = 0
+offset_left = 100.0
+offset_top = 115.0
+offset_right = 380.0
+offset_bottom = 155.0
+text = "Logar (127.0.0.1)"
+
+[node name="CharListDialog" parent="CanvasLayer/Control" instance=ExtResource("2_char_list")]
+layout_mode = 1
+
+[connection signal="pressed" from="CanvasLayer/Control/PanelLogin/ButtonLogin" to="." method="_on_button_login_pressed"]

@@ -1,10 +1,15 @@
-[gd_scene load_steps=3 format=3 uid="uid://dfgd87g6dfs3a"]
+[gd_scene load_steps=2 format=3 uid="uid://spritepreviewdev01"]
 
-[ext_resource type="Script" path="res://src/ui/login/main.gd" id="1_main"]
-[ext_resource type="Script" path="res://src/io/SpriteReader.gd" id="2_spr"]
+[ext_resource type="Script" path="res://src/ui/dev/SpritePreviewScreen.gd" id="1_preview"]
 
-[node name="Main" type="Node2D"]
-script = ExtResource("1_main")
+[node name="SpritePreviewScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_preview")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
@@ -86,60 +91,4 @@ offset_bottom = 85.0
 text = "Status: Pronto"
 horizontal_alignment = 1
 
-[node name="PanelLogin" type="Panel" parent="CanvasLayer/Control"]
-layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -200.0
-offset_top = -210.0
-offset_right = 200.0
-offset_bottom = -20.0
-grow_horizontal = 2
-grow_vertical = 0
-
-[node name="LabelAcc" type="Label" parent="CanvasLayer/Control/PanelLogin"]
-layout_mode = 0
-offset_left = 20.0
-offset_top = 20.0
-offset_right = 80.0
-offset_bottom = 46.0
-text = "Conta:"
-
-[node name="LineEditAcc" type="LineEdit" parent="CanvasLayer/Control/PanelLogin"]
-layout_mode = 0
-offset_left = 100.0
-offset_top = 16.0
-offset_right = 380.0
-offset_bottom = 47.0
-text = "1"
-
-[node name="LabelPass" type="Label" parent="CanvasLayer/Control/PanelLogin"]
-layout_mode = 0
-offset_left = 20.0
-offset_top = 65.0
-offset_right = 80.0
-offset_bottom = 91.0
-text = "Senha:"
-
-[node name="LineEditPass" type="LineEdit" parent="CanvasLayer/Control/PanelLogin"]
-layout_mode = 0
-offset_left = 100.0
-offset_top = 61.0
-offset_right = 380.0
-offset_bottom = 92.0
-secret = true
-text = "1"
-
-[node name="ButtonLogin" type="Button" parent="CanvasLayer/Control/PanelLogin"]
-layout_mode = 0
-offset_left = 100.0
-offset_top = 115.0
-offset_right = 380.0
-offset_bottom = 155.0
-text = "Logar (127.0.0.1)"
-
 [connection signal="pressed" from="CanvasLayer/Control/Panel/Button" to="." method="_on_button_pressed"]
-[connection signal="pressed" from="CanvasLayer/Control/PanelLogin/ButtonLogin" to="." method="_on_button_login_pressed"]

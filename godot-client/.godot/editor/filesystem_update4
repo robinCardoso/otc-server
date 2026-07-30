@@ -1,3 +1,2 @@
-res://main.gd
-res://NetworkManager.gd
-res://Protocol.gd
+res://src/core/network/GameOpcodeReader.gd
+res://src/game/map/MapParser.gd

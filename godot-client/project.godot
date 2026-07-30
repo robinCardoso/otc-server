@@ -11,8 +11,12 @@ config_version=5
 [application]
 
 config/name="Godot Client Tibia"
-run/main_scene="res://src/ui/login/main.tscn"
+run/main_scene="res://src/ui/login/LoginScreen.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
+
+[autoload]
+
+GlobalNetwork="*res://src/autoload/GlobalNetwork.gd"
 
 [display]
 

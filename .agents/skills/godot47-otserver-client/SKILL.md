@@ -126,3 +126,45 @@ O fluxo de rede do Tibia divide-se entre o **Login Server** (porta cur### 3.1. H
 - Mantenha os scripts de criptografia `Rsa.gd` e `Xtea.gd` otimizados. O RSA bit-a-bit deve conter apenas loops `for` de tamanho constante para evitar travamentos ou detecções de loop infinito pela engine.
 - **Validação de Entrada de Login (Regra de E-mail):** O servidor de jogo C++ (TFS) autentica os jogadores estritamente com base no `Account Name` (nome ou número de conta salvo na coluna `name` da tabela `accounts` no banco de dados). O e-mail (que contém o caractere `@`) **não é aceito** pelo protocolo do jogo, mesmo que o site permita login com e-mail. Para evitar regressões e confusão do usuário, a interface de login deve validar o texto inserido no campo de conta e emitir um aviso visual claro de que o caractere `@` não é permitido para acessar o jogo.
 
+---
+
+## 5. Camada de Protocolo do Game Server (8.60) — Referência OTC
+
+**O OTC é manual de protocolo, não base de código.** Não porte UI, módulos Lua ou engine gráfica. Implemente apenas a leitura binária espelhando o TFS 8.60.
+
+### Arquitetura no cliente Godot
+
+| Módulo | Responsabilidade | Referência OTC |
+|--------|------------------|----------------|
+| `ThingReader.gd` | `getThing()`, `getCreature()`, `getItem()`, `getOutfit()` | `protocolgameparse.cpp` |
+| `MapParser.gd` | `setMapDescription()`, `setTileDescription()`, trailer `[skip][0xFF]` | `protocolgameparse.cpp` |
+| `GameOpcodeReader.gd` | Um handler por opcode servidor (`parse*`) | `protocolgameparse.cpp` switch |
+| `ProtocolReader.gd` | `read_position()`, `read_string()`, `peek_u16()` | utilitários de buffer |
+
+### Regras obrigatórias (TFS 8.60)
+
+1. **Creatures no mapa:** marcadores `0x61` (unknown), `0x62` (known), `0x63` (turn/direction only).
+2. **Opcodes de criatura pós-login:**
+   - `0x8D` = luz (`u32 id + u8 level + u8 color`)
+   - `0x8E` = outfit (`u32 id + outfit`)
+   - `0x8F` = speed (`u32 id + u16 speed`)
+3. **Mapa:** ao pular tiles (`skip > 0`), limpar tile local (`cleanTile`). Ao final de `GetMapDescription`, consumir trailer `[skip][0xFF]` se presente.
+4. **Map move (`0x65`–`0x68`):** usar `MAP_LEFT/RIGHT/TOP/BOTTOM` de `MapState` e espelhar `parseMapMove*()` do OTC.
+5. **Inventário login:** sequência típica após `0x64`: `0x83` → `0x78/0x79`×9 → `0xA0` → `0xA1` → `0x82` → `0x8D` → `0xD2`×N → `0xB4`×N → `0xAC`×N (canais Lua).
+6. **Chat:** `0xAA` = parseTalk (statement u32 + name + level u16 + mode u8 + channel/pos + text). `0xAC` = parseOpenChannel (channel u16 + name).
+7. **Features desabilitadas em 8.60:** não ler bytes de protocolo ≥910/≥981 (creatureType extra, mana percent, mounts, GameChannelPlayerList, etc.) a menos que o servidor TFS envie explicitamente.
+
+### Ao adicionar opcode novo
+
+1. Localizar em `client/src/client/protocolgameparse.cpp` e `protocolcodes.h`.
+2. Confirmar estrutura no `server/src/protocolgame.cpp` do TFS.
+3. Implementar **skip** (consumir buffer) antes de **state** (atualizar mapa/UI).
+4. Testar login + movimento sem warnings `Opcode 0xXX nao implementado`.
+
+### Anti-padrões
+
+- Não usar `load()` para scripts com `class_name` — preferir `preload()`.
+- Não tratar `0xFF` isolado como opcode (é terminador de mapa).
+- Não assumir byte de count para `item_id <= 15` — só stackable/chargeable/fluid/splash (TFS `addItem`).
+- Não implementar `0x70` como spell delay — em 8.60 é `ContainerAddItem`.
+

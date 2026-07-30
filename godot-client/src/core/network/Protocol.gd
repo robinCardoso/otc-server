@@ -13,13 +13,17 @@ const RSA_KEY_EXPONENT: String = "65537"
 signal login_failed(reason: String)
 signal character_list_received(characters: Array, premium_days: int)
 
-var network: TibiaNetworkManager
+var network
 var xtea_key: Array[int] = [0, 0, 0, 0]
 
-func _init(network_manager: TibiaNetworkManager):
+func _init(network_manager):
 	network = network_manager
 	network.packet_received.connect(_on_packet_received)
 	_generate_xtea_key()
+
+func detach_from_network() -> void:
+	if network.packet_received.is_connected(_on_packet_received):
+		network.packet_received.disconnect(_on_packet_received)
 
 # Gera 4 chaves aleatórias de 32 bits para a cifragem simétrica XTEA desta sessão
 func _generate_xtea_key():
