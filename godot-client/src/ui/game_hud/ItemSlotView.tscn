@@ -1,0 +1,39 @@
+[gd_scene format=3 uid="uid://bi1jdgvy48a6o"]
+
+[ext_resource type="Script" path="res://src/ui/game_hud/ItemSlotView.gd" id="1_slot"]
+
+[node name="ItemSlotView" type="PanelContainer"]
+custom_minimum_size = Vector2(32, 32)
+script = ExtResource("1_slot")
+
+[node name="Margin" type="MarginContainer" parent="."]
+theme_override_constants/margin_left = 2
+theme_override_constants/margin_top = 2
+theme_override_constants/margin_right = 2
+theme_override_constants/margin_bottom = 2
+
+[node name="Clip" type="Control" parent="Margin"]
+custom_minimum_size = Vector2(32, 32)
+clip_contents = true
+
+[node name="Icon" type="TextureRect" parent="Margin/Clip"]
+mouse_filter = 2
+
+[node name="Count" type="Label" parent="Margin/Clip"]
+visible = false
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -28.0
+offset_top = -14.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 0.85, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 10
+text = ""
+horizontal_alignment = 2
+mouse_filter = 2

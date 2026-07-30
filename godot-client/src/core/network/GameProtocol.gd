@@ -18,6 +18,10 @@ signal game_login_failed(reason: String)
 signal game_login_success(login_data: Dictionary)
 signal map_parsed(map_state)
 signal creature_moved(creature: Dictionary, old_pos: Vector3i, new_pos: Vector3i)
+signal map_updated(map_state)
+signal walk_cancelled(creature: Dictionary, direction: int)
+signal inventory_updated(map_state)
+signal container_updated(map_state, container_id: int)
 
 var network
 var xtea_key: Array[int]
@@ -157,6 +161,15 @@ func _parse_game_opcode(opcode: int, packet: StreamPeerBuffer, end_pos: int = -1
 				if move_context.has("last_move"):
 					var move: Dictionary = move_context.last_move
 					creature_moved.emit(move.creature, move.old_pos, move.new_pos)
+				if move_context.get("map_updated", false):
+					map_updated.emit(map_state)
+				if move_context.has("walk_cancel"):
+					var cancel: Dictionary = move_context.walk_cancel
+					walk_cancelled.emit(cancel.creature, cancel.get("direction", 0))
+				if move_context.get("inventory_updated", false):
+					inventory_updated.emit(map_state)
+				if move_context.has("container_updated"):
+					container_updated.emit(map_state, move_context.container_updated)
 				print("GameProtocol: Opcode 0x%02X consumido." % (opcode & 0xFF))
 			else:
 				return false

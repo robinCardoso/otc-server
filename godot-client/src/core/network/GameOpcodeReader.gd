@@ -1,23 +1,18 @@
 extends RefCounted
 
-const _MapParserPath := "res://src/game/map/MapParser.gd"
+const _MapParserScript := preload("res://src/game/map/MapParser.gd")
 const _MapStateScript := preload("res://src/game/map/MapState.gd")
 const _ProtocolReaderScript := preload("res://src/core/network/ProtocolReader.gd")
+const _ProtocolDebugScript := preload("res://src/core/network/ProtocolDebug.gd")
 const _ThingReaderScript := preload("res://src/io/ThingReader.gd")
 const _ThingSpriteFactoryPath := "res://src/game/map/ThingSpriteFactory.gd"
 const _DatReaderPath := "res://src/io/DatReader.gd"
 const _CreatureWalkerScript := preload("res://src/game/creature/CreatureWalker.gd")
 const _EffectAnimatorPath := "res://src/game/effects/EffectAnimator.gd"
 
-static var _map_parser_script: GDScript
 static var _sprite_factory_script: GDScript
 static var _dat_reader_script: GDScript
 static var _effect_animator_script: GDScript
-
-static func _map_parser() -> GDScript:
-	if _map_parser_script == null:
-		_map_parser_script = load(_MapParserPath) as GDScript
-	return _map_parser_script
 
 static func _sprite_factory() -> GDScript:
 	if _sprite_factory_script == null:
@@ -43,19 +38,28 @@ static func consume_opcode(
 	map_state = null,
 	move_context: Dictionary = {}
 ) -> bool:
+	_ProtocolDebugScript.begin_opcode(opcode, buffer)
+	var handled := _consume_opcode_body(opcode, buffer, map_state, move_context)
+	_ProtocolDebugScript.end_opcode(opcode, buffer)
+	return handled
+
+static func _consume_opcode_body(
+	opcode: int,
+	buffer: StreamPeerBuffer,
+	map_state = null,
+	move_context: Dictionary = {}
+) -> bool:
 	match opcode:
-		0x78:
-			buffer.get_u8()
-			_ThingReaderScript.skip_thing(buffer)
-		0x79:
-			buffer.get_u8()
+		0x78: # AddInventoryItem — OTC parseAddInventoryItem
+			_handle_inventory_add(buffer, map_state, move_context)
+		0x79: # RemoveInventoryItem — OTC parseRemoveInventoryItem
+			_handle_inventory_remove(buffer, map_state, move_context)
 		0x65: # MapMoveNorth — OTC parseMapMoveNorth
 			var pos: Vector3i = map_state.player_pos
 			pos.y -= 1
 			map_state.player_pos = pos
-			_map_parser().read_map_description(
-				buffer,
-				map_state,
+			_map_read_description(
+				0x65, buffer, map_state, move_context,
 				pos.x - _MapStateScript.MAP_LEFT,
 				pos.y - _MapStateScript.MAP_TOP,
 				pos.z,
@@ -66,9 +70,8 @@ static func consume_opcode(
 			var pos: Vector3i = map_state.player_pos
 			pos.x += 1
 			map_state.player_pos = pos
-			_map_parser().read_map_description(
-				buffer,
-				map_state,
+			_map_read_description(
+				0x66, buffer, map_state, move_context,
 				pos.x + _MapStateScript.MAP_RIGHT,
 				pos.y - _MapStateScript.MAP_TOP,
 				pos.z,
@@ -79,9 +82,8 @@ static func consume_opcode(
 			var pos: Vector3i = map_state.player_pos
 			pos.y += 1
 			map_state.player_pos = pos
-			_map_parser().read_map_description(
-				buffer,
-				map_state,
+			_map_read_description(
+				0x67, buffer, map_state, move_context,
 				pos.x - _MapStateScript.MAP_LEFT,
 				pos.y + _MapStateScript.MAP_BOTTOM,
 				pos.z,
@@ -92,9 +94,8 @@ static func consume_opcode(
 			var pos: Vector3i = map_state.player_pos
 			pos.x -= 1
 			map_state.player_pos = pos
-			_map_parser().read_map_description(
-				buffer,
-				map_state,
+			_map_read_description(
+				0x68, buffer, map_state, move_context,
 				pos.x - _MapStateScript.MAP_LEFT,
 				pos.y - _MapStateScript.MAP_TOP,
 				pos.z,
@@ -103,17 +104,19 @@ static func consume_opcode(
 			)
 		0x69: # UpdateTile — OTC parseUpdateTile
 			var tile_pos: Vector3i = _ProtocolReaderScript.read_position(buffer)
-			_map_parser().read_update_tile(buffer, map_state, tile_pos)
+			_MapParserScript.read_update_tile(buffer, map_state, tile_pos)
+			move_context["map_updated"] = true
 		0x6A: # CreateOnMap
 			var create_pos: Vector3i = _ProtocolReaderScript.read_position(buffer)
 			_add_thing_to_tile(buffer, map_state, create_pos)
+			move_context["map_updated"] = true
 		0x6B: # ChangeOnMap — OTC parseTileTransformThing (getMappedThing + getThing)
 			_ProtocolReaderScript.skip_mapped_thing(buffer)
 			_ThingReaderScript.skip_thing(buffer)
+			move_context["map_updated"] = true
 		0x6C: # DeleteOnMap — OTC parseTileRemoveThing
-			var remove_pos: Vector3i = _ProtocolReaderScript.read_position(buffer)
-			var stack_pos: int = buffer.get_u8()
-			_remove_thing_at(map_state, remove_pos, stack_pos)
+			_remove_mapped_thing(buffer, map_state)
+			move_context["map_updated"] = true
 		0x83:
 			_handle_magic_effect(buffer, map_state)
 		0x84:
@@ -129,7 +132,7 @@ static func consume_opcode(
 		0x8F:
 			_handle_creature_speed(buffer, map_state)
 		0x6E: # OpenContainer — OTC parseOpenContainer
-			_skip_open_container(buffer)
+			_handle_open_container(buffer, map_state, move_context)
 		0x82:
 			buffer.get_u8()
 			buffer.get_u8()
@@ -159,7 +162,7 @@ static func consume_opcode(
 			buffer.get_u8()
 			_ProtocolReaderScript.skip_string(buffer)
 		0xB5: # CancelWalk — OTC parseCancelWalk
-			buffer.get_u8()
+			_handle_cancel_walk(buffer, map_state, move_context)
 		0xB7:
 			for _i in range(7):
 				buffer.get_u8()
@@ -173,33 +176,65 @@ static func consume_opcode(
 			buffer.get_u8()
 			_ProtocolReaderScript.skip_string(buffer)
 		0x6F: # CloseContainer
-			buffer.get_u8()
-		0xBE: # Floor change up/down (TFS MoveUp/MoveDownCreature)
-			pass
+			_handle_close_container(buffer, map_state, move_context)
+		0xBE: # Floor change up — OTC parseFloorChangeUp / TFS MoveUpCreature
+			_ProtocolDebugScript.map_parse_begin(0xBE, buffer, map_state.player_pos.z)
+			_MapParserScript.read_floor_change_up(buffer, map_state)
+			_ProtocolDebugScript.map_parse_end(buffer, -1)
+			move_context["map_updated"] = true
+		0xBF: # Floor change down — OTC parseFloorChangeDown / TFS MoveDownCreature
+			_ProtocolDebugScript.map_parse_begin(0xBF, buffer, map_state.player_pos.z)
+			_MapParserScript.read_floor_change_down(buffer, map_state)
+			_ProtocolDebugScript.map_parse_end(buffer, -1)
+			move_context["map_updated"] = true
 		0xA4: # Spell cooldown
 			buffer.get_u8()
 			buffer.get_u32()
 		0xA5: # Spell group cooldown
 			buffer.get_u8()
 			buffer.get_u32()
-		0x6D:
+		0x6D: # MoveCreature
 			var move_result: Dictionary = _handle_creature_move(buffer, map_state, move_context)
 			if not move_result.is_empty():
 				move_context["last_move"] = move_result
 		0x70: # ContainerAddItem — OTC parseContainerAddItem
-			buffer.get_u8()
-			_ThingReaderScript.skip_thing(buffer)
+			_handle_container_add_item(buffer, map_state, move_context)
 		0x71: # ContainerUpdateItem
-			buffer.get_u8()
-			buffer.get_u8()
-			_ThingReaderScript.skip_thing(buffer)
+			_handle_container_update_item(buffer, map_state, move_context)
 		0x72: # ContainerRemoveItem
-			buffer.get_u8()
-			buffer.get_u8()
+			_handle_container_remove_item(buffer, map_state, move_context)
+		0x7A: # OpenNpcTrade — TFS sendShop / OTC parseOpenNpcTrade (860)
+			_skip_npc_shop(buffer)
+		0x7B: # PlayerGoods — TFS sendSaleItemList / OTC parsePlayerGoods (860)
+			_skip_player_goods(buffer)
+		0x7C: # CloseNpcTrade — TFS sendCloseShop (vazio)
+			pass
+		0x7D, 0x7E: # OwnTrade / CounterTrade — TFS sendTradeItemRequest
+			_skip_trade_request(buffer)
+		0x7F: # CloseTrade — TFS sendCloseTrade (vazio)
+			pass
 		_:
 			push_warning("GameOpcodeReader: Opcode 0x%02X nao implementado." % (opcode & 0xFF))
 			return false
 	return true
+
+static func _map_read_description(
+	opcode: int,
+	buffer: StreamPeerBuffer,
+	map_state,
+	move_context: Dictionary,
+	start_x: int,
+	start_y: int,
+	center_z: int,
+	width: int,
+	height: int
+) -> void:
+	_ProtocolDebugScript.map_parse_begin(opcode, buffer, center_z)
+	var skip_final: int = _MapParserScript.read_map_description(
+		buffer, map_state, start_x, start_y, center_z, width, height
+	)
+	_ProtocolDebugScript.map_parse_end(buffer, skip_final)
+	move_context["map_updated"] = true
 
 static func parse_login(buffer: StreamPeerBuffer) -> Dictionary:
 	var player_id := buffer.get_u32()
@@ -212,7 +247,7 @@ static func parse_login(buffer: StreamPeerBuffer) -> Dictionary:
 	}
 
 static func parse_full_map(buffer: StreamPeerBuffer):
-	return _map_parser().parse_full_map(buffer)
+	return _MapParserScript.parse_full_map(buffer)
 
 static func _skip_player_stats(buffer: StreamPeerBuffer) -> void:
 	buffer.get_u16()
@@ -249,13 +284,11 @@ static func _handle_creature_move(
 
 	if x == 0xFFFF:
 		var creature_id := buffer.get_u32()
-		# Usar índice O(1) se disponível
 		if map_state.has_method("find_creature_by_id"):
 			creature = map_state.find_creature_by_id(creature_id)
 			if creature.is_empty():
 				push_warning("GameOpcodeReader: criatura id %d nao encontrada no 0x6D." % creature_id)
 				return {}
-			# Localizar tile e index para remoção
 			var found := _find_creature_by_id(map_state, creature_id)
 			old_tile = found.get("tile")
 			creature_idx = found.get("index", -1)
@@ -288,11 +321,14 @@ static func _handle_creature_move(
 			creature_idx = old_stack_pos
 			creature = old_tile.creatures[creature_idx]
 
-	var new_pos: Vector3i = _ProtocolReaderScript.read_position(buffer)
+	var new_pos := _ProtocolReaderScript.read_position(buffer)
 	if old_pos == new_pos:
 		return {}
 
 	old_tile.creatures.remove_at(creature_idx)
+	if old_tile.creatures.is_empty() and old_tile.items.is_empty():
+		map_state.remove_tile(old_pos)
+		
 	var new_tile = map_state.get_or_create_tile(new_pos)
 	new_tile.creatures.append(creature)
 
@@ -489,6 +525,53 @@ static func _direction_from_positions(old_pos: Vector3i, new_pos: Vector3i) -> i
 		return 7
 	return 2
 
+# TFS sendShop (0x7A): u8 count + AddShopItem por entrada (860, sem nome do NPC).
+static func _skip_npc_shop(buffer: StreamPeerBuffer) -> void:
+	if buffer.get_available_bytes() < 1:
+		return
+	var count := buffer.get_u8()
+	for _i in range(count):
+		if buffer.get_available_bytes() < 2:
+			return
+		buffer.get_u16() # clientId
+		if buffer.get_available_bytes() < 1:
+			return
+		buffer.get_u8()  # fluid subtype ou 0x00
+		_ProtocolReaderScript.skip_string(buffer)
+		if buffer.get_available_bytes() < 12:
+			return
+		buffer.get_u32() # weight
+		buffer.get_u32() # buyPrice
+		buffer.get_u32() # sellPrice
+
+# TFS sendSaleItemList (0x7B): dinheiro u32 + lista de itens vendáveis.
+static func _skip_player_goods(buffer: StreamPeerBuffer) -> void:
+	if buffer.get_available_bytes() < 5:
+		return
+	buffer.get_u32()
+	var count := buffer.get_u8()
+	for _i in range(count):
+		if buffer.get_available_bytes() < 3:
+			return
+		buffer.get_u16()
+		buffer.get_u8()
+
+# TFS sendTradeItemRequest (0x7D/0x7E): nome + itens do trade.
+static func _skip_trade_request(buffer: StreamPeerBuffer) -> void:
+	if buffer.get_available_bytes() < 3:
+		push_warning("GameOpcodeReader: trade request truncado.")
+		return
+	_ProtocolReaderScript.skip_string(buffer)
+	if buffer.get_available_bytes() < 1:
+		return
+	var count := buffer.get_u8()
+	for _i in range(count):
+		if buffer.get_available_bytes() < 2:
+			push_warning("GameOpcodeReader: trade request item truncado.")
+			return
+		var item_id := buffer.get_u16()
+		_ThingReaderScript.skip_item(buffer, item_id)
+
 static func _skip_open_container(buffer: StreamPeerBuffer) -> void:
 	buffer.get_u8()
 	_ThingReaderScript.skip_thing(buffer)
@@ -498,6 +581,129 @@ static func _skip_open_container(buffer: StreamPeerBuffer) -> void:
 	var item_count: int = buffer.get_u8()
 	for _i in range(item_count):
 		_ThingReaderScript.skip_thing(buffer)
+
+static func _handle_inventory_add(buffer: StreamPeerBuffer, map_state, move_context: Dictionary) -> void:
+	var slot := buffer.get_u8()
+	var thing_id := buffer.get_u16()
+	var item: Dictionary = _ThingReaderScript.read_thing(buffer, thing_id)
+	if map_state == null:
+		return
+	map_state.set_inventory_item(slot, item)
+	move_context["inventory_updated"] = true
+
+static func _handle_inventory_remove(buffer: StreamPeerBuffer, map_state, move_context: Dictionary) -> void:
+	var slot := buffer.get_u8()
+	if map_state != null:
+		map_state.set_inventory_item(slot, {})
+		move_context["inventory_updated"] = true
+
+static func _handle_open_container(buffer: StreamPeerBuffer, map_state, move_context: Dictionary) -> void:
+	var container_id := buffer.get_u8()
+	var container_thing_id := buffer.get_u16()
+	var container_item: Dictionary = _ThingReaderScript.read_thing(buffer, container_thing_id)
+	var container_name: String = _ProtocolReaderScript.read_string(buffer)
+	var capacity := buffer.get_u8()
+	var has_parent := buffer.get_u8() != 0
+	var item_count: int = buffer.get_u8()
+	var items: Array[Dictionary] = []
+	for _i in range(item_count):
+		var item_id := buffer.get_u16()
+		items.append(_ThingReaderScript.read_thing(buffer, item_id))
+	if map_state != null:
+		map_state.open_container(container_id, {
+			"id": container_id,
+			"item": container_item,
+			"name": container_name,
+			"capacity": capacity,
+			"has_parent": has_parent,
+			"items": items,
+		})
+		move_context["container_updated"] = container_id
+
+static func _handle_close_container(buffer: StreamPeerBuffer, map_state, move_context: Dictionary) -> void:
+	var container_id := buffer.get_u8()
+	if map_state != null:
+		map_state.close_container(container_id)
+		move_context["container_updated"] = container_id
+
+static func _handle_container_add_item(buffer: StreamPeerBuffer, map_state, move_context: Dictionary) -> void:
+	var container_id := buffer.get_u8()
+	var thing_id := buffer.get_u16()
+	var item: Dictionary = _ThingReaderScript.read_thing(buffer, thing_id)
+	if map_state == null:
+		return
+	var container: Dictionary = map_state.get_container(container_id)
+	if container.is_empty():
+		return
+	var items: Array = container.get("items", [])
+	items.append(item)
+	container["items"] = items
+	move_context["container_updated"] = container_id
+
+static func _handle_container_update_item(buffer: StreamPeerBuffer, map_state, move_context: Dictionary) -> void:
+	var container_id := buffer.get_u8()
+	var slot := buffer.get_u8()
+	var thing_id := buffer.get_u16()
+	var item: Dictionary = _ThingReaderScript.read_thing(buffer, thing_id)
+	if map_state == null:
+		return
+	var container: Dictionary = map_state.get_container(container_id)
+	if container.is_empty():
+		return
+	var items: Array = container.get("items", [])
+	while items.size() <= slot:
+		items.append({})
+	items[slot] = item
+	container["items"] = items
+	move_context["container_updated"] = container_id
+
+static func _handle_container_remove_item(buffer: StreamPeerBuffer, map_state, move_context: Dictionary) -> void:
+	var container_id := buffer.get_u8()
+	var slot := buffer.get_u8()
+	if map_state == null:
+		return
+	var container: Dictionary = map_state.get_container(container_id)
+	if container.is_empty():
+		return
+	var items: Array = container.get("items", [])
+	if slot >= 0 and slot < items.size():
+		items.remove_at(slot)
+	container["items"] = items
+	move_context["container_updated"] = container_id
+
+static func _handle_cancel_walk(buffer: StreamPeerBuffer, map_state, move_context: Dictionary) -> void:
+	var direction := buffer.get_u8()
+	if map_state == null:
+		return
+	var player_id: int = move_context.get("player_id", 0)
+	if player_id <= 0:
+		return
+	var found := _find_creature_by_id(map_state, player_id)
+	if found.is_empty():
+		return
+	var creature: Dictionary = found.creature
+	var tile = found.tile
+	var tile_pos: Vector3i = found.tile_pos
+	var tile_idx: int = found.index
+
+	if creature.get("is_walking", false):
+		var from_pos: Vector3i = creature.get("from_tile_pos", tile_pos)
+		_creature_walker().cancel_walk(creature, direction)
+		tile.creatures.remove_at(tile_idx)
+		if tile.creatures.is_empty() and tile.items.is_empty():
+			map_state.remove_tile(tile_pos)
+		var revert_tile = map_state.get_or_create_tile(from_pos)
+		revert_tile.creatures.append(creature)
+		creature["tile_pos"] = from_pos
+		map_state.player_pos = from_pos
+	else:
+		creature["direction"] = direction
+
+	move_context["walk_cancel"] = {
+		"creature": creature,
+		"direction": direction,
+		"player_pos": map_state.player_pos,
+	}
 
 # OTC parseOpenChannel() — protocolo 8.60 (sem GameChannelPlayerList)
 static func _skip_open_channel(buffer: StreamPeerBuffer) -> void:
@@ -532,6 +738,21 @@ static func _add_thing_to_tile(buffer: StreamPeerBuffer, map_state, position: Ve
 		map_state.register_creature(thing)
 	else:
 		tile.items.append(thing)
+
+static func _remove_mapped_thing(buffer: StreamPeerBuffer, map_state) -> void:
+	var x := buffer.get_u16()
+	if x == 0xFFFF:
+		var creature_id := buffer.get_u32()
+		if map_state != null and map_state.has_method("find_creature_by_id"):
+			var found = _find_creature_by_id(map_state, creature_id)
+			var tile = found.get("tile")
+			var index = found.get("index", -1)
+			if tile != null and index >= 0:
+				tile.creatures.remove_at(index)
+	else:
+		var remove_pos := Vector3i(x, buffer.get_u16(), buffer.get_u8())
+		var stack_pos := buffer.get_u8()
+		_remove_thing_at(map_state, remove_pos, stack_pos)
 
 static func _remove_thing_at(map_state, position: Vector3i, stack_pos: int) -> void:
 	if map_state == null:

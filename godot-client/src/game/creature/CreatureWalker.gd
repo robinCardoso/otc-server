@@ -101,3 +101,10 @@ static func _terminate_walk(creature: Dictionary) -> void:
 	creature["walked_pixels"] = 0
 	creature["walk_anim_phase"] = 0
 	creature["foot_step"] = 0
+
+static func cancel_walk(creature: Dictionary, direction: int) -> void:
+	creature["is_walking"] = false
+	creature["walked_pixels"] = 0
+	creature["walk_anim_phase"] = 0
+	creature["foot_step"] = 0
+	creature["direction"] = direction

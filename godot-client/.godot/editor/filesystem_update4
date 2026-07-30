@@ -1,2 +1,1 @@
-res://src/core/network/GameOpcodeReader.gd
-res://src/game/map/MapParser.gd
+res://src/ui/game_hud/ItemSlotView.gd

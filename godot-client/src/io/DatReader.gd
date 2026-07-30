@@ -127,10 +127,11 @@ static func _read_category(
 	database: Dictionary,
 	category: int,
 	start_id: int,
-	count: int
+	last_id: int
 ) -> void:
-	for i in range(1, count + 1):
-		var thing_id := start_id + (i - 1)
+	var count := last_id - start_id + 1
+	for i in range(count):
+		var thing_id := start_id + i
 		var thing := ThingType.new()
 		thing.id = thing_id
 		thing.category = category

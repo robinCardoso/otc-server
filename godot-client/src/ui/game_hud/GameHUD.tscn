@@ -61,3 +61,58 @@ offset_top = 38.0
 offset_right = 480.0
 offset_bottom = 64.0
 text = "Posição: --"
+
+[node name="InventoryPanel" type="Panel" parent="HudLayer"]
+offset_left = 16.0
+offset_top = 96.0
+offset_right = 148.0
+offset_bottom = 500.0
+
+[node name="Title" type="Label" parent="HudLayer/InventoryPanel"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 6.0
+offset_right = 124.0
+offset_bottom = 22.0
+theme_override_font_sizes/font_size = 12
+text = "Equipamento"
+
+[node name="InventorySlots" type="VBoxContainer" parent="HudLayer/InventoryPanel"]
+layout_mode = 0
+offset_left = 6.0
+offset_top = 26.0
+offset_right = 126.0
+offset_bottom = 396.0
+theme_override_constants/separation = 2
+
+[node name="ContainerPanel" type="Panel" parent="HudLayer"]
+offset_left = 156.0
+offset_top = 96.0
+offset_right = 520.0
+offset_bottom = 500.0
+
+[node name="Title" type="Label" parent="HudLayer/ContainerPanel"]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 6.0
+offset_right = 356.0
+offset_bottom = 22.0
+theme_override_font_sizes/font_size = 12
+text = "Containers"
+
+[node name="ContainerScroll" type="ScrollContainer" parent="HudLayer/ContainerPanel"]
+layout_mode = 0
+offset_left = 6.0
+offset_top = 26.0
+offset_right = 358.0
+offset_bottom = 396.0
+
+[node name="ContainerContent" type="VBoxContainer" parent="HudLayer/ContainerPanel/ContainerScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="EmptyLabel" type="Label" parent="HudLayer/ContainerPanel/ContainerScroll/ContainerContent"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "Nenhum container aberto"

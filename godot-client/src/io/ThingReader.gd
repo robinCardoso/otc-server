@@ -44,6 +44,9 @@ static func read_item(buffer: StreamPeerBuffer, item_id: int) -> Dictionary:
 	ensure_items_db()
 	var count := 1
 	if _needs_count_byte(item_id):
+		if buffer.get_available_bytes() < 1:
+			push_warning("ThingReader: buffer curto para count do item %d." % item_id)
+			return {"id": item_id, "count": count}
 		count = buffer.get_u8()
 	return {"id": item_id, "count": count}
 
@@ -61,6 +64,8 @@ static func read_creature(buffer: StreamPeerBuffer, creature_type: int) -> Dicti
 	elif creature_type == CREATURE_KNOWN:
 		data["id"] = buffer.get_u32()
 	elif creature_type == CREATURE_TURN:
+		# TFS 8.60 (sendCreatureTurn / 0x6B): apenas id + direction.
+		# OTC só lê byte unpass em protocolo >= 953; em 860 não há byte extra aqui.
 		data["id"] = buffer.get_u32()
 		data["direction"] = buffer.get_u8()
 		return data
@@ -123,13 +128,16 @@ static func skip_outfit(buffer: StreamPeerBuffer) -> void:
 static func _needs_count_byte(item_id: int) -> bool:
 	if item_id <= 0:
 		return false
+	ensure_items_db()
 	var thing = _ThingSpriteFactoryScript.get_thing(item_id, _DatReaderScript.ThingCategory.ITEM)
-	if thing == null:
+	# TFS NetworkMessage::addItem() so envia byte extra para stackable ou fluid/splash.
+	if thing != null:
+		if thing.has_flag(_DatReaderScript.ATTR_STACKABLE):
+			return true
+		if thing.has_flag(_DatReaderScript.ATTR_FLUID_CONTAINER) or thing.has_flag(_DatReaderScript.ATTR_SPLASH):
+			return true
 		return false
-	if thing.has_flag(_DatReaderScript.ATTR_STACKABLE) or thing.has_flag(_DatReaderScript.ATTR_CHARGEABLE):
-		return true
-	if thing.has_flag(_DatReaderScript.ATTR_FLUID_CONTAINER) or thing.has_flag(_DatReaderScript.ATTR_SPLASH):
-		return true
+	# Item ausente no .dat: nao ler byte extra (evita desync).
 	return false
 
 static func _creature_kind_from_id(creature_id: int) -> String:

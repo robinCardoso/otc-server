@@ -21,6 +21,10 @@ signal game_login_success(login_data: Dictionary)
 signal game_login_failed(reason: String)
 signal map_parsed(map_state)
 signal creature_moved(creature: Dictionary, old_pos: Vector3i, new_pos: Vector3i)
+signal map_updated(map_state)
+signal walk_cancelled(creature: Dictionary, direction: int)
+signal inventory_updated(map_state)
+signal container_updated(map_state, container_id: int)
 
 var network_manager
 var login_protocol
@@ -122,6 +126,10 @@ func _bind_game_protocol_signals() -> void:
 	game_protocol.game_login_failed.connect(game_login_failed.emit)
 	game_protocol.map_parsed.connect(_on_map_parsed)
 	game_protocol.creature_moved.connect(creature_moved.emit)
+	game_protocol.map_updated.connect(map_updated.emit)
+	game_protocol.walk_cancelled.connect(walk_cancelled.emit)
+	game_protocol.inventory_updated.connect(inventory_updated.emit)
+	game_protocol.container_updated.connect(container_updated.emit)
 
 
 func _on_character_list_received(characters: Array, premium_days: int) -> void:
