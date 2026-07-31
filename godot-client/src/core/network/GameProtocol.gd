@@ -5,8 +5,11 @@ extends Node
 
 const _RsaScript := preload("res://src/core/cryptography/Rsa.gd")
 const _XteaScript := preload("res://src/core/cryptography/Xtea.gd")
-const _OpcodeReaderScript := preload("res://src/core/network/GameOpcodeReader.gd")
+const _DispatcherScript := preload("res://src/core/network/OpcodeDispatcher.gd")
+const _GameWorldPath := "res://src/world/GameWorld.gd"
 const _ProtocolReaderScript := preload("res://src/core/network/ProtocolReader.gd")
+
+var _game_world_script: GDScript = null
 
 const CLIENT_VERSION: int = 860
 const OS_WINDOWS: int = 2
@@ -17,11 +20,15 @@ const CLIENT_WALK_OPCODES: Array[int] = [0x65, 0x66, 0x67, 0x68, 0x6A, 0x6B, 0x6
 signal game_login_failed(reason: String)
 signal game_login_success(login_data: Dictionary)
 signal map_parsed(map_state)
+signal world_ready(world)
 signal creature_moved(creature: Dictionary, old_pos: Vector3i, new_pos: Vector3i)
 signal map_updated(map_state)
 signal walk_cancelled(creature: Dictionary, direction: int)
 signal inventory_updated(map_state)
 signal container_updated(map_state, container_id: int)
+signal player_stats_updated(stats: Dictionary)
+signal creature_turned(creature_id: int, direction: int)
+signal text_message_received(mode: int, text: String)
 
 var network
 var xtea_key: Array[int]
@@ -29,6 +36,7 @@ var account_name: String
 var character_name: String
 var password: String
 var map_state = null
+var game_world = null
 var login_data: Dictionary = {}
 
 var challenge_timestamp: int = 0
@@ -134,7 +142,7 @@ func _handle_game_message(packet: StreamPeerBuffer) -> void:
 func _parse_game_opcode(opcode: int, packet: StreamPeerBuffer, end_pos: int = -1) -> bool:
 	match opcode:
 		0x0A:
-			login_data = _OpcodeReaderScript.parse_login(packet)
+			login_data = _DispatcherScript.parse_login(packet)
 			print(
 				"GameProtocol: Login OK | Player ID: %d | Beat: %d | Report bugs: %s" % [
 					login_data.player_id,
@@ -148,16 +156,32 @@ func _parse_game_opcode(opcode: int, packet: StreamPeerBuffer, end_pos: int = -1
 			print("GameProtocol: Erro retornado pelo Game Server: ", error_msg)
 			game_login_failed.emit(error_msg)
 		0x64:
-			map_state = _OpcodeReaderScript.parse_full_map(packet)
+			var map_result: Dictionary = _DispatcherScript.parse_full_map(packet)
+			if not map_result.get("ok", false):
+				push_error(
+					"GameProtocol: parse do mapa (0x64) falhou — world nao sera criado. %s" % [
+						map_result.get("error", "desync desconhecido")
+					]
+				)
+				return false
+			map_state = map_result.get("state")
+			var world_script := _get_game_world_script()
+			if world_script == null:
+				push_error("GameProtocol: falha ao carregar GameWorld.gd.")
+				return false
+			game_world = world_script.new(map_state)
+			game_world.bind_login(login_data)
+			game_world.after_map_parsed()
+			world_ready.emit(game_world)
 			map_parsed.emit(map_state)
 		0x1E:
 			_send_ping_response()
 		_:
-			var move_context := {
-				"player_id": login_data.get("player_id", 0),
-				"server_beat": max(login_data.get("beat_duration", 50), 1),
-			}
-			if _OpcodeReaderScript.consume_opcode(opcode, packet, map_state, move_context):
+			if game_world == null:
+				push_warning("GameProtocol: opcode 0x%02X antes do mapa (0x64)." % (opcode & 0xFF))
+				return false
+			var move_context: Dictionary = game_world.player.build_move_context()
+			if _DispatcherScript.dispatch(opcode, packet, game_world, move_context):
 				if move_context.has("last_move"):
 					var move: Dictionary = move_context.last_move
 					creature_moved.emit(move.creature, move.old_pos, move.new_pos)
@@ -170,10 +194,27 @@ func _parse_game_opcode(opcode: int, packet: StreamPeerBuffer, end_pos: int = -1
 					inventory_updated.emit(map_state)
 				if move_context.has("container_updated"):
 					container_updated.emit(map_state, move_context.container_updated)
+				if move_context.has("player_stats"):
+					player_stats_updated.emit(move_context.player_stats)
+				if move_context.has("creature_turn"):
+					var turn: Dictionary = move_context.creature_turn
+					creature_turned.emit(turn.get("id", 0), turn.get("direction", 0))
+				if move_context.has("text_message"):
+					var msg: Dictionary = move_context.text_message
+					text_message_received.emit(msg.get("mode", 0), msg.get("text", ""))
 				print("GameProtocol: Opcode 0x%02X consumido." % (opcode & 0xFF))
 			else:
 				return false
 	return true
+
+func _get_game_world_script() -> GDScript:
+	if _game_world_script == null:
+		_game_world_script = load(_GameWorldPath) as GDScript
+		if _game_world_script == null:
+			push_error(
+				"GameProtocol: GameWorld.gd invalido. Verifique erros de parse em src/world/."
+			)
+	return _game_world_script
 
 func _put_tibia_string(buffer: StreamPeerBuffer, s: String) -> void:
 	var utf8 := s.to_utf8_buffer()

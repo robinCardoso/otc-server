@@ -20,11 +20,15 @@ signal character_list_received(characters: Array, premium_days: int)
 signal game_login_success(login_data: Dictionary)
 signal game_login_failed(reason: String)
 signal map_parsed(map_state)
+signal world_ready(world)
 signal creature_moved(creature: Dictionary, old_pos: Vector3i, new_pos: Vector3i)
 signal map_updated(map_state)
 signal walk_cancelled(creature: Dictionary, direction: int)
 signal inventory_updated(map_state)
 signal container_updated(map_state, container_id: int)
+signal player_stats_updated(stats: Dictionary)
+signal creature_turned(creature_id: int, direction: int)
+signal text_message_received(mode: int, text: String)
 
 var network_manager
 var login_protocol
@@ -32,6 +36,7 @@ var game_protocol
 var connection_mode: ConnectionMode = ConnectionMode.NONE
 var xtea_key_session: Array[int] = [0, 0, 0, 0]
 var session_map_state = null
+var session_world = null
 var session_login_data: Dictionary = {}
 
 const _ThingSpriteFactoryScript := preload("res://src/game/map/ThingSpriteFactory.gd")
@@ -113,6 +118,8 @@ func is_connected_to_game_server() -> bool:
 
 func send_walk(direction: int) -> void:
 	if game_protocol and is_connected_to_game_server():
+		if session_world != null and not session_world.can_walk():
+			return
 		game_protocol.send_walk(direction)
 
 
@@ -125,11 +132,15 @@ func _bind_game_protocol_signals() -> void:
 	game_protocol.game_login_success.connect(game_login_success.emit)
 	game_protocol.game_login_failed.connect(game_login_failed.emit)
 	game_protocol.map_parsed.connect(_on_map_parsed)
+	game_protocol.world_ready.connect(_on_world_ready)
 	game_protocol.creature_moved.connect(creature_moved.emit)
 	game_protocol.map_updated.connect(map_updated.emit)
 	game_protocol.walk_cancelled.connect(walk_cancelled.emit)
 	game_protocol.inventory_updated.connect(inventory_updated.emit)
 	game_protocol.container_updated.connect(container_updated.emit)
+	game_protocol.player_stats_updated.connect(player_stats_updated.emit)
+	game_protocol.creature_turned.connect(creature_turned.emit)
+	game_protocol.text_message_received.connect(text_message_received.emit)
 
 
 func _on_character_list_received(characters: Array, premium_days: int) -> void:
@@ -142,7 +153,12 @@ func _on_map_parsed(map_state) -> void:
 	session_map_state = map_state
 	if game_protocol:
 		session_login_data = game_protocol.login_data
+		session_world = game_protocol.game_world
 	map_parsed.emit(map_state)
+
+func _on_world_ready(world) -> void:
+	session_world = world
+	world_ready.emit(world)
 
 func _on_network_connected() -> void:
 	connection_established.emit(connection_mode)
@@ -161,6 +177,8 @@ func _on_network_closed() -> void:
 func _clear_protocols() -> void:
 	_detach_login_protocol()
 	_detach_game_protocol()
+	session_world = null
+	session_map_state = null
 
 
 func _detach_login_protocol() -> void:

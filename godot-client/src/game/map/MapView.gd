@@ -95,6 +95,16 @@ func is_player_walking() -> bool:
 	var player := _find_player_creature()
 	return not player.is_empty() and player.get("is_walking", false)
 
+## Converte posição local (dentro do MapView) em coordenada de tile do mundo.
+func screen_to_tile(local_pos: Vector2) -> Vector3i:
+	if _map_state == null:
+		return Vector3i.ZERO
+	var camera_pos := _camera_reference_pos()
+	var z_shift: int = 0
+	var ix := int(floor(local_pos.x / float(TILE_SIZE))) + camera_pos.x - _MapStateScript.MAP_LEFT + z_shift
+	var iy := int(floor(local_pos.y / float(TILE_SIZE))) + camera_pos.y - _MapStateScript.MAP_TOP + z_shift
+	return Vector3i(ix, iy, camera_pos.z)
+
 func _get_camera_offset() -> Vector2:
 	var player := _find_player_creature()
 	if player.is_empty():
@@ -105,9 +115,9 @@ func _get_camera_offset() -> Vector2:
 
 func _draw() -> void:
 	var camera_offset := _get_camera_offset()
+	_sort_drawables(camera_offset)
 	for drawable in _drawables:
 		var pos: Vector2
-		var tex: Texture2D
 		
 		if drawable.has("creature"):
 			var creature: Dictionary = drawable.creature
@@ -117,25 +127,20 @@ func _draw() -> void:
 			if was_walking and not creature.get("is_walking", false):
 				queue_redraw()
 
-			var look_type: int = creature.get("look_type", 0)
-			if look_type <= 0 and creature.has("look_type_ex"):
-				look_type = creature.get("look_type_ex", 0)
-			var anim_phases := _creature_anim_phases(look_type)
+			var direction: int = creature.get("direction", 2)
+			var anim_phases := _creature_anim_phases(creature)
 			var anim_phase := CreatureWalkerScript.get_anim_phase(creature, anim_phases)
-			tex = _ThingSpriteFactoryScript.get_creature_texture(
-				look_type, creature.get("direction", 2), anim_phase
-			)
+			_draw_creature_outfit(creature, pos, direction, anim_phase, drawable.get("tint", Color.WHITE))
 		else:
 			pos = drawable.position - camera_offset
-			tex = drawable.texture
-			
-		if tex == null: continue
-		
-		var tint: Color = drawable.get("tint", Color.WHITE)
-		if tint == Color.WHITE:
-			draw_texture(tex, pos)
-		else:
-			draw_texture(tex, pos, tint)
+			var tex: Texture2D = drawable.texture
+			if tex == null:
+				continue
+			var tint: Color = drawable.get("tint", Color.WHITE)
+			if tint == Color.WHITE:
+				draw_texture(tex, pos)
+			else:
+				draw_texture(tex, pos, tint)
 
 	# Mísseis: renderizados por cima de tudo, por andar
 	if _map_state != null:
@@ -306,12 +311,18 @@ func _append_item_drawable_at(
 	_drawables.append({
 		"position": base_pos + Vector2(screen_offset) + elevation_offset,
 		"texture": texture,
+		"sort_depth": tile_pos.x + tile_pos.y,
+		"sort_elevation": draw_elevation,
 	})
 
-func _append_creature_drawable(creature: Dictionary, _base_pos: Vector2, draw_elevation: int) -> void:
+func _append_creature_drawable(creature: Dictionary, base_pos: Vector2, draw_elevation: int) -> void:
+	var tile_pos: Vector3i = creature.get("tile_pos", Vector3i.ZERO)
 	var entry := {
 		"creature": creature,
 		"draw_elevation": draw_elevation,
+		"sort_depth": tile_pos.x + tile_pos.y,
+		"sort_elevation": draw_elevation,
+		"sort_is_creature": 1,
 	}
 	if creature.get("id", 0) == _player_id:
 		entry["tint"] = Color(1.0, 1.05, 1.1)
@@ -346,7 +357,10 @@ func _creature_screen_position(
 	var walk_offset := CreatureWalkerScript.get_walk_offset(creature)
 	return _tile_base_position(anchor_tile) + Vector2(screen_offset) + elevation_offset + walk_offset - camera_offset
 
-func _creature_anim_phases(look_type: int) -> int:
+func _creature_anim_phases(creature: Dictionary) -> int:
+	var look_type: int = creature.get("look_type", 0)
+	if look_type <= 0 and creature.has("look_type_ex"):
+		look_type = creature.get("look_type_ex", 0)
 	if look_type <= 0:
 		return 1
 	var thing = _ThingSpriteFactoryScript.get_thing(
@@ -355,6 +369,48 @@ func _creature_anim_phases(look_type: int) -> int:
 	if thing == null:
 		return 1
 	return maxi(int(thing.animation_phases), 1)
+
+func _draw_creature_outfit(
+	creature: Dictionary,
+	pos: Vector2,
+	direction: int,
+	anim_phase: int,
+	tint: Color
+) -> void:
+	var tex := _ThingSpriteFactoryScript.get_creature_outfit_texture(creature, direction, anim_phase)
+	if tex == null:
+		tex = _ThingSpriteFactoryScript.get_creature_texture(
+			creature.get("look_type", creature.get("look_type_ex", 0)), direction, anim_phase
+		)
+	if tex == null:
+		return
+	if tint == Color.WHITE:
+		draw_texture(tex, pos)
+	else:
+		draw_texture(tex, pos, tint)
+
+func _sort_drawables(camera_offset: Vector2) -> void:
+	for drawable in _drawables:
+		if drawable.has("creature"):
+			var creature: Dictionary = drawable.creature
+			var anchor: Vector3i = creature.get("from_tile_pos", creature.get("tile_pos", Vector3i.ZERO))
+			if creature.get("is_walking", false):
+				var walk_off := CreatureWalkerScript.get_walk_offset(creature)
+				drawable["sort_y"] = _tile_base_position(anchor).y + walk_off.y - camera_offset.y
+			else:
+				drawable["sort_y"] = _tile_base_position(anchor).y - camera_offset.y
+		else:
+			drawable["sort_y"] = drawable.position.y - camera_offset.y
+
+	_drawables.sort_custom(func(a, b):
+		if a.get("sort_depth", 0) != b.get("sort_depth", 0):
+			return a.get("sort_depth", 0) < b.get("sort_depth", 0)
+		if a.get("sort_elevation", 0) != b.get("sort_elevation", 0):
+			return a.get("sort_elevation", 0) < b.get("sort_elevation", 0)
+		if a.get("sort_is_creature", 0) != b.get("sort_is_creature", 0):
+			return a.get("sort_is_creature", 0) < b.get("sort_is_creature", 0)
+		return a.get("sort_y", 0.0) < b.get("sort_y", 0.0)
+	)
 
 func _item_thing(item_id: int):
 	if item_id <= 0:

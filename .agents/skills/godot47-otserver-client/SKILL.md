@@ -7,6 +7,11 @@ description: Guia de desenvolvimento e padrões de código para criação de um 
 
 Esta skill orienta o desenvolvimento do cliente próprio de OTServer na versão **Godot 4.7+** (usando GDScript), mapeando a leitura binária dos formatos clássicos (`.spr`, `.dat`, `.otbm`) e a comunicação de rede segura.
 
+> **Protocolo de rede (opcodes, mapa, things, criaturas):** use obrigatoriamente a skill
+> `.agents/skills/otclient-protocol-implementer/SKILL.md`. A fonte da verdade para bytes
+> do protocolo é o OTClient C++ em `client/src/client/` — **nunca** improvisar resync,
+> retry de count ou heurísticas de recuperação de buffer.
+
 ---
 
 ## 1. Leitura e Decodificação do `Tibia.spr` (Sprites)

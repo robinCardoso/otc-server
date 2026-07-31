@@ -108,3 +108,50 @@ static func cancel_walk(creature: Dictionary, direction: int) -> void:
 	creature["walk_anim_phase"] = 0
 	creature["foot_step"] = 0
 	creature["direction"] = direction
+
+## Inicia animação de passo (predição local ou replay). Usa ground_speed do tile destino.
+static func begin_walk(
+	creature: Dictionary,
+	from_pos: Vector3i,
+	to_pos: Vector3i,
+	speed: int,
+	ground_speed: int,
+	server_beat: int
+) -> void:
+	var is_diagonal: bool = from_pos.x != to_pos.x and from_pos.y != to_pos.y
+	var dir := direction_from_positions(from_pos, to_pos)
+	var duration: int = calc_step_duration(maxi(speed, 1), ground_speed, server_beat, is_diagonal)
+	if duration <= 0:
+		duration = server_beat
+	var now_ms := Time.get_ticks_msec()
+	creature["from_tile_pos"] = from_pos
+	creature["tile_pos"] = to_pos
+	creature["walk_direction"] = dir
+	creature["direction"] = dir
+	creature["is_walking"] = true
+	creature["walk_start_ms"] = now_ms
+	creature["foot_last_step_ms"] = now_ms
+	creature["step_duration_ms"] = duration
+	creature["ground_speed"] = ground_speed
+	creature["walked_pixels"] = 0
+	creature["walk_anim_phase"] = 0
+	creature["foot_step"] = 0
+
+static func direction_from_positions(old_pos: Vector3i, new_pos: Vector3i) -> int:
+	if old_pos.y > new_pos.y and old_pos.x == new_pos.x:
+		return 0
+	if old_pos.x < new_pos.x and old_pos.y == new_pos.y:
+		return 1
+	if old_pos.y < new_pos.y and old_pos.x == new_pos.x:
+		return 2
+	if old_pos.x > new_pos.x and old_pos.y == new_pos.y:
+		return 3
+	if old_pos.x < new_pos.x and old_pos.y > new_pos.y:
+		return 4
+	if old_pos.x < new_pos.x and old_pos.y < new_pos.y:
+		return 5
+	if old_pos.x > new_pos.x and old_pos.y < new_pos.y:
+		return 6
+	if old_pos.x > new_pos.x and old_pos.y > new_pos.y:
+		return 7
+	return 2

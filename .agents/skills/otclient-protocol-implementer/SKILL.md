@@ -2,10 +2,10 @@
 name: otclient-protocol-implementer
 description: >
   Skill especialista para implementar funcionalidades no cliente Godot 4.7+
-  baseado no protocolo OTServer/TFS 8.60. Garante que NENHUM arquivo, opcode
-  ou ponto crucial de protocolo seja ignorado durante a implementação. Analisa
-  sistematicamente cada camada (rede → parser → estado → renderização) e sugere
-  melhorias de desempenho baseadas na arquitetura real do OTClient C++.
+  baseado no protocolo OTServer/TFS 8.60. A fonte da verdade para leitura de
+  bytes é SEMPRE o OTClient C++ em client/ — nunca improvisar resync, retry ou
+  heurísticas. Garante que NENHUM arquivo, opcode ou ponto crucial de protocolo
+  seja ignorado. Analisa cada camada (rede → parser → estado → renderização).
 ---
 
 # SKILL: OTClient Protocol Implementer
@@ -16,13 +16,116 @@ description: >
 
 ---
 
+## Regra de Ouro: `client/` é a Fonte da Verdade
+
+**Toda leitura de bytes do protocolo DEVE espelhar o OTClient C++ deste repositório.**
+
+```
+c:\8.6\otserv_860\otc-server\client\src\client\
+```
+
+| Prioridade | Fonte | Uso |
+|---|---|---|
+| **1ª (obrigatória)** | `client/src/client/protocolgameparse.cpp` | Ordem exata de bytes por opcode |
+| **2ª (obrigatória)** | `client/modules/game_features/features.lua` | Quais `g_game.getFeature()` estão ativos no 860 |
+| **3ª (referência)** | `server/src/protocolgame.cpp` | O que o TFS **envia** (AddCreature, addItem, GetFloorDescription) |
+| **4ª (proibida como base)** | Lógica inventada em GDScript | Nunca usar como referência primária |
+
+**Fluxo correto de implementação:**
+
+```
+1. Ler função equivalente em protocolgameparse.cpp
+2. Verificar features.lua para condicionais do protocolo 860
+3. Escrever GDScript que lê os MESMOS bytes na MESMA ordem
+4. Se desync → corrigir o read específico (getItem, getCreature, etc.)
+5. NUNCA mascarar desync com heurísticas
+```
+
+### O que o OTC faz (e o Godot DEVE fazer igual)
+
+| Função OTC | Arquivo | Comportamento |
+|---|---|---|
+| `setMapDescription()` | `protocolgameparse.cpp` ~3239 | `skip=0`, percorre andares chamando `setFloorDescription` |
+| `setFloorDescription()` | ~3258 | `skip==0` → `setTileDescription`; senão `skip--` e limpa tile |
+| `setTileDescription()` | ~3274 | `peek>=0xFF00` → retorna skip; loop `getThing()` até `peek>=0xFF00` |
+| `getThing()` | ~3370 | `id==0` → **`throw_exception`** (não recupera) |
+| `getItem()` | ~3600 | bytes conforme flags do `.dat` + features do 860 |
+| `getCreature()` | ~3414 | bytes conforme tipo (0x61/0x62/0x63) + features do 860 |
+| `getOutfit()` | ~3304 | `lookType u16`; se !=0 → 5×u8; senão `lookTypeEx u16` |
+
+### O que o OTC **NÃO** faz (proibido no Godot)
+
+| Anti-padrão | Por que é errado | Sintoma no log |
+|---|---|---|
+| `_scan_skip_marker` / buscar `0xFF` no buffer | `0xFF` aparece dentro de outfits, strings, IDs — falso positivo | Tiles inflados (ex: 745→1237), opcode `0xFF` inválido |
+| Retry de byte de count em item | OTC lê uma vez conforme `isStackable()\|\|isChargeable()` | Desync alternado, tiles fantasmas |
+| `_consume_map_trailer` / `_consume_pending_skip` extras | OTC não tem; marcadores são consumidos no `peek` do loop do tile | Bytes sobrando ou faltando após `0x64` |
+| `return 0` antecipado no stack 10 sem `peek` | OTC continua o loop até `peek>=0xFF00` na iteração seguinte | Desync ou leitura infinita |
+| Ignorar `push_error` e continuar parse | OTC lança exceção e para | Cascata: scroll desync, `tile antigo não encontrado` |
+
+> **Lição aprendida (Fase 1 — mapa):** quando aparece `thing id 0` ou `Proximos bytes: 68...`
+> em vez de `78` (inventário), a causa é **1 byte errado** em `ThingReader.gd` —
+> não falta de resync. Corrigir o read; não inventar recuperação.
+
+### Mapeamento OTC → Godot (parse de mapa)
+
+| OTC (`protocolgameparse.cpp`) | Godot | Notas |
+|---|---|---|
+| `setMapDescription` | `MapParser.read_map_description()` | `skip` inicial = **0** |
+| `setFloorDescription` | `MapParser._read_floor()` | `skip==0` lê; `skip>0` pula célula |
+| `setTileDescription` | `MapParser.read_tile_description()` | Loop 256; só termina em `peek>=0xFF00` |
+| `getThing` | `ThingReader.read_thing()` | Delega para item/criatura/texto |
+| `getItem` | `ThingReader.read_item()` | Espelhar `isStackable\|\|isChargeable` + fluid |
+| `getCreature` | `ThingReader.read_creature()` | Emblem só em `CREATURE_UNKNOWN` (feature >=854) |
+| `getOutfit` | `ThingReader.read_outfit()` | Sem mount/wings em 860 |
+
+### Features obrigatórias do 860 (`client/modules/game_features/features.lua`)
+
+Antes de implementar qualquer read condicional, verificar se a feature está ativa:
+
+| Feature | Versão | Afeta |
+|---|---|---|
+| `GameLooktypeU16` | >=770 | outfit `lookType` como u16 |
+| `GamePlayerAddons` | >=780 | byte `addons` no outfit |
+| `GameCreatureEmblems` | >=854 | byte `emblem` em criatura desconhecida |
+| `GameBiggerMapCache` | >=860 | viewport 25×20 (não 18×14) |
+| `GameCreaturesMana` | >=910 | **NÃO** ativo em 860 — não ler mana |
+| `GameThingMarks` | >=1000 | **NÃO** ativo em 860 — não ler mark em item |
+| `GameCountU16` | — | **NÃO** ativo em 860 — count de item é u8 |
+
+### Metodologia de debug quando há desync
+
+1. Ativar em `ProtocolDebug.gd`: `DEBUG_PROTOCOL = true` e/ou `DEBUG_MAP_PARSE = true`
+2. Reproduzir até o **primeiro** `thing id 0` — anotar tile `(x,y,z)` e `stack_pos`
+3. Abrir `protocolgameparse.cpp` na função equivalente (`getItem` / `getCreature`)
+4. Comparar byte a byte: qual campo foi lido a mais ou a menos?
+5. Corrigir **apenas** `ThingReader.gd` ou `DatReader.gd` (flag errada)
+6. Validar: após `0x64`, `Proximos bytes` deve começar com **`78`** (inventário)
+
+**Indicadores de sucesso na Fase 1 (protocolo de mapa):**
+
+| Métrica | Valor esperado |
+|---|---|
+| Tiles no `0x64` | ~745 (viewport 25×20 × andares visíveis, menos skips) |
+| Bytes após mapa | Primeiro byte = `0x78` |
+| Warnings | Zero `thing id 0`, zero `buffer curto` no login |
+| Scrolls `0x65–0x68` | Sem desync após mapa correto |
+
+---
+
 ## Processo Obrigatório de Implementação (Checklist de 5 Fases)
 
 Toda nova funcionalidade **DEVE** percorrer estas 5 fases em ordem. Nunca pule uma fase.
 
 ### Fase 1 — Análise do Protocolo no OTClient C++ (Fonte da Verdade)
 
-Antes de escrever uma linha de GDScript, leia o equivalente C++ do OTClient.
+Antes de escrever uma linha de GDScript:
+
+1. **Abrir** o equivalente em `client/src/client/protocolgameparse.cpp`
+2. **Verificar** condicionais em `client/modules/game_features/features.lua` (protocolo 860)
+3. **Opcional:** confirmar envio no TFS em `server/src/protocolgame.cpp`
+4. **Espelhar** byte a byte — sem heurísticas, sem resync, sem retry
+
 Os arquivos canônicos de referência estão em:
 `c:\8.6\otserv_860\otc-server\client\src\client\`
 
@@ -142,6 +245,9 @@ var offset := delta_pixels * progress
 Antes de finalizar qualquer implementação, verificar cada item:
 
 **Rede / Parsing:**
+- [ ] A implementação foi comparada com `client/src/client/protocolgameparse.cpp`?
+- [ ] Features do 860 verificadas em `client/modules/game_features/features.lua`?
+- [ ] Nenhuma heurística de resync/retry foi adicionada (proibido pela skill)?
 - [ ] Todos os bytes do opcode são lidos? (nenhum byte deixado no buffer)
 - [ ] Opcodes correlatos foram implementados ou ao menos "skipados" corretamente?
 - [ ] Strings são lidas com `_ProtocolReaderScript.read_string()` (prefixo U16)?
@@ -294,9 +400,19 @@ const OFFSET_FACTOR := 1        # fator de deslocamento por ponto de elevação
 
 ## Armadilhas Conhecidas e Soluções
 
+### 0. Improvisar parse em vez de espelhar o OTC (ERRO CRÍTICO)
+**Problema:** Adicionar resync (`_scan_skip_marker`), retry de count, trailers extras
+(`_consume_map_trailer`) quando aparece `thing id 0`.
+**Por que falha:** O OTC não faz isso; bytes `0xFF` existem dentro de dados de
+criatura/item — o resync "encontra" marcadores falsos e corrompe o estado inteiro.
+**Solução:** Ler `protocolgameparse.cpp`, corrigir o read exato em `ThingReader.gd`.
+Ver seção **Regra de Ouro** no topo desta skill.
+
 ### 1. Buffer Desync (causa de crashes silenciosos)
-**Problema:** Se um opcode lê bytes a menos, todos os opcodes seguintes ficam errados.
-**Solução:** Sempre validar com `print("pos antes/depois: ", buffer.get_position())` durante debugging.
+**Problema:** Se um opcode lê bytes a mais ou a menos, todos os opcodes seguintes ficam errados.
+**Sintoma:** `Proximos bytes: 68...` após `0x64` (deveria ser `78`); `tile antigo não encontrado`.
+**Solução:** Comparar com `getItem()`/`getCreature()` no OTC; usar `DEBUG_PROTOCOL` em `ProtocolDebug.gd`.
+**Proibido:** Mascarar com resync heurístico.
 
 ### 2. `_find_creature_by_id` O(n×m) em combate
 **Problema:** Busca linear percorre todos os tiles para cada `0x8C`/`0x8D`/`0x8E`.
@@ -318,9 +434,14 @@ const OFFSET_FACTOR := 1        # fator de deslocamento por ponto de elevação
 **Problema:** Efeitos de andares subterrâneos aparecem na superfície.
 **Solução:** Sempre filtrar `tile_pos.z == _camera_pos.z` antes de renderizar.
 
-### 7. `CREATURE_KNOWN` não lê todos os campos
-**Problema:** O protocolo 8.60 tem caminho curto para criaturas já conhecidas.
-**Solução:** `CREATURE_KNOWN` lê: `id(u32)` + `direction(u8)` + `unpassable(u8)`. **Não lê** health/outfit/speed.
+### 7. `CREATURE_TURN` (0x63) vs `CREATURE_KNOWN` (0x62) no mapa
+**Problema:** Confundir o caminho curto do opcode `0x6B` (ChangeOnMap) com o parse de
+criatura dentro de `setTileDescription` (mapa `0x64`/scrolls).
+**Solução:**
+- No **tile do mapa**, `0x62` (known) envia dados completos: id + health + direction +
+  outfit + light + speed + skull + shield + unpass (sem emblem).
+- `0x63` (turn) no mapa: apenas `id(u32)` + `direction(u8)` — ver `getCreature()` no OTC.
+- Caminho curto `id+direction` aplica-se a outros contextos (ex: `0x6B`), não ao `0x62` no tile.
 
 ### 8. FloorChange não implementado
 **Problema:** Ao descer escadas, `player_pos.z` muda mas o mapa não é recarregado.
