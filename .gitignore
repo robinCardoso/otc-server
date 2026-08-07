@@ -17,8 +17,7 @@
 godot-client/client/
 godot-client/assets/client/Tibia.spr
 godot-client/assets/client/Tibia.dat
-client-tauri/asset/tibia/Tibia.spr
-client-tauri/asset/tibia/Tibia.dat
+client-tauri/asset/tibia/
 
 # Client Tauri — build outputs
 client-tauri/client/dist/
