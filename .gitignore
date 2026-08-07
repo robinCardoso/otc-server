@@ -1,7 +1,9 @@
 # System & IDE files
 .vs/
 .idea/
-.vscode/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
 *.suo
 *.user
 *.userossc
@@ -15,6 +17,12 @@
 godot-client/client/
 godot-client/assets/client/Tibia.spr
 godot-client/assets/client/Tibia.dat
+client-tauri/asset/tibia/Tibia.spr
+client-tauri/asset/tibia/Tibia.dat
+
+# Client Tauri — build outputs
+client-tauri/client/dist/
+client-tauri/client/src-tauri/target/
 
 # Compiled binary files (Keep repo clean and avoid GitHub 100MB limit)
 *.pdb
